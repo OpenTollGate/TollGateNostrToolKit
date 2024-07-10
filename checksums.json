@@ -1,4 +1,6 @@
 {
-  "local_binary_checksum": "30b5b5c68c5af6d5761bfba8275d2e31d40ff1d7fa716b4e91fcc1e5f51a24e4",
-  "mips_binary_checksum": "d0e6dc94419ed6442598cb3aad1a06e26fc6ef5564702cd08d9ee3e9577bb2c2"
+  "local_binary_checksum": "8d923aebd1aa168ed8562018ac01dad77c9083c5a00a48b17102cc03a389c382",
+  "local_binary_size": "16880",
+  "mips_binary_checksum": "4d7ba694b676844990b2d41c3cf0d0ba885404997cc82573b65a0d27d869ef09",
+  "mips_binary_size": "1927272"
 }

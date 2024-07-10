@@ -13,8 +13,11 @@ int fill_random(unsigned char *buf, size_t len) {
     if (!fp) {
         return 0;
     }
-    fread(buf, 1, len, fp);
+    size_t read_len = fread(buf, 1, len, fp);
     fclose(fp);
+    if (read_len != len) {
+        return 0;
+    }
     return 1;
 }
 
