@@ -122,12 +122,19 @@ function compile_openssl_for_local() {
 # Function to compile for local architecture (x86_64)
 function compile_for_local() {
     echo "Compiling for local architecture..."
+    LIBSSL_PATH="$LOCAL_INSTALL_DIR/lib/libssl.a"
+    LIBCRYPTO_PATH="$LOCAL_INSTALL_DIR/lib/libcrypto.a"
+    if [ ! -f "$LIBSSL_PATH" ] || [ ! -f "$LIBCRYPTO_PATH" ]; then
+        echo "Static libraries not found in $LOCAL_INSTALL_DIR/lib"
+        exit 1
+    fi
+
     gcc -O2 $SOURCE_FILE -o $LOCAL_BINARY \
         -I$PARENT_DIR/secp256k1_mips_architecture/include \
         -I$LOCAL_INSTALL_DIR/include \
         -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
         -L$LOCAL_INSTALL_DIR/lib \
-        $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $LOCAL_INSTALL_DIR/lib/libssl.a $LOCAL_INSTALL_DIR/lib/libcrypto.a
+        $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $LIBSSL_PATH $LIBCRYPTO_PATH
 
     if [ $? -eq 0 ]; then
         echo "Compilation successful: $LOCAL_BINARY"
@@ -176,12 +183,19 @@ function compile_secp256k1_for_mips() {
 # Function to compile for MIPS architecture
 function compile_for_mips() {
     echo "Compiling for MIPS architecture..."
+    LIBSSL_PATH="$MIPS_INSTALL_DIR/lib/libssl.a"
+    LIBCRYPTO_PATH="$MIPS_INSTALL_DIR/lib/libcrypto.a"
+    if [ ! -f "$LIBSSL_PATH" ] || [ ! -f "$LIBCRYPTO_PATH" ]; then
+        echo "Static libraries not found in $MIPS_INSTALL_DIR/lib"
+        exit 1
+    fi
+
     $TOOLCHAIN_PREFIX-gcc -O2 $SOURCE_FILE -o $MIPS_BINARY \
                           -I$PARENT_DIR/secp256k1_mips_architecture/include \
                           -I$MIPS_INSTALL_DIR/include \
                           -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
                           -L$MIPS_INSTALL_DIR/lib \
-                          $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $MIPS_INSTALL_DIR/lib/libssl.a $MIPS_INSTALL_DIR/lib/libcrypto.a -static
+                          $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $LIBSSL_PATH $LIBCRYPTO_PATH -static
 
     if [ $? -eq 0 ]; then
         echo "Compilation successful: $MIPS_BINARY"
