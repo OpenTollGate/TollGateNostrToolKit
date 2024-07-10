@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Function to check if a package is installed and install it if not
+function ensure_installed() {
+    if ! command -v $1 &> /dev/null
+    then
+        echo "$1 could not be found, installing..."
+        sudo apt-get update
+        sudo apt-get install -y $2
+    else
+        echo "$1 is already installed."
+    fi
+}
+
+# Ensure the cross-compiler is installed
+ensure_installed mips-linux-gnu-gcc gcc-mips-linux-gnu
+
 # Define the installation directories and compiler settings
 LOCAL_INSTALL_DIR="$HOME/usr/local"
 MIPS_INSTALL_DIR="$HOME/usr/local/mips-linux-gnu"
