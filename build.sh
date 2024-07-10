@@ -12,8 +12,9 @@ function ensure_installed() {
     fi
 }
 
-# Ensure the cross-compiler and Ninja are installed
+# Ensure the cross-compiler, CMake, and Ninja are installed
 ensure_installed mips-linux-gnu-gcc gcc-mips-linux-gnu
+ensure_installed cmake cmake
 ensure_installed ninja ninja-build
 
 # Define the installation directories and compiler settings
@@ -78,10 +79,9 @@ chmod -R u+rwx $PARENT_DIR/secp256k1_mips_architecture
 function compile_secp256k1_for_local() {
     echo "Compiling secp256k1 for local architecture..."
     cd $PARENT_DIR/secp256k1_mips_architecture
-    ./autogen.sh
-    ./configure --enable-static --disable-shared \
-                --enable-module-schnorrsig --enable-module-extrakeys
-    ninja -j$(nproc)
+    mkdir -p build && cd build
+    cmake -GNinja ..
+    ninja
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for local architecture."
@@ -98,7 +98,7 @@ function compile_for_local() {
     gcc -O2 $SOURCE_FILE -o $LOCAL_BINARY \
         -I$PARENT_DIR/secp256k1_mips_architecture/include \
         -I$LOCAL_INSTALL_DIR/include \
-        -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
+        -L$PARENT_DIR/secp256k1_mips_architecture/build \
         -L$LOCAL_INSTALL_DIR/lib \
         -lsecp256k1 -lssl -lcrypto
 
@@ -117,7 +117,8 @@ function compile_openssl_for_mips() {
     ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
         CC=$TOOLCHAIN_PREFIX-gcc AR=$TOOLCHAIN_PREFIX-ar \
         RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
-    ninja -j$(nproc) install
+    make -j$(nproc)
+    make install
 
     if [ $? -eq 0 ]; then
         echo "Compilation of OpenSSL successful for MIPS."
@@ -132,11 +133,9 @@ function compile_openssl_for_mips() {
 function compile_secp256k1_for_mips() {
     echo "Compiling secp256k1 for MIPS architecture..."
     cd $PARENT_DIR/secp256k1_mips_architecture
-    ./autogen.sh
-    ./configure --host=mips-linux-gnu --enable-static --disable-shared \
-                --enable-module-schnorrsig --enable-module-extrakeys \
-                CC=$TOOLCHAIN_PREFIX-gcc
-    ninja -j$(nproc)
+    mkdir -p build && cd build
+    cmake -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PREFIX.cmake -GNinja ..
+    ninja
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for MIPS."
@@ -153,9 +152,9 @@ function compile_for_mips() {
     $TOOLCHAIN_PREFIX-gcc -O2 $SOURCE_FILE -o $MIPS_BINARY \
                           -I$PARENT_DIR/secp256k1_mips_architecture/include \
                           -I$MIPS_INSTALL_DIR/include \
-                          -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
+                          -L$PARENT_DIR/secp256k1_mips_architecture/build \
                           -L$MIPS_INSTALL_DIR/lib \
-                          $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a -lssl -lcrypto -static
+                          $PARENT_DIR/secp256k1_mips_architecture/build/libsecp256k1.a -lssl -lcrypto -static
 
     if [ $? -eq 0 ]; then
         echo "Compilation successful: $MIPS_BINARY"
