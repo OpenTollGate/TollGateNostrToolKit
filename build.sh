@@ -12,9 +12,9 @@ function ensure_installed() {
     fi
 }
 
-# Ensure the cross-compiler and ninja are installed
+# Ensure the cross-compiler and Ninja are installed
 ensure_installed mips-linux-gnu-gcc gcc-mips-linux-gnu
-ensure_installed ninja-build ninja
+ensure_installed ninja ninja-build
 
 # Define the installation directories and compiler settings
 LOCAL_INSTALL_DIR="$HOME/usr/local"
@@ -80,8 +80,7 @@ function compile_secp256k1_for_local() {
     cd $PARENT_DIR/secp256k1_mips_architecture
     ./autogen.sh
     ./configure --enable-static --disable-shared \
-                --enable-module-schnorrsig --enable-module-extrakeys \
-                --with-build-system=ninja
+                --enable-module-schnorrsig --enable-module-extrakeys
     ninja -j$(nproc)
 
     if [ $? -eq 0 ]; then
@@ -118,8 +117,7 @@ function compile_openssl_for_mips() {
     ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
         CC=$TOOLCHAIN_PREFIX-gcc AR=$TOOLCHAIN_PREFIX-ar \
         RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
-    make -j$(nproc)
-    make install
+    ninja -j$(nproc) install
 
     if [ $? -eq 0 ]; then
         echo "Compilation of OpenSSL successful for MIPS."
@@ -137,7 +135,7 @@ function compile_secp256k1_for_mips() {
     ./autogen.sh
     ./configure --host=mips-linux-gnu --enable-static --disable-shared \
                 --enable-module-schnorrsig --enable-module-extrakeys \
-                --with-build-system=ninja CC=$TOOLCHAIN_PREFIX-gcc
+                CC=$TOOLCHAIN_PREFIX-gcc
     ninja -j$(nproc)
 
     if [ $? -eq 0 ]; then
