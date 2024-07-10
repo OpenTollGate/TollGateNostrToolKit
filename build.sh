@@ -16,7 +16,6 @@ function ensure_installed() {
 ensure_installed mips-linux-gnu-gcc gcc-mips-linux-gnu
 ensure_installed cmake cmake
 ensure_installed ninja ninja-build
-ensure_installed progress progress
 
 # Define the installation directories and compiler settings
 LOCAL_INSTALL_DIR="$HOME/usr/local"
@@ -82,10 +81,7 @@ function compile_secp256k1_for_local() {
     cd $PARENT_DIR/secp256k1_mips_architecture
     ./autogen.sh
     ./configure --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys
-    make -j$(nproc) &> /dev/null &
-    PID=$!
-    progress -mp $PID
-    wait $PID
+    make -j$(nproc)
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for local architecture."
@@ -101,10 +97,7 @@ function compile_openssl_for_local() {
     echo "Compiling OpenSSL for local architecture..."
     cd $PARENT_DIR/openssl
     ./config --prefix=$LOCAL_INSTALL_DIR no-shared no-asm
-    make -j$(nproc) &> /dev/null &
-    PID=$!
-    progress -mp $PID
-    wait $PID
+    make -j$(nproc)
     make install
 
     if [ $? -eq 0 ]; then
@@ -141,10 +134,7 @@ function compile_openssl_for_mips() {
     ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
         CC=$TOOLCHAIN_PREFIX-gcc AR=$TOOLCHAIN_PREFIX-ar \
         RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
-    make -j$(nproc) &> /dev/null &
-    PID=$!
-    progress -mp $PID
-    wait $PID
+    make -j$(nproc)
     make install
 
     if [ $? -eq 0 ]; then
@@ -162,10 +152,7 @@ function compile_secp256k1_for_mips() {
     cd $PARENT_DIR/secp256k1_mips_architecture
     ./autogen.sh
     ./configure --host=mips-linux-gnu --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys
-    make -j$(nproc) &> /dev/null &
-    PID=$!
-    progress -mp $PID
-    wait $PID
+    make -j$(nproc)
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for MIPS."
