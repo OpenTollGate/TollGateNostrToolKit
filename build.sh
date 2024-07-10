@@ -1,3 +1,5 @@
+
+
 #!/bin/bash
 
 # Define the installation directories and compiler settings
@@ -167,3 +169,6 @@ generate_checksums
 
 echo "All compilations and checksum generation completed successfully."
 
+sudo mips-linux-gnu-strip sign_event_mips
+
+echo "Reduced mips binary size"
