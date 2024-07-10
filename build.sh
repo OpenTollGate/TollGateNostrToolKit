@@ -75,6 +75,16 @@ function clone_dependencies() {
 sudo chown -R $USER:$USER $PARENT_DIR/secp256k1_mips_architecture
 chmod -R u+rwx $PARENT_DIR/secp256k1_mips_architecture
 
+# Function to clean up build directories
+function clean_build_directories() {
+    echo "Cleaning up build directories..."
+    cd $PARENT_DIR/secp256k1_mips_architecture
+    make clean || true
+    cd $PARENT_DIR/openssl
+    make clean || true
+    cd $CURRENT_DIR
+}
+
 # Function to compile secp256k1 for local architecture (x86_64)
 function compile_secp256k1_for_local() {
     echo "Compiling secp256k1 for local architecture..."
