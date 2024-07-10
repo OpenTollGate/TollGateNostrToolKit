@@ -206,6 +206,7 @@ function generate_checksums() {
 
 # Main execution flow
 clone_dependencies
+clean_build_directories
 compile_secp256k1_for_local
 compile_openssl_for_local
 compile_for_local
