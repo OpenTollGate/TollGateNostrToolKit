@@ -12,8 +12,9 @@ function ensure_installed() {
     fi
 }
 
-# Ensure the cross-compiler is installed
+# Ensure the cross-compiler and ninja are installed
 ensure_installed mips-linux-gnu-gcc gcc-mips-linux-gnu
+ensure_installed ninja-build ninja
 
 # Define the installation directories and compiler settings
 LOCAL_INSTALL_DIR="$HOME/usr/local"
@@ -69,14 +70,19 @@ function clone_dependencies() {
     cd $CURRENT_DIR
 }
 
+# Ensure correct permissions for secp256k1_mips_architecture
+sudo chown -R $USER:$USER $PARENT_DIR/secp256k1_mips_architecture
+chmod -R u+rwx $PARENT_DIR/secp256k1_mips_architecture
+
 # Function to compile secp256k1 for local architecture (x86_64)
 function compile_secp256k1_for_local() {
     echo "Compiling secp256k1 for local architecture..."
     cd $PARENT_DIR/secp256k1_mips_architecture
     ./autogen.sh
     ./configure --enable-static --disable-shared \
-                --enable-module-schnorrsig --enable-module-extrakeys
-    make
+                --enable-module-schnorrsig --enable-module-extrakeys \
+                --with-build-system=ninja
+    ninja -j$(nproc)
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for local architecture."
@@ -112,7 +118,7 @@ function compile_openssl_for_mips() {
     ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
         CC=$TOOLCHAIN_PREFIX-gcc AR=$TOOLCHAIN_PREFIX-ar \
         RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
-    make
+    make -j$(nproc)
     make install
 
     if [ $? -eq 0 ]; then
@@ -131,8 +137,8 @@ function compile_secp256k1_for_mips() {
     ./autogen.sh
     ./configure --host=mips-linux-gnu --enable-static --disable-shared \
                 --enable-module-schnorrsig --enable-module-extrakeys \
-                CC=$TOOLCHAIN_PREFIX-gcc
-    make
+                --with-build-system=ninja CC=$TOOLCHAIN_PREFIX-gcc
+    ninja -j$(nproc)
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for MIPS."
@@ -151,7 +157,7 @@ function compile_for_mips() {
                           -I$MIPS_INSTALL_DIR/include \
                           -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
                           -L$MIPS_INSTALL_DIR/lib \
-                          -lsecp256k1 -lssl -lcrypto -static
+                          $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a -lssl -lcrypto -static
 
     if [ $? -eq 0 ]; then
         echo "Compilation successful: $MIPS_BINARY"
