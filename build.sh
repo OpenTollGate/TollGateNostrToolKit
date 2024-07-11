@@ -83,7 +83,6 @@ function compile_secp256k1_for_local() {
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for local architecture."
-        strip .libs/libsecp256k1.a  # Strip the static library
     else
         echo "Failed to compile secp256k1 for local architecture."
         exit 1
@@ -102,8 +101,6 @@ function compile_openssl_for_local() {
 
     if [ $? -eq 0 ]; then
         echo "Compilation of OpenSSL successful for local architecture."
-        strip $LOCAL_INSTALL_DIR/lib/libssl.a  # Strip the static library
-        strip $LOCAL_INSTALL_DIR/lib/libcrypto.a  # Strip the static library
     else
         echo "Failed to compile OpenSSL for local architecture."
         exit 1
@@ -137,7 +134,6 @@ function compile_for_local() {
 
     if [ $? -eq 0 ]; then
         echo "Compilation successful: $LOCAL_BINARY"
-        strip $LOCAL_BINARY  # Strip the binary
     else
         echo "Failed to compile for local architecture."
         exit 1
@@ -148,7 +144,7 @@ function compile_for_local() {
 function compile_openssl_for_mips() {
     echo "Compiling OpenSSL for MIPS architecture..."
     cd $PARENT_DIR/openssl
-    ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
+    ./Configure linux-mips32r2 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
         CC=$TOOLCHAIN_PREFIX-gcc AR=$TOOLCHAIN_PREFIX-ar \
         RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
     make clean
@@ -157,8 +153,6 @@ function compile_openssl_for_mips() {
 
     if [ $? -eq 0 ]; then
         echo "Compilation of OpenSSL successful for MIPS."
-        strip $MIPS_INSTALL_DIR/lib/libssl.a  # Strip the static library
-        strip $MIPS_INSTALL_DIR/lib/libcrypto.a  # Strip the static library
     else
         echo "Failed to compile OpenSSL for MIPS architecture."
         exit 1
@@ -177,7 +171,6 @@ function compile_secp256k1_for_mips() {
 
     if [ $? -eq 0 ]; then
         echo "Compilation of secp256k1 successful for MIPS."
-        strip .libs/libsecp256k1.a  # Strip the static library
     else
         echo "Failed to compile secp256k1 for MIPS architecture."
         exit 1
@@ -198,7 +191,6 @@ function compile_for_local_dynamic() {
 
     if [ $? -eq 0 ]; then
         echo "Dynamic compilation successful: $LOCAL_BINARY_DYNAMIC"
-        strip $LOCAL_BINARY_DYNAMIC  # Strip the binary
     else
         echo "Failed to compile for local architecture with dynamic linking."
         exit 1
@@ -218,7 +210,6 @@ function compile_for_mips_dynamic() {
 
     if [ $? -eq 0 ]; then
         echo "Dynamic compilation successful: $MIPS_BINARY_DYNAMIC"
-        $TOOLCHAIN_PREFIX-strip $MIPS_BINARY_DYNAMIC  # Strip the dynamic binary
     else
         echo "Failed to compile for MIPS architecture with dynamic linking."
         exit 1
@@ -239,13 +230,11 @@ function compile_for_mips() {
 
     if [ $? -eq 0 ]; then
         echo "Compilation successful: $MIPS_BINARY"
-        $TOOLCHAIN_PREFIX-strip $MIPS_BINARY  # Strip the static binary
     else
         echo "Failed to compile for MIPS architecture."
         exit 1
     fi
 }
-
 
 # Function to generate checksums and file sizes, and save them in a JSON file
 function generate_checksums() {
@@ -272,7 +261,6 @@ function generate_checksums() {
     echo -e "$checksums" > $CHECKSUM_FILE
     echo "Checksums and file sizes saved to $CHECKSUM_FILE"
 }
-
 
 # Main execution flow
 clone_dependencies
