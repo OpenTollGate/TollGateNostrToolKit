@@ -198,6 +198,7 @@ function compile_for_local_dynamic() {
     echo "Compiling for local architecture with dynamic linking..."
     gcc -O2 $SOURCE_FILE -o $LOCAL_BINARY_DYNAMIC \
         -I$PARENT_DIR/secp256k1_mips_architecture/include \
+        -I$PARENT_DIR/secp256k1_mips_architecture \
         -I$LOCAL_INSTALL_DIR/include \
         -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
         -L$LOCAL_INSTALL_DIR/lib \
@@ -216,6 +217,7 @@ function compile_for_mips_dynamic() {
     echo "Compiling for MIPS architecture with dynamic linking..."
     $TOOLCHAIN_PREFIX-gcc -O2 $SOURCE_FILE -o $MIPS_BINARY_DYNAMIC \
                           -I$PARENT_DIR/secp256k1_mips_architecture/include \
+                          -I$PARENT_DIR/secp256k1_mips_architecture \
                           -I$MIPS_INSTALL_DIR/include \
                           -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
                           -L$MIPS_INSTALL_DIR/lib \
@@ -282,14 +284,23 @@ function generate_checksums() {
 # Main execution flow
 clone_dependencies
 clean_build_directories
-compile_secp256k1_for_local
-compile_openssl_for_local
-compile_for_local
-compile_for_local_dynamic
+
+# Compile libraries for MIPS architecture
 compile_openssl_for_mips
 compile_secp256k1_for_mips
+
+# Compile MIPS binaries
 compile_for_mips
 compile_for_mips_dynamic
+
+# Compile libraries for local architecture
+compile_secp256k1_for_local
+compile_openssl_for_local
+
+# Compile local binaries
+compile_for_local
+compile_for_local_dynamic
+
 generate_checksums
 
 echo "All compilations and checksum generation completed successfully."
