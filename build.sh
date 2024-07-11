@@ -144,8 +144,8 @@ function compile_for_local() {
 function compile_openssl_for_mips() {
     echo "Compiling OpenSSL for MIPS architecture..."
     cd $PARENT_DIR/openssl
-    ./Configure linux-mips32r2 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
-        CC=$TOOLCHAIN_PREFIX-gcc AR=$TOOLCHAIN_PREFIX-ar \
+    ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
+        CC="$TOOLCHAIN_PREFIX-gcc -march=mips32r2" AR=$TOOLCHAIN_PREFIX-ar \
         RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
     make clean
     make -j$(nproc)
@@ -165,7 +165,7 @@ function compile_secp256k1_for_mips() {
     echo "Compiling secp256k1 for MIPS architecture..."
     cd $PARENT_DIR/secp256k1_mips_architecture
     ./autogen.sh
-    ./configure --host=mips-linux-gnu --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys
+    ./configure --host=mips-linux-gnu --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys CC="$TOOLCHAIN_PREFIX-gcc -march=mips32r2"
     make clean
     make -j$(nproc)
 
@@ -200,7 +200,7 @@ function compile_for_local_dynamic() {
 # Function to compile for MIPS architecture with dynamic linking
 function compile_for_mips_dynamic() {
     echo "Compiling for MIPS architecture with dynamic linking..."
-    $TOOLCHAIN_PREFIX-gcc -O2 $SOURCE_FILE -o $MIPS_BINARY_DYNAMIC \
+    $TOOLCHAIN_PREFIX-gcc -march=mips32r2 -O2 $SOURCE_FILE -o $MIPS_BINARY_DYNAMIC \
                           -I$PARENT_DIR/secp256k1_mips_architecture/include \
                           -I$PARENT_DIR/secp256k1_mips_architecture \
                           -I$MIPS_INSTALL_DIR/include \
@@ -221,7 +221,7 @@ function compile_for_mips() {
     echo "Compiling for MIPS architecture..."
     find_lib_paths $MIPS_INSTALL_DIR
 
-    $TOOLCHAIN_PREFIX-gcc -O2 $SOURCE_FILE -o $MIPS_BINARY \
+    $TOOLCHAIN_PREFIX-gcc -march=mips32r2 -O2 $SOURCE_FILE -o $MIPS_BINARY \
                           -I$PARENT_DIR/secp256k1_mips_architecture/include \
                           -I$MIPS_INSTALL_DIR/include \
                           -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
