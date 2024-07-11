@@ -228,7 +228,6 @@ function compile_for_mips_dynamic() {
     fi
 }
 
-
 # Function to compile for MIPS architecture
 function compile_for_mips() {
     echo "Compiling for MIPS architecture..."
@@ -288,8 +287,8 @@ compile_for_local_dynamic
 compile_openssl_for_mips
 compile_secp256k1_for_mips
 compile_for_mips
-# compile_for_mips_dynamic
+compile_for_mips_dynamic
 generate_checksums
 
-echo "All compilations
+echo "All compilations and checksum generation completed successfully."
 
