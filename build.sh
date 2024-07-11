@@ -31,7 +31,9 @@ mkdir -p $MIPS_INSTALL_DIR
 # Source file and output binaries
 SOURCE_FILE="$CURRENT_DIR/sign_event.c"
 LOCAL_BINARY="$CURRENT_DIR/sign_event_local"
+LOCAL_BINARY_DYNAMIC="$CURRENT_DIR/sign_event_local_dynamic"
 MIPS_BINARY="$CURRENT_DIR/sign_event_mips"
+MIPS_BINARY_DYNAMIC="$CURRENT_DIR/sign_event_mips_dynamic"
 CHECKSUM_FILE="$CURRENT_DIR/checksums.json"
 
 # URLs of the dependencies
