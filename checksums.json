@@ -3,9 +3,9 @@
   "local_binary_dynamic_size": "1631024",
   "local_binary_checksum": "d12a708a15219876c701748e7a3419bb6fe3336dd25f127b23741bddc6c9d0bd",
   "local_binary_size": "1631024",
-  "mips_binary_checksum": "f51d486352c603ed54843de887c20cb10bf874ad4727464ca6a0609cd282f914",
-  "mips_binary_size": "1927272",
-  "mips_binary_dynamic_checksum": "9e82bf3322e6704b05439ac490040b7d3dec7dc695f581ad7d8af2ff36751024",
-  "mips_binary_dynamic_size": "1259668",
+  "mips_binary_checksum": "9daceadb4b06f9ddf004e78fe5a92efdab2e29457ce2263dd28a58682cee3a38",
+  "mips_binary_size": "2448688",
+  "mips_binary_dynamic_checksum": "404301572fb02ff5a1c6228ac3b83c54879c025636b0638b67bab9121f40da47",
+  "mips_binary_dynamic_size": "1727624",
 
 }
