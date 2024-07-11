@@ -126,6 +126,7 @@ function compile_for_local() {
     LIBCRYPTO_PATH="$LOCAL_INSTALL_DIR/lib/libcrypto.a"
     if [ ! -f "$LIBSSL_PATH" ] || [ ! -f "$LIBCRYPTO_PATH" ]; then
         echo "Static libraries not found in $LOCAL_INSTALL_DIR/lib"
+        ls -l $LOCAL_INSTALL_DIR/lib  # List contents of the directory for debugging
         exit 1
     fi
 
@@ -187,6 +188,7 @@ function compile_for_mips() {
     LIBCRYPTO_PATH="$MIPS_INSTALL_DIR/lib/libcrypto.a"
     if [ ! -f "$LIBSSL_PATH" ] || [ ! -f "$LIBCRYPTO_PATH" ]; then
         echo "Static libraries not found in $MIPS_INSTALL_DIR/lib"
+        ls -l $MIPS_INSTALL_DIR/lib  # List contents of the directory for debugging
         exit 1
     fi
 
