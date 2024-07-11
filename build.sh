@@ -250,21 +250,33 @@ function compile_for_mips() {
     fi
 }
 
+
 # Function to generate checksums and file sizes, and save them in a JSON file
 function generate_checksums() {
     echo "Generating checksums and file sizes..."
-    local_checksum=$(sha256sum $LOCAL_BINARY | awk '{print $1}')
-    local_dynamic_checksum=$(sha256sum $LOCAL_BINARY_DYNAMIC | awk '{print $1}')
-    mips_checksum=$(sha256sum $MIPS_BINARY | awk '{print $1}')
-    mips_dynamic_checksum=$(sha256sum $MIPS_BINARY_DYNAMIC | awk '{print $1}')
-    local_size=$(stat --format="%s" $LOCAL_BINARY)
-    local_dynamic_size=$(stat --format="%s" $LOCAL_BINARY_DYNAMIC)
-    mips_size=$(stat --format="%s" $MIPS_BINARY)
-    mips_dynamic_size=$(stat --format="%s" $MIPS_BINARY_DYNAMIC)
-
-    echo -e "{\n  \"local_binary_checksum\": \"$local_checksum\",\n  \"local_binary_size\": \"$local_size\",\n  \"local_binary_dynamic_checksum\": \"$local_dynamic_checksum\",\n  \"local_binary_dynamic_size\": \"$local_dynamic_size\",\n  \"mips_binary_checksum\": \"$mips_checksum\",\n  \"mips_binary_size\": \"$mips_size\",\n  \"mips_binary_dynamic_checksum\": \"$mips_dynamic_checksum\",\n  \"mips_binary_dynamic_size\": \"$mips_dynamic_size\"\n}" > $CHECKSUM_FILE
+    declare -A binaries=(
+        ["local_binary"]=$LOCAL_BINARY
+        ["local_binary_dynamic"]=$LOCAL_BINARY_DYNAMIC
+        ["mips_binary"]=$MIPS_BINARY
+        ["mips_binary_dynamic"]=$MIPS_BINARY_DYNAMIC
+    )
+    
+    checksums="{\n"
+    for key in "${!binaries[@]}"; do
+        binary="${binaries[$key]}"
+        if [ -f "$binary" ]; then
+            checksum=$(sha256sum $binary | awk '{print $1}')
+            size=$(stat --format="%s" $binary)
+            checksums+="  \"${key}_checksum\": \"$checksum\",\n"
+            checksums+="  \"${key}_size\": \"$size\",\n"
+        fi
+    done
+    checksums="${checksums%,\n}\n}"  # Remove the last comma and add the closing brace
+    
+    echo -e "$checksums" > $CHECKSUM_FILE
     echo "Checksums and file sizes saved to $CHECKSUM_FILE"
 }
+
 
 # Main execution flow
 clone_dependencies
@@ -276,7 +288,7 @@ compile_for_local_dynamic
 compile_openssl_for_mips
 compile_secp256k1_for_mips
 compile_for_mips
-compile_for_mips_dynamic
+# compile_for_mips_dynamic
 generate_checksums
 
 echo "All compilations
