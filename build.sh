@@ -1,28 +1,13 @@
 #!/bin/bash
 
-# Function to check if a package is installed and install it if not
-function ensure_installed() {
-    if ! command -v $1 &> /dev/null
-    then
-        echo "$1 could not be found, installing..."
-        sudo apt-get update
-        sudo apt-get install -y $2
-    else
-        echo "$1 is already installed."
-    fi
-}
-
-# Ensure the cross-compiler, CMake, and Ninja are installed
-ensure_installed mips-linux-gnu-gcc gcc-mips-linux-gnu
-ensure_installed cmake cmake
-ensure_installed ninja ninja-build
-
 # Define the installation directories and compiler settings
 LOCAL_INSTALL_DIR="$HOME/usr/local"
 MIPS_INSTALL_DIR="$HOME/usr/local/mips-linux-gnu"
 TOOLCHAIN_PREFIX="mips-linux-gnu"
 PARENT_DIR=".."
 CURRENT_DIR=$(pwd)
+
+./install_compiler.sh
 
 # Create installation directories if they don't exist
 mkdir -p $LOCAL_INSTALL_DIR

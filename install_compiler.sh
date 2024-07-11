@@ -39,6 +39,25 @@ function update_package_lists_if_needed() {
     fi
 }
 
+# Function to check if a package is installed and install it if not
+function ensure_installed() {
+    if ! command -v $1 &> /dev/null
+    then
+        echo "$1 could not be found, installing..."
+        sudo apt-get update
+        sudo apt-get install -y $2
+    else
+        echo "$1 is already installed."
+    fi
+}
+
+# Ensure the cross-compiler, CMake, and Ninja are installed
+function ensure_dependencies() {
+    ensure_installed mips-linux-gnu-gcc gcc-mips-linux-gnu
+    ensure_installed cmake cmake
+    ensure_installed ninja ninja-build
+}
+
 # Install MIPS cross-compiler
 function install_mips_cross_compiler() {
     echo "Checking for MIPS cross-compiler..."
@@ -89,6 +108,7 @@ function setup_openssl_mips() {
 
 # Main execution flow
 update_package_lists_if_needed
+ensure_dependencies
 install_mips_cross_compiler
 setup_secp256k1_mips
 setup_openssl_mips
