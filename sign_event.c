@@ -3,9 +3,11 @@
 #include <string.h>
 #include <assert.h>
 
-#include <secp256k1.h>
-#include <secp256k1_extrakeys.h>
-#include <secp256k1_schnorrsig.h>
+// Include uBitcoin headers
+#include "Bitcoin.h"
+#include "Conversion.h"
+#include "Hash.h"
+#include "BitcoinCurve.h"
 
 // Utility function to fill a buffer with random bytes
 int fill_random(unsigned char *buf, size_t len) {
@@ -40,12 +42,11 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    unsigned char msg_hash[32];
-    unsigned char seckey[32];
-    unsigned char signature[64];
-    unsigned char auxiliary_rand[32];
+    uint8_t msg_hash[32];
+    uint8_t seckey[32];
+    uint8_t signature[64];
+    uint8_t auxiliary_rand[32];
     int return_val;
-    secp256k1_keypair keypair;
 
     // Convert the message hash and secret key from hex to binary
     for (int i = 0; i < 32; i++) {
@@ -53,39 +54,31 @@ int main(int argc, char *argv[]) {
         sscanf(&argv[2][2 * i], "%2hhx", &seckey[i]);
     }
 
-    // Create a context for signing and verification
-    secp256k1_context* ctx = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
-
-    // Randomizing the context (here we use the message hash as randomization data)
-    return_val = secp256k1_context_randomize(ctx, msg_hash);
-    assert(return_val);
+    // Initialize Bitcoin context
+    BitcoinContext ctx;
+    ctx.init();
 
     // Create keypair from the secret key
-    if (!secp256k1_keypair_create(ctx, &keypair, seckey)) {
+    Keypair keypair;
+    if (!keypair.setPrivKey(seckey)) {
         fprintf(stderr, "Failed to create keypair\n");
-        secp256k1_context_destroy(ctx);
         return 1;
     }
 
     // Generate auxiliary randomness for signing
     if (!fill_random(auxiliary_rand, sizeof(auxiliary_rand))) {
         fprintf(stderr, "Failed to generate randomness\n");
-        secp256k1_context_destroy(ctx);
         return 1;
     }
 
     // Generate a Schnorr signature
-    if (!secp256k1_schnorrsig_sign32(ctx, signature, msg_hash, &keypair, auxiliary_rand)) {
+    if (!keypair.signSchnorr(signature, msg_hash, auxiliary_rand)) {
         fprintf(stderr, "Failed to sign message\n");
-        secp256k1_context_destroy(ctx);
         return 1;
     }
 
     // Print the signature as a hex string
     print_hex(signature, sizeof(signature));
-
-    // Clear everything from the context and free the memory
-    secp256k1_context_destroy(ctx);
 
     // Securely erase the secret key
     secure_erase(seckey, sizeof(seckey));
