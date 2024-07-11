@@ -191,6 +191,44 @@ function compile_secp256k1_for_mips() {
     cd $CURRENT_DIR
 }
 
+# Function to compile for local architecture with dynamic linking (x86_64)
+function compile_for_local_dynamic() {
+    echo "Compiling for local architecture with dynamic linking..."
+    gcc -O2 $SOURCE_FILE -o $LOCAL_BINARY_DYNAMIC \
+        -I$PARENT_DIR/secp256k1_mips_architecture/include \
+        -I$LOCAL_INSTALL_DIR/include \
+        -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
+        -L$LOCAL_INSTALL_DIR/lib \
+        -lsecp256k1 -lssl -lcrypto
+
+    if [ $? -eq 0 ]; then
+        echo "Dynamic compilation successful: $LOCAL_BINARY_DYNAMIC"
+    else
+        echo "Failed to compile for local architecture with dynamic linking."
+        exit 1
+    fi
+}
+
+# Function to compile for MIPS architecture with dynamic linking
+function compile_for_mips_dynamic() {
+    echo "Compiling for MIPS architecture with dynamic linking..."
+    $TOOLCHAIN_PREFIX-gcc -O2 $SOURCE_FILE -o $MIPS_BINARY_DYNAMIC \
+                          -I$PARENT_DIR/secp256k1_mips_architecture/include \
+                          -I$MIPS_INSTALL_DIR/include \
+                          -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
+                          -L$MIPS_INSTALL_DIR/lib \
+                          -lsecp256k1 -lssl -lcrypto
+
+    if [ $? -eq 0 ]; then
+        echo "Dynamic compilation successful: $MIPS_BINARY_DYNAMIC"
+        $TOOLCHAIN_PREFIX-strip $MIPS_BINARY_DYNAMIC
+    else
+        echo "Failed to compile for MIPS architecture with dynamic linking."
+        exit 1
+    fi
+}
+
+
 # Function to compile for MIPS architecture
 function compile_for_mips() {
     echo "Compiling for MIPS architecture..."
@@ -216,11 +254,15 @@ function compile_for_mips() {
 function generate_checksums() {
     echo "Generating checksums and file sizes..."
     local_checksum=$(sha256sum $LOCAL_BINARY | awk '{print $1}')
+    local_dynamic_checksum=$(sha256sum $LOCAL_BINARY_DYNAMIC | awk '{print $1}')
     mips_checksum=$(sha256sum $MIPS_BINARY | awk '{print $1}')
+    mips_dynamic_checksum=$(sha256sum $MIPS_BINARY_DYNAMIC | awk '{print $1}')
     local_size=$(stat --format="%s" $LOCAL_BINARY)
+    local_dynamic_size=$(stat --format="%s" $LOCAL_BINARY_DYNAMIC)
     mips_size=$(stat --format="%s" $MIPS_BINARY)
+    mips_dynamic_size=$(stat --format="%s" $MIPS_BINARY_DYNAMIC)
 
-    echo -e "{\n  \"local_binary_checksum\": \"$local_checksum\",\n  \"local_binary_size\": \"$local_size\",\n  \"mips_binary_checksum\": \"$mips_checksum\",\n  \"mips_binary_size\": \"$mips_size\"\n}" > $CHECKSUM_FILE
+    echo -e "{\n  \"local_binary_checksum\": \"$local_checksum\",\n  \"local_binary_size\": \"$local_size\",\n  \"local_binary_dynamic_checksum\": \"$local_dynamic_checksum\",\n  \"local_binary_dynamic_size\": \"$local_dynamic_size\",\n  \"mips_binary_checksum\": \"$mips_checksum\",\n  \"mips_binary_size\": \"$mips_size\",\n  \"mips_binary_dynamic_checksum\": \"$mips_dynamic_checksum\",\n  \"mips_binary_dynamic_size\": \"$mips_dynamic_size\"\n}" > $CHECKSUM_FILE
     echo "Checksums and file sizes saved to $CHECKSUM_FILE"
 }
 
@@ -230,9 +272,11 @@ clean_build_directories
 compile_secp256k1_for_local
 compile_openssl_for_local
 compile_for_local
+compile_for_local_dynamic
 compile_openssl_for_mips
 compile_secp256k1_for_mips
 compile_for_mips
+compile_for_mips_dynamic
 generate_checksums
 
 echo "All compilations
