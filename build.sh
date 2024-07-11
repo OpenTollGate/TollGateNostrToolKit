@@ -91,6 +91,7 @@ function compile_secp256k1_for_local() {
     cd $PARENT_DIR/secp256k1_mips_architecture
     ./autogen.sh
     ./configure --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys
+    make clean
     make -j$(nproc)
 
     if [ $? -eq 0 ]; then
@@ -107,6 +108,7 @@ function compile_openssl_for_local() {
     echo "Compiling OpenSSL for local architecture..."
     cd $PARENT_DIR/openssl
     ./config --prefix=$LOCAL_INSTALL_DIR no-shared no-asm
+    make clean
     make -j$(nproc)
     make install
 
@@ -119,22 +121,28 @@ function compile_openssl_for_local() {
     cd $CURRENT_DIR
 }
 
+# Function to find the library paths
+function find_lib_paths() {
+    local base_dir=$1
+    LIBSSL_PATH=$(find $base_dir -name "libssl.a" | head -n 1)
+    LIBCRYPTO_PATH=$(find $base_dir -name "libcrypto.a" | head -n 1)
+
+    if [ -z "$LIBSSL_PATH" ] || [ -z "$LIBCRYPTO_PATH" ]; then
+        echo "Static libraries not found in $base_dir"
+        exit 1
+    fi
+}
+
 # Function to compile for local architecture (x86_64)
 function compile_for_local() {
     echo "Compiling for local architecture..."
-    LIBSSL_PATH="$LOCAL_INSTALL_DIR/lib/libssl.a"
-    LIBCRYPTO_PATH="$LOCAL_INSTALL_DIR/lib/libcrypto.a"
-    if [ ! -f "$LIBSSL_PATH" ] || [ ! -f "$LIBCRYPTO_PATH" ]; then
-        echo "Static libraries not found in $LOCAL_INSTALL_DIR/lib"
-        ls -l $LOCAL_INSTALL_DIR/lib  # List contents of the directory for debugging
-        exit 1
-    fi
+    find_lib_paths $LOCAL_INSTALL_DIR
 
     gcc -O2 $SOURCE_FILE -o $LOCAL_BINARY \
         -I$PARENT_DIR/secp256k1_mips_architecture/include \
         -I$LOCAL_INSTALL_DIR/include \
         -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
-        -L$LOCAL_INSTALL_DIR/lib \
+        -L$(dirname $LIBSSL_PATH) \
         $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $LIBSSL_PATH $LIBCRYPTO_PATH
 
     if [ $? -eq 0 ]; then
@@ -152,6 +160,7 @@ function compile_openssl_for_mips() {
     ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
         CC=$TOOLCHAIN_PREFIX-gcc AR=$TOOLCHAIN_PREFIX-ar \
         RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
+    make clean
     make -j$(nproc)
     make install
 
@@ -170,6 +179,7 @@ function compile_secp256k1_for_mips() {
     cd $PARENT_DIR/secp256k1_mips_architecture
     ./autogen.sh
     ./configure --host=mips-linux-gnu --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys
+    make clean
     make -j$(nproc)
 
     if [ $? -eq 0 ]; then
@@ -184,19 +194,13 @@ function compile_secp256k1_for_mips() {
 # Function to compile for MIPS architecture
 function compile_for_mips() {
     echo "Compiling for MIPS architecture..."
-    LIBSSL_PATH="$MIPS_INSTALL_DIR/lib/libssl.a"
-    LIBCRYPTO_PATH="$MIPS_INSTALL_DIR/lib/libcrypto.a"
-    if [ ! -f "$LIBSSL_PATH" ] || [ ! -f "$LIBCRYPTO_PATH" ]; then
-        echo "Static libraries not found in $MIPS_INSTALL_DIR/lib"
-        ls -l $MIPS_INSTALL_DIR/lib  # List contents of the directory for debugging
-        exit 1
-    fi
+    find_lib_paths $MIPS_INSTALL_DIR
 
     $TOOLCHAIN_PREFIX-gcc -O2 $SOURCE_FILE -o $MIPS_BINARY \
                           -I$PARENT_DIR/secp256k1_mips_architecture/include \
                           -I$MIPS_INSTALL_DIR/include \
                           -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
-                          -L$MIPS_INSTALL_DIR/lib \
+                          -L$(dirname $LIBSSL_PATH) \
                           $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $LIBSSL_PATH $LIBCRYPTO_PATH -static
 
     if [ $? -eq 0 ]; then
@@ -231,5 +235,5 @@ compile_secp256k1_for_mips
 compile_for_mips
 generate_checksums
 
-echo "All compilations and checksum generation completed successfully."
+echo "All compilations
 
