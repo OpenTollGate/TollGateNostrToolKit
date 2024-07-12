@@ -59,15 +59,7 @@ make defconfig
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
-# Build tools
-make -j1 V=s tools/install
-
-if [ $? -ne 0 ]; then
-    echo "Tools installation failed."
-    exit 1
-fi
-
-# Install the toolchain with detailed output for debugging
+# Build the toolchain
 echo "Installing toolchain..."
 make -j1 V=s toolchain/install
 
