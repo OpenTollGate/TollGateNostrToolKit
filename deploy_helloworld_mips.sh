@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Function to check if the script is run as root
+if [ "$EUID" -eq 0 ]; then
+  echo "Please do not run this script as root"
+  exit 1
+fi
+
 # Variables
 HELLO_C="hello.c"
 HELLO_MIPS="hello_mips"
@@ -23,11 +29,18 @@ CONFIG_PACKAGE_libgcc=y"
 # Navigate to the existing OpenWrt build directory
 cd $OPENWRT_DIR
 
-# Set up the environment and compile the toolchain if not already done
+# Clean existing .config and set up the environment
+if [ -f "$CONFIG_FILE" ]; then
+    echo "Cleaning existing .config file..."
+    rm $CONFIG_FILE
+fi
+
+echo "Setting up the environment..."
+echo "$CONFIG_CONTENT" > $CONFIG_FILE
+make defconfig
+
+# Compile the toolchain if not already done
 if [ ! -d "$OPENWRT_DIR/staging_dir" ]; then
-    echo "Setting up the environment..."
-    echo "$CONFIG_CONTENT" > $CONFIG_FILE
-    make defconfig
     make toolchain/install
 else
     echo "Toolchain already set up."
