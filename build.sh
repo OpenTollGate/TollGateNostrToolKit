@@ -38,6 +38,11 @@ check_checksum() {
     fi
 }
 
+# Install required packages
+echo "Installing required packages..."
+sudo apt-get update
+sudo apt-get install -y build-essential libncurses5-dev libncursesw5-dev git python3 rsync file wget
+
 # Download and extract the OpenWrt SDK if not already downloaded
 if [ ! -d "$SDK_DIR" ]; then
     if [ ! -f "$SDK_ARCHIVE" ] || ! check_checksum; then
