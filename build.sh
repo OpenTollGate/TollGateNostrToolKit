@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo su
+
 # Define the installation directories and compiler settings
 SDK_URL="https://downloads.openwrt.org/releases/22.03.4/targets/ath79/generic/openwrt-sdk-22.03.4-ath79-generic_gcc-11.2.0_musl.Linux-x86_64.tar.xz"
 SDK_ARCHIVE="${SDK_URL##*/}"
@@ -57,7 +59,7 @@ fi
 
 # Copy feeds.conf to SDK directory
 echo "Copying feeds.conf to SDK directory..."
-sudo cp $SDK_DIR/../feeds.conf $SDK_DIR/
+cp $SDK_DIR/../feeds.conf $SDK_DIR/
 
 # Navigate to SDK directory
 cd $SDK_DIR
@@ -70,7 +72,7 @@ fi
 
 # Update and install feeds
 echo "Updating and installing feeds..."
-sudo ./scripts/feeds update -a
+./scripts/feeds update -a
 
 if [ $? -ne 0 ]; then
     echo "Feeds failed"
@@ -78,7 +80,7 @@ if [ $? -ne 0 ]; then
 fi
 
 
-sudo ./scripts/feeds install -a
+./scripts/feeds install -a
 
 if [ $? -ne 0 ]; then
     echo "Feeds failed"
@@ -88,8 +90,8 @@ fi
 
 # Set up the environment
 echo "Setting up the environment..."
-echo "$CONFIG_CONTENT" | sudo tee $CONFIG_FILE > /dev/null
-sudo make defconfig
+echo "$CONFIG_CONTENT" | tee $CONFIG_FILE > /dev/null
+make defconfig
 
 if [ $? -ne 0 ]; then
     echo "Failed to make def config."
@@ -99,7 +101,7 @@ fi
 
 # Build the toolchain
 echo "Installing toolchain..."
-sudo make -j$(nproc) V=s toolchain/install
+make -j$(nproc) V=s toolchain/install
 
 if [ $? -ne 0 ]; then
     echo "Toolchain install failed."
@@ -108,7 +110,7 @@ fi
 
 # Build the secp256k1 package
 echo "Building secp256k1 package..."
-sudo make -j$(nproc) V=s package/secp256k1/compile
+make -j$(nproc) V=s package/secp256k1/compile
 
 if [ $? -ne 0 ]; then
     echo "Toolchain or secp256k1 package installation failed."
@@ -127,7 +129,7 @@ SECP256K1_DIR="$LIB_DIR/secp256k1"
 INCLUDE_DIR="$SECP256K1_DIR/include"
 LIBS="-L$SECP256K1_DIR/.libs -lsecp256k1 -lgmp"
 
-sudo mips-openwrt-linux-gcc -I$INCLUDE_DIR -o $MIPS_BINARY $SOURCE_FILE $LIBS -static
+mips-openwrt-linux-gcc -I$INCLUDE_DIR -o $MIPS_BINARY $SOURCE_FILE $LIBS -static
 
 if [ $? -eq 0 ]; then
     echo "Compilation successful: $MIPS_BINARY"
