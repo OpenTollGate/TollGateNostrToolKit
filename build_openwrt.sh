@@ -1,13 +1,11 @@
 #!/bin/bash
 
-# Run script as root
-sudo su
-
 # Define the installation directories and compiler settings
 SDK_URL="https://downloads.openwrt.org/releases/22.03.4/targets/ath79/generic/openwrt-sdk-22.03.4-ath79-generic_gcc-11.2.0_musl.Linux-x86_64.tar.xz"
 SDK_ARCHIVE="${SDK_URL##*/}"
 SDK_DIR="openwrt-sdk-22.03.4-ath79-generic_gcc-11.2.0_musl.Linux-x86_64"
 CONFIG_FILE=".config"
+FEEDS_FILE="feeds_no_custom.conf"
 EXPECTED_CHECKSUM="16b1ebf4d37eb7291235dcb8cfc973d70529164ef7531332255a2231cc1d5b79"
 
 # Predefined configuration
@@ -51,9 +49,9 @@ else
     echo "OpenWrt SDK already downloaded and extracted."
 fi
 
-# Copy feeds.conf to SDK directory
-echo "Copying feeds.conf to SDK directory..."
-cp $SDK_DIR/../feeds.conf $SDK_DIR/
+# Copy feeds_no_custom.conf to SDK directory as feeds.conf
+echo "Copying feeds_no_custom.conf to SDK directory as feeds.conf..."
+cp $SDK_DIR/../$FEEDS_FILE $SDK_DIR/feeds.conf
 
 # Navigate to SDK directory
 cd $SDK_DIR
@@ -95,3 +93,4 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "OpenWrt build completed successfully!"
+

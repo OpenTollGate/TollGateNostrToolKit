@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo su
-
 # Define the installation directories and compiler settings
 SDK_URL="https://downloads.openwrt.org/releases/22.03.4/targets/ath79/generic/openwrt-sdk-22.03.4-ath79-generic_gcc-11.2.0_musl.Linux-x86_64.tar.xz"
 SDK_ARCHIVE="${SDK_URL##*/}"
