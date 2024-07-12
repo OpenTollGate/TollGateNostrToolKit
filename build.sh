@@ -11,9 +11,8 @@ EXPECTED_CHECKSUM="16b1ebf4d37eb7291235dcb8cfc973d70529164ef7531332255a2231cc1d5
 SOURCE_FILE="$PWD/sign_event.c"
 MIPS_BINARY="$PWD/sign_event_mips"
 LIB_DIR="$PWD/lib"
-CUSTOM_FEED_DIR="$SDK_DIR/../custom"
 CUSTOM_FEED_NAME="custom"
-CUSTOM_FEED_URL="file://$PWD/$CUSTOM_FEED_DIR"
+CUSTOM_FEED_URL="https://github.com/chGoodchild/secp256k1_openwrt_feed.git"
 
 # Predefined configuration
 CONFIG_CONTENT="CONFIG_TARGET_ath79=y
@@ -65,9 +64,9 @@ cp $SDK_DIR/../feeds.conf $SDK_DIR/
 cd $SDK_DIR
 
 # Add custom feed to feeds.conf if not already present
-if ! grep -q "^src-link $CUSTOM_FEED_NAME" feeds.conf; then
+if ! grep -q "^src-git $CUSTOM_FEED_NAME" feeds.conf; then
     echo "Adding custom feed to feeds.conf..."
-    echo "src-link $CUSTOM_FEED_NAME $CUSTOM_FEED_URL" >> feeds.conf
+    echo "src-git $CUSTOM_FEED_NAME $CUSTOM_FEED_URL" >> feeds.conf
 fi
 
 # Update and install feeds
@@ -75,18 +74,16 @@ echo "Updating and installing feeds..."
 ./scripts/feeds update -a
 
 if [ $? -ne 0 ]; then
-    echo "Feeds failed"
+    echo "Feeds update failed"
     exit 1
 fi
-
 
 ./scripts/feeds install -a
 
 if [ $? -ne 0 ]; then
-    echo "Feeds failed"
+    echo "Feeds install failed"
     exit 1
 fi
-
 
 # Set up the environment
 echo "Setting up the environment..."
@@ -94,13 +91,13 @@ echo "$CONFIG_CONTENT" | tee $CONFIG_FILE > /dev/null
 make defconfig
 
 if [ $? -ne 0 ]; then
-    echo "Failed to make def config."
+    echo "Failed to make defconfig."
     exit 1
 fi
 
-
 # Build the toolchain
 echo "Installing toolchain..."
+make clean
 make -j$(nproc) V=s toolchain/install
 
 if [ $? -ne 0 ]; then
