@@ -57,7 +57,7 @@ fi
 
 # Copy feeds.conf to SDK directory
 echo "Copying feeds.conf to SDK directory..."
-cp $SDK_DIR/../feeds.conf $SDK_DIR/
+sudo cp $SDK_DIR/../feeds.conf $SDK_DIR/
 
 # Navigate to SDK directory
 cd $SDK_DIR
@@ -70,21 +70,45 @@ fi
 
 # Update and install feeds
 echo "Updating and installing feeds..."
-./scripts/feeds update -a
-./scripts/feeds install -a
+sudo ./scripts/feeds update -a
+
+if [ $? -ne 0 ]; then
+    echo "Feeds failed"
+    exit 1
+fi
+
+
+sudo ./scripts/feeds install -a
+
+if [ $? -ne 0 ]; then
+    echo "Feeds failed"
+    exit 1
+fi
+
 
 # Set up the environment
 echo "Setting up the environment..."
-echo "$CONFIG_CONTENT" > $CONFIG_FILE
-make defconfig
+echo "$CONFIG_CONTENT" | sudo tee $CONFIG_FILE > /dev/null
+sudo make defconfig
+
+if [ $? -ne 0 ]; then
+    echo "Failed to make def config."
+    exit 1
+fi
+
 
 # Build the toolchain
 echo "Installing toolchain..."
-make -j$(nproc) V=s toolchain/install
+sudo make -j$(nproc) V=s toolchain/install
+
+if [ $? -ne 0 ]; then
+    echo "Toolchain install failed."
+    exit 1
+fi
 
 # Build the secp256k1 package
 echo "Building secp256k1 package..."
-make -j$(nproc) V=s package/secp256k1/compile
+sudo make -j$(nproc) V=s package/secp256k1/compile
 
 if [ $? -ne 0 ]; then
     echo "Toolchain or secp256k1 package installation failed."
@@ -103,7 +127,7 @@ SECP256K1_DIR="$LIB_DIR/secp256k1"
 INCLUDE_DIR="$SECP256K1_DIR/include"
 LIBS="-L$SECP256K1_DIR/.libs -lsecp256k1 -lgmp"
 
-mips-openwrt-linux-gcc -I$INCLUDE_DIR -o $MIPS_BINARY $SOURCE_FILE $LIBS -static
+sudo mips-openwrt-linux-gcc -I$INCLUDE_DIR -o $MIPS_BINARY $SOURCE_FILE $LIBS -static
 
 if [ $? -eq 0 ]; then
     echo "Compilation successful: $MIPS_BINARY"
