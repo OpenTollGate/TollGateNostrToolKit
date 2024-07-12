@@ -1,288 +1,116 @@
 #!/bin/bash
 
 # Define the installation directories and compiler settings
-LOCAL_INSTALL_DIR="$HOME/usr/local"
-MIPS_INSTALL_DIR="$HOME/usr/local/mips-linux-gnu"
-TOOLCHAIN_PREFIX="mips-linux-gnu"
-PARENT_DIR=".."
-CURRENT_DIR=$(pwd)
+SDK_URL="https://downloads.openwrt.org/releases/22.03.4/targets/ath79/generic/openwrt-sdk-22.03.4-ath79-generic_gcc-11.2.0_musl.Linux-x86_64.tar.xz"
+SDK_ARCHIVE="${SDK_URL##*/}"
+SDK_DIR="openwrt-sdk-22.03.4-ath79-generic_gcc-11.2.0_musl.Linux-x86_64"
+CONFIG_FILE=".config"
+EXPECTED_CHECKSUM="16b1ebf4d37eb7291235dcb8cfc973d70529164ef7531332255a2231cc1d5b79"
+SOURCE_FILE="$PWD/sign_event.c"
+MIPS_BINARY="$PWD/sign_event_mips"
+LIB_DIR="$PWD/lib"
 
-./install_compiler.sh
+# Predefined configuration
+CONFIG_CONTENT="CONFIG_TARGET_ath79=y
+CONFIG_TARGET_ath79_generic=y
+CONFIG_TARGET_ath79_generic_DEVICE_glinet_gl-ar300m=y
+CONFIG_PACKAGE_busybox=y
+CONFIG_PACKAGE_dnsmasq=y
+CONFIG_PACKAGE_dropbear=y
+CONFIG_PACKAGE_libc=y
+CONFIG_PACKAGE_libgcc=y
+CONFIG_PACKAGE_secp256k1=y
+CONFIG_PACKAGE_libopenssl=y"
 
-# Create installation directories if they don't exist
-mkdir -p $LOCAL_INSTALL_DIR
-mkdir -p $MIPS_INSTALL_DIR
-
-# Source file and output binaries
-SOURCE_FILE="$CURRENT_DIR/sign_event.c"
-LOCAL_BINARY="$CURRENT_DIR/sign_event_local"
-LOCAL_BINARY_DYNAMIC="$CURRENT_DIR/sign_event_local_dynamic"
-MIPS_BINARY="$CURRENT_DIR/sign_event_mips"
-MIPS_BINARY_DYNAMIC="$CURRENT_DIR/sign_event_mips_dynamic"
-CHECKSUM_FILE="$CURRENT_DIR/checksums.json"
-
-# URLs of the dependencies
-OPENSSL_URL="https://github.com/openssl/openssl.git"
-LIBCRYPTO_URL="https://github.com/libcrypto/libcrypto.git"
-SECP256K1_URL="https://github.com/bitcoin-core/secp256k1.git"
-
-# Clone the dependencies
-function clone_dependencies() {
-    echo "Cloning dependencies..."
-    cd $PARENT_DIR
-
-    if [ ! -d "openssl" ]; then
-        git clone --depth 1 $OPENSSL_URL openssl
+# Function to check checksum
+check_checksum() {
+    echo "Checking checksum..."
+    local checksum=$(sha256sum $SDK_ARCHIVE | awk '{ print $1 }')
+    if [ "$checksum" == "$EXPECTED_CHECKSUM" ]; then
+        echo "Checksum matches."
+        return 0
     else
-        cd openssl
-        git pull
-        cd ..
-    fi
-
-    if [ ! -d "libcrypto" ]; then
-        git clone --depth 1 $LIBCRYPTO_URL libcrypto
-    else
-        cd libcrypto
-        git pull
-        cd ..
-    fi
-
-    if [ ! -d "secp256k1_mips_architecture" ]; then
-        git clone --depth 1 $SECP256K1_URL secp256k1_mips_architecture
-    else
-        cd secp256k1_mips_architecture
-        git pull
-        cd ..
-    fi
-
-    cd $CURRENT_DIR
-}
-
-# Ensure correct permissions for secp256k1_mips_architecture
-sudo chown -R $USER:$USER $PARENT_DIR/secp256k1_mips_architecture
-chmod -R u+rwx $PARENT_DIR/secp256k1_mips_architecture
-
-# Function to clean up build directories
-function clean_build_directories() {
-    echo "Cleaning up build directories..."
-    cd $PARENT_DIR/secp256k1_mips_architecture
-    make clean || true
-    cd $PARENT_DIR/openssl
-    make clean || true
-    cd $CURRENT_DIR
-}
-
-# Function to compile secp256k1 for local architecture (x86_64)
-function compile_secp256k1_for_local() {
-    echo "Compiling secp256k1 for local architecture..."
-    cd $PARENT_DIR/secp256k1_mips_architecture
-    ./autogen.sh
-    ./configure --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys
-    make clean
-    make -j$(nproc)
-
-    if [ $? -eq 0 ]; then
-        echo "Compilation of secp256k1 successful for local architecture."
-    else
-        echo "Failed to compile secp256k1 for local architecture."
-        exit 1
-    fi
-    cd $CURRENT_DIR
-}
-
-# Function to compile OpenSSL for local architecture (x86_64)
-function compile_openssl_for_local() {
-    echo "Compiling OpenSSL for local architecture..."
-    cd $PARENT_DIR/openssl
-    ./config --prefix=$LOCAL_INSTALL_DIR no-shared no-asm
-    make clean
-    make -j$(nproc)
-    make install
-
-    if [ $? -eq 0 ]; then
-        echo "Compilation of OpenSSL successful for local architecture."
-    else
-        echo "Failed to compile OpenSSL for local architecture."
-        exit 1
-    fi
-    cd $CURRENT_DIR
-}
-
-# Function to find the library paths
-function find_lib_paths() {
-    local base_dir=$1
-    LIBSSL_PATH=$(find $base_dir -name "libssl.a" | head -n 1)
-    LIBCRYPTO_PATH=$(find $base_dir -name "libcrypto.a" | head -n 1)
-
-    if [ -z "$LIBSSL_PATH" ] || [ -z "$LIBCRYPTO_PATH" ]; then
-        echo "Static libraries not found in $base_dir"
-        exit 1
+        echo "Checksum does not match."
+        return 1
     fi
 }
 
-# Function to compile for local architecture (x86_64)
-function compile_for_local() {
-    echo "Compiling for local architecture..."
-    find_lib_paths $LOCAL_INSTALL_DIR
-
-    gcc -O2 $SOURCE_FILE -o $LOCAL_BINARY \
-        -I$PARENT_DIR/secp256k1_mips_architecture/include \
-        -I$LOCAL_INSTALL_DIR/include \
-        -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
-        -L$(dirname $LIBSSL_PATH) \
-        $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $LIBSSL_PATH $LIBCRYPTO_PATH
-
-    if [ $? -eq 0 ]; then
-        echo "Compilation successful: $LOCAL_BINARY"
-    else
-        echo "Failed to compile for local architecture."
-        exit 1
+# Download and extract the OpenWrt SDK if not already downloaded
+if [ ! -d "$SDK_DIR" ]; then
+    if [ ! -f "$SDK_ARCHIVE" ] || ! check_checksum; then
+        echo "Downloading OpenWrt SDK..."
+        wget $SDK_URL
     fi
-}
+    echo "Extracting OpenWrt SDK..."
+    tar -xvf $SDK_ARCHIVE
+else
+    echo "OpenWrt SDK already downloaded and extracted."
+fi
 
-# Function to compile OpenSSL for MIPS architecture
-function compile_openssl_for_mips() {
-    echo "Compiling OpenSSL for MIPS architecture..."
-    cd $PARENT_DIR/openssl
-    ./Configure linux-mips32 --prefix=$MIPS_INSTALL_DIR no-shared no-asm \
-        CC="$TOOLCHAIN_PREFIX-gcc -march=mips32r2" AR=$TOOLCHAIN_PREFIX-ar \
-        RANLIB=$TOOLCHAIN_PREFIX-ranlib LD=$TOOLCHAIN_PREFIX-ld
-    make clean
-    make -j$(nproc)
-    make install
+# Navigate to SDK directory
+cd $SDK_DIR
 
-    if [ $? -eq 0 ]; then
-        echo "Compilation of OpenSSL successful for MIPS."
-    else
-        echo "Failed to compile OpenSSL for MIPS architecture."
-        exit 1
-    fi
-    cd $CURRENT_DIR
-}
+# Set up the environment
+echo "Setting up the environment..."
+echo "$CONFIG_CONTENT" > $CONFIG_FILE
+make defconfig
 
-# Function to compile secp256k1 for MIPS architecture
-function compile_secp256k1_for_mips() {
-    echo "Compiling secp256k1 for MIPS architecture..."
-    cd $PARENT_DIR/secp256k1_mips_architecture
-    ./autogen.sh
-    ./configure --host=mips-linux-gnu --enable-static --disable-shared --enable-module-schnorrsig --enable-module-extrakeys CC="$TOOLCHAIN_PREFIX-gcc -march=mips32r2"
-    make clean
-    make -j$(nproc)
+# Update and install feeds
+./scripts/feeds update -a
+./scripts/feeds install -a
 
-    if [ $? -eq 0 ]; then
-        echo "Compilation of secp256k1 successful for MIPS."
-    else
-        echo "Failed to compile secp256k1 for MIPS architecture."
-        exit 1
-    fi
-    cd $CURRENT_DIR
-}
+# Build tools
+make -j1 V=s tools/install
 
-# Function to compile for local architecture with dynamic linking (x86_64)
-function compile_for_local_dynamic() {
-    echo "Compiling for local architecture with dynamic linking..."
-    gcc -O2 $SOURCE_FILE -o $LOCAL_BINARY_DYNAMIC \
-        -I$PARENT_DIR/secp256k1_mips_architecture/include \
-        -I$PARENT_DIR/secp256k1_mips_architecture \
-        -I$LOCAL_INSTALL_DIR/include \
-        -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
-        -L$LOCAL_INSTALL_DIR/lib \
-        -lsecp256k1 -lssl -lcrypto
+if [ $? -ne 0 ]; then
+    echo "Tools installation failed."
+    exit 1
+fi
 
-    if [ $? -eq 0 ]; then
-        echo "Dynamic compilation successful: $LOCAL_BINARY_DYNAMIC"
-    else
-        echo "Failed to compile for local architecture with dynamic linking."
-        exit 1
-    fi
-}
+# Install the toolchain with detailed output for debugging
+echo "Installing toolchain..."
+make -j1 V=s toolchain/install
 
-# Function to compile for MIPS architecture with dynamic linking
-function compile_for_mips_dynamic() {
-    echo "Compiling for MIPS architecture with dynamic linking..."
-    $TOOLCHAIN_PREFIX-gcc -march=mips32r2 -O2 $SOURCE_FILE -o $MIPS_BINARY_DYNAMIC \
-                          -I$PARENT_DIR/secp256k1_mips_architecture/include \
-                          -I$PARENT_DIR/secp256k1_mips_architecture \
-                          -I$MIPS_INSTALL_DIR/include \
-                          -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
-                          -L$MIPS_INSTALL_DIR/lib \
-                          -lsecp256k1 -lssl -lcrypto
+if [ $? -ne 0 ]; then
+    echo "Toolchain installation failed."
+    exit 1
+fi
 
-    if [ $? -eq 0 ]; then
-        echo "Dynamic compilation successful: $MIPS_BINARY_DYNAMIC"
-    else
-        echo "Failed to compile for MIPS architecture with dynamic linking."
-        exit 1
-    fi
-}
+# Compile the sign_event program for MIPS architecture
+echo "Compiling sign_event.c for MIPS architecture..."
+STAGING_DIR=$(pwd)/staging_dir
+TOOLCHAIN_DIR=$STAGING_DIR/toolchain-mips_24kc_gcc-11.2.0_musl
+export PATH=$TOOLCHAIN_DIR/bin:$PATH
+export STAGING_DIR
 
-# Function to compile for MIPS architecture
-function compile_for_mips() {
-    echo "Compiling for MIPS architecture..."
-    find_lib_paths $MIPS_INSTALL_DIR
+# Make sure secp256k1 headers and libraries are available
+SECP256K1_DIR="$LIB_DIR/secp256k1"
+INCLUDE_DIR="$SECP256K1_DIR/include"
+LIBS="-L$SECP256K1_DIR/.libs -lsecp256k1 -lgmp"
 
-    $TOOLCHAIN_PREFIX-gcc -march=mips32r2 -O2 $SOURCE_FILE -o $MIPS_BINARY \
-                          -I$PARENT_DIR/secp256k1_mips_architecture/include \
-                          -I$MIPS_INSTALL_DIR/include \
-                          -L$PARENT_DIR/secp256k1_mips_architecture/.libs \
-                          -L$(dirname $LIBSSL_PATH) \
-                          $PARENT_DIR/secp256k1_mips_architecture/.libs/libsecp256k1.a $LIBSSL_PATH $LIBCRYPTO_PATH -static
+mips-openwrt-linux-gcc -I$INCLUDE_DIR -o $MIPS_BINARY $SOURCE_FILE $LIBS -static
 
-    if [ $? -eq 0 ]; then
-        echo "Compilation successful: $MIPS_BINARY"
-    else
-        echo "Failed to compile for MIPS architecture."
-        exit 1
-    fi
-}
+if [ $? -eq 0 ]; then
+    echo "Compilation successful: $MIPS_BINARY"
+else
+    echo "Failed to compile sign_event.c for MIPS architecture."
+    exit 1
+fi
 
-# Function to generate checksums and file sizes, and save them in a JSON file
-function generate_checksums() {
-    echo "Generating checksums and file sizes..."
-    declare -A binaries=(
-        ["local_binary"]=$LOCAL_BINARY
-        ["local_binary_dynamic"]=$LOCAL_BINARY_DYNAMIC
-        ["mips_binary"]=$MIPS_BINARY
-        ["mips_binary_dynamic"]=$MIPS_BINARY_DYNAMIC
-    )
-    
-    checksums="{\n"
-    for key in "${!binaries[@]}"; do
-        binary="${binaries[$key]}"
-        if [ -f "$binary" ]; then
-            checksum=$(sha256sum $binary | awk '{print $1}')
-            size=$(stat --format="%s" $binary)
-            checksums+="  \"${key}_checksum\": \"$checksum\",\n"
-            checksums+="  \"${key}_size\": \"$size\",\n"
-        fi
-    done
-    checksums="${checksums%,\n}\n}"  # Remove the last comma and add the closing brace
-    
-    echo -e "$checksums" > $CHECKSUM_FILE
-    echo "Checksums and file sizes saved to $CHECKSUM_FILE"
-}
+# Transfer the binary to the router
+ROUTER_IP="192.168.8.1"
+REMOTE_PATH="/tmp"
+REMOTE_USER="root"
+REMOTE_PASS="1"
+echo "Transferring $MIPS_BINARY to the router..."
+scp $MIPS_BINARY $REMOTE_USER@$ROUTER_IP:$REMOTE_PATH/
 
-# Main execution flow
-clone_dependencies
-clean_build_directories
+# Run the binary on the router
+echo "Running $MIPS_BINARY on the router..."
+sshpass -p $REMOTE_PASS ssh $REMOTE_USER@$ROUTER_IP << EOF
+chmod +x $REMOTE_PATH/$(basename $MIPS_BINARY)
+$REMOTE_PATH/$(basename $MIPS_BINARY)
+EOF
 
-# Compile libraries for MIPS architecture
-compile_openssl_for_mips
-compile_secp256k1_for_mips
-
-# Compile MIPS binaries
-compile_for_mips
-compile_for_mips_dynamic
-
-# Compile libraries for local architecture
-compile_secp256k1_for_local
-compile_openssl_for_local
-
-# Compile local binaries
-compile_for_local
-compile_for_local_dynamic
-
-generate_checksums
-
-echo "All compilations and checksum generation completed successfully."
+echo "Done!"
 
