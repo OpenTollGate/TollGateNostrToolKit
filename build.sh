@@ -9,6 +9,9 @@ EXPECTED_CHECKSUM="16b1ebf4d37eb7291235dcb8cfc973d70529164ef7531332255a2231cc1d5
 SOURCE_FILE="$PWD/sign_event.c"
 MIPS_BINARY="$PWD/sign_event_mips"
 LIB_DIR="$PWD/lib"
+CUSTOM_FEED_DIR="$SDK_DIR/../custom"
+CUSTOM_FEED_NAME="custom"
+CUSTOM_FEED_URL="file://$PWD/$CUSTOM_FEED_DIR"
 
 # Predefined configuration
 CONFIG_CONTENT="CONFIG_TARGET_ath79=y
@@ -47,24 +50,39 @@ else
     echo "OpenWrt SDK already downloaded and extracted."
 fi
 
+# Copy feeds.conf to SDK directory
+echo "Copying feeds.conf to SDK directory..."
+cp $SDK_DIR/../feeds.conf $SDK_DIR/
+
 # Navigate to SDK directory
 cd $SDK_DIR
+
+# Add custom feed to feeds.conf if not already present
+if ! grep -q "^src-link $CUSTOM_FEED_NAME" feeds.conf; then
+    echo "Adding custom feed to feeds.conf..."
+    echo "src-link $CUSTOM_FEED_NAME $CUSTOM_FEED_URL" >> feeds.conf
+fi
+
+# Update and install feeds
+echo "Updating and installing feeds..."
+./scripts/feeds update -a
+./scripts/feeds install -a
 
 # Set up the environment
 echo "Setting up the environment..."
 echo "$CONFIG_CONTENT" > $CONFIG_FILE
 make defconfig
 
-# Update and install feeds
-./scripts/feeds update -a
-./scripts/feeds install -a
-
 # Build the toolchain
 echo "Installing toolchain..."
-make -j1 V=s toolchain/install
+make -j$(nproc) V=s toolchain/install
+
+# Build the secp256k1 package
+echo "Building secp256k1 package..."
+make -j$(nproc) V=s package/secp256k1/compile
 
 if [ $? -ne 0 ]; then
-    echo "Toolchain installation failed."
+    echo "Toolchain or secp256k1 package installation failed."
     exit 1
 fi
 

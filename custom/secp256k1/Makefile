@@ -20,7 +20,7 @@ define Package/secp256k1
 endef
 
 define Package/secp256k1/description
-  Optimized C library for EC operations on curve secp256k1
+  Optimized C library for EC operations on curve secp256k1.
 endef
 
 CONFIGURE_ARGS += \
@@ -28,20 +28,20 @@ CONFIGURE_ARGS += \
   --enable-experimental \
   --enable-module-ecdh
 
+define Build/Configure
+  $(call Build/Configure/Default)
+endef
+
 define Build/Compile
-  $(MAKE) -C $(PKG_BUILD_DIR) \
-    CC="$(TARGET_CC)" \
-    AR="$(TARGET_AR)" \
-    RANLIB="$(TARGET_RANLIB)" \
-    CFLAGS="$(TARGET_CFLAGS)" \
-    LDFLAGS="$(TARGET_LDFLAGS)"
+  $(call Build/Compile/Default)
 endef
 
 define Package/secp256k1/install
   $(INSTALL_DIR) $(1)/usr/lib
   $(INSTALL_BIN) $(PKG_BUILD_DIR)/.libs/libsecp256k1.so* $(1)/usr/lib/
   $(INSTALL_DIR) $(1)/usr/include
-  $(INSTALL_BIN) $(PKG_BUILD_DIR)/include/secp256k1*.h $(1)/usr/include/
+  $(INSTALL_DATA) $(PKG_BUILD_DIR)/include/secp256k1*.h $(1)/usr/include/
 endef
 
 $(eval $(call BuildPackage,secp256k1))
+
