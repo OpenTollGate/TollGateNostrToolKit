@@ -32,6 +32,7 @@ done
 OPENWRT_DIR=~/Documents/openwrt
 CONFIG_FILE=".config"
 FEEDS_FILE="feeds.conf"
+PACKAGE_NAME="secp256k1"
 
 # Predefined configuration
 CONFIG_CONTENT="CONFIG_TARGET_ath79=y
@@ -92,6 +93,18 @@ make defconfig
 
 if [ $? -ne 0 ]; then
     echo "Failed to make defconfig."
+    exit 1
+fi
+
+# Build the specific package
+echo "Building the $PACKAGE_NAME package..."
+make package/$PACKAGE_NAME/download V=s
+make package/$PACKAGE_NAME/check V=s
+make package/$PACKAGE_NAME/compile V=s
+make package/$PACKAGE_NAME/install V=s
+
+if [ $? -ne 0 ]; then
+    echo "Failed to build $PACKAGE_NAME package."
     exit 1
 fi
 
