@@ -29,7 +29,7 @@ for pkg in "${packages[@]}"; do
 done
 
 # Variables
-OPENWRT_DIR=~/Documents/openwrt
+OPENWRT_DIR=~/openwrt
 CONFIG_FILE=".config"
 FEEDS_FILE="feeds.conf"
 PACKAGE_NAME="secp256k1"
