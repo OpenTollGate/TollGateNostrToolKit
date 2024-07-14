@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit on any error
+# set -e
+
 # Function to check if the script is run as root
 if [ "$EUID" -eq 0 ]; then
   echo "Please do not run this script as root"
@@ -33,54 +36,52 @@ OPENWRT_DIR=~/openwrt
 CONFIG_FILE=".config"
 FEEDS_FILE="feeds.conf"
 PACKAGE_NAME="secp256k1"
+TARGET_DIR="bin/packages/*/*"
 
-# Predefined configuration
-CONFIG_CONTENT="CONFIG_TARGET_ath79=y
-CONFIG_TARGET_ath79_generic=y
-CONFIG_TARGET_ath79_generic_DEVICE_glinet_gl-ar300m=y
-CONFIG_PACKAGE_busybox=y
-CONFIG_PACKAGE_dnsmasq=y
-CONFIG_PACKAGE_dropbear=y
-CONFIG_PACKAGE_libc=y
-CONFIG_PACKAGE_libgcc=y
-CONFIG_PACKAGE_libopenssl=y
-CONFIG_PACKAGE_libsecp256k1=y"
+# Clone the OpenWrt repository if it doesn't exist
+if [ ! -d "$OPENWRT_DIR" ]; then
+  echo "Cloning OpenWrt repository..."
+  git clone --depth 1 --branch v23.05.3 https://github.com/openwrt/openwrt.git $OPENWRT_DIR
+  if [ $? -ne 0 ]; then
+    echo "Failed to clone OpenWrt repository"
+    exit 1
+  fi
+else
+  echo "OpenWrt directory already exists."
+fi
 
 # Navigate to the existing OpenWrt build directory
 cd $OPENWRT_DIR
 
+# Copy configuration files
+cp ~/nostrSigner/.config $OPENWRT_DIR/.config
+cp ~/nostrSigner/feeds.conf $OPENWRT_DIR/feeds.conf
+
+# Update the custom feed
+echo "Updating custom feed..."
+./scripts/feeds update custom
+
+# Install the secp256k1 package from the custom feed
+echo "Installing secp256k1 package from custom feed..."
+./scripts/feeds install $PACKAGE_NAME
+
+# Update and install all feeds
+./scripts/feeds update -a
+./scripts/feeds install -a
+
 # Set up the environment and compile the toolchain if not already done
 if [ ! -d "$OPENWRT_DIR/staging_dir" ]; then
     echo "Setting up the environment..."
-    echo "$CONFIG_CONTENT" > $CONFIG_FILE
-    make defconfig
     make toolchain/install
+    if [ $? -ne 0 ]; then
+        echo "Toolchain install failed"
+        exit 1
+    fi
 else
     echo "Toolchain already set up."
 fi
 
-# Ensure custom feeds are set
-echo "Setting up custom feeds..."
-cat << EOF > $FEEDS_FILE
-src-git base https://git.openwrt.org/openwrt/openwrt.git;v22.03.4
-src-git-full packages https://git.openwrt.org/feed/packages.git^38cb0129739bc71e0bb5a25ef1f6db70b7add04b
-src-git-full luci https://git.openwrt.org/project/luci.git^ce20b4a6e0c86313c0c6e9c89eedf8f033f5e637
-src-git-full routing https://git.openwrt.org/feed/routing.git^1cc7676b9f32acc30ec47f15fcb70380d5d6ef01
-src-git-full telephony https://git.openwrt.org/feed/telephony.git^5087c7ecbc4f4e3227bd16c6f4d1efb0d3edf460
-src-git custom https://github.com/chGoodchild/secp256k1_openwrt_feed.git
-EOF
-
-# Update and install feeds
-echo "Updating and installing feeds..."
-./scripts/feeds update -a
-
-if [ $? -ne 0 ]; then
-    echo "Feeds update failed"
-    exit 1
-fi
-
-./scripts/feeds install -a
-
+# Check for feed install errors
 if [ $? -ne 0 ]; then
     echo "Feeds install failed"
     exit 1
@@ -88,35 +89,45 @@ fi
 
 # Set up the environment for building
 echo "Setting up the environment..."
-echo "$CONFIG_CONTENT" | tee $CONFIG_FILE > /dev/null
-make defconfig
+cp ~/nostrSigner/.config $OPENWRT_DIR/.config
 
+# Check for configuration copy errors
 if [ $? -ne 0 ]; then
-    echo "Failed to make defconfig."
+    echo "Failed to copy .config."
     exit 1
 fi
 
 # Build the specific package
 echo "Building the $PACKAGE_NAME package..."
 make package/$PACKAGE_NAME/download V=s
-make package/$PACKAGE_NAME/check V=s
-make package/$PACKAGE_NAME/compile V=s
-make package/$PACKAGE_NAME/install V=s
-
 if [ $? -ne 0 ]; then
-    echo "Failed to build $PACKAGE_NAME package."
+    echo "$PACKAGE_NAME download failed."
+    exit 1
+fi
+
+make package/$PACKAGE_NAME/check V=s
+if [ $? -ne 0 ]; then
+    echo "$PACKAGE_NAME check failed."
+    exit 1
+fi
+
+make package/$PACKAGE_NAME/compile V=s
+if [ $? -ne 0 ]; then
+    echo "$PACKAGE_NAME compile failed."
     exit 1
 fi
 
 # Build the firmware
 echo "Building the firmware..."
-make clean
 make -j$(nproc) V=s
-
 if [ $? -ne 0 ]; then
     echo "Firmware build failed."
     exit 1
 fi
+
+# Find and display the generated IPK file
+echo "Finding the generated IPK file..."
+find $TARGET_DIR -name "*$PACKAGE_NAME*.ipk"
 
 echo "OpenWrt build completed successfully!"
 
