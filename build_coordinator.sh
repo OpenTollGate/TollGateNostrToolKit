@@ -20,12 +20,4 @@ fi
 ./transfer_to_router.sh
 
 
-# x86 build
-# ./setup_x86_dependencies.sh
-# ./clean_x86_build_directories.sh
-# ./compile_secp_for_mips.sh
-# ./compile_ssl_for_x86.sh
-# ./compile_secp_for_local.sh
-# ./compile_openssl_for_mips.sh
-# ./compile_secp256k1_for_mips.sh
-# ./compile_for_local_dynamic.sh
+./generate_checksums.sh
