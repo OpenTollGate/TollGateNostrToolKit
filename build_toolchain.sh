@@ -11,6 +11,13 @@ cd $OPENWRT_DIR || { echo "Failed to cd to $OPENWRT_DIR"; exit 1; }
 # cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 make defconfig
 
+# Ensure toolchain directory exists
+TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
+if [ ! -d "$TOOLCHAIN_DIR" ]; then
+    echo "Creating missing toolchain directory: $TOOLCHAIN_DIR"
+    mkdir -p "$TOOLCHAIN_DIR"
+fi
+
 # Update and install all feeds
 echo "Updating feeds..."
 ./scripts/feeds update -a
@@ -24,13 +31,6 @@ echo "Installing feeds..."
 if [ $? -ne 0 ]; then
     echo "Feeds install failed"
     exit 1
-fi
-
-# Ensure toolchain directory exists
-TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
-if [ ! -d "$TOOLCHAIN_DIR" ]; then
-    echo "Creating missing toolchain directory: $TOOLCHAIN_DIR"
-    mkdir -p "$TOOLCHAIN_DIR"
 fi
 
 # Install the toolchain
