@@ -8,6 +8,9 @@ check_secp256k1_config() {
   fi
 }
 
+OPENWRT_DIR="$HOME/openwrt"
+cd $OPENWRT_DIR
+
 # Copy configuration files again
 cp $SCRIPT_DIR/.config $OPENWRT_DIR/.config
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
