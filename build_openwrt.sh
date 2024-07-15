@@ -53,11 +53,6 @@ fi
 # Navigate to the existing OpenWrt build directory
 cd $OPENWRT_DIR
 
-# Copy configuration files
-cp ~/nostrSigner/.config $OPENWRT_DIR/.config
-cp ~/nostrSigner/feeds.conf $OPENWRT_DIR/feeds.conf
-
-make oldconfig
 
 # Verify if secp256k1 is set to true in .config
 if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
@@ -83,6 +78,36 @@ if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
 fi
 
 
+make -j$(nproc) toolchain/install
+if [ $? -ne 0 ]; then
+    echo "Toolchain install failed"
+    exit 1
+fi
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After toolchain install, Error: secp256k1 is not set to true in the .config file."
+  exit 1
+fi
+
+
+# Copy configuration files
+cp ~/nostrSigner/.config $OPENWRT_DIR/.config
+cp ~/nostrSigner/feeds.conf $OPENWRT_DIR/feeds.conf
+
+
+
+# Update the custom feed
+echo "Updating custom feed..."
+./scripts/feeds update custom
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After custom update, Error: secp256k1 is not set to true in the .config file."
+  exit 1
+fi
+
+
 # Install the secp256k1 package from the custom feed
 echo "Installing secp256k1 package from custom feed..."
 ./scripts/feeds install $PACKAGE_NAME
@@ -100,27 +125,6 @@ if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
 fi
 
 
-# Update the custom feed
-echo "Updating custom feed..."
-./scripts/feeds update custom
-
-# Verify if secp256k1 is set to true in .config
-if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
-  echo "After custom update, Error: secp256k1 is not set to true in the .config file."
-  exit 1
-fi
-
-make -j$(nproc) toolchain/install
-if [ $? -ne 0 ]; then
-    echo "Toolchain install failed"
-    exit 1
-fi
-
-# Verify if secp256k1 is set to true in .config
-if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
-  echo "After toolchain install, Error: secp256k1 is not set to true in the .config file."
-  exit 1
-fi
 
 # Build the specific package
 echo "Building the $PACKAGE_NAME package..."
