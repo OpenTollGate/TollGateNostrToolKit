@@ -1,21 +1,42 @@
 #!/bin/bash
 
 # Get the directory of the script
-SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+SCRIPT_DIR="$HOME/nostrSigner"
 OPENWRT_DIR="$HOME/openwrt"
 
-cd $OPENWRT_DIR
+cd $OPENWRT_DIR || { echo "Failed to cd to $OPENWRT_DIR"; exit 1; }
 
 # Copy configuration files
 cp $SCRIPT_DIR/.config $OPENWRT_DIR/.config
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
 # Update and install all feeds
+echo "Updating feeds..."
 ./scripts/feeds update -a
-./scripts/feeds install -a
+if [ $? -ne 0 ]; then
+    echo "Feeds update failed"
+    exit 1
+fi
 
+echo "Installing feeds..."
+./scripts/feeds install -a
+if [ $? -ne 0 ]; then
+    echo "Feeds install failed"
+    exit 1
+fi
+
+# Ensure toolchain directory exists
+TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
+if [ ! -d "$TOOLCHAIN_DIR" ]; then
+    echo "Creating missing toolchain directory: $TOOLCHAIN_DIR"
+    mkdir -p "$TOOLCHAIN_DIR"
+fi
+
+# Install the toolchain
+echo "Installing toolchain..."
 make -j$(nproc) toolchain/install
 if [ $? -ne 0 ]; then
     echo "Toolchain install failed"
     exit 1
 fi
+
