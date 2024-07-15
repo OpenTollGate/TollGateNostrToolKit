@@ -11,9 +11,14 @@ else
   echo "System already updated today"
 fi
 
-# Install necessary dependencies only if they are not already installed
-declare -a packages=("build-essential" "libncurses5-dev" "libncursesw5-dev" "git" "python3" "rsync" "file" "wget")
+# List of necessary dependencies
+declare -a packages=(
+  "build-essential" "libncurses5-dev" "libncursesw5-dev" "git" "python3" 
+  "rsync" "file" "wget" "clang" "flex" "bison" "g++" "gawk" "gcc-multilib"
+  "g++-multilib" "gettext" "libssl-dev" "python3-distutils" "unzip" "zlib1g-dev"
+)
 
+# Install necessary dependencies only if they are not already installed
 for pkg in "${packages[@]}"; do
   if ! dpkg -l | grep -qw "$pkg"; then
     sudo apt-get install -y "$pkg"
@@ -21,3 +26,4 @@ for pkg in "${packages[@]}"; do
     echo "$pkg is already installed"
   fi
 done
+
