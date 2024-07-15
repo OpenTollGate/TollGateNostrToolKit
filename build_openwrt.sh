@@ -36,7 +36,7 @@ OPENWRT_DIR=~/openwrt
 CONFIG_FILE=".config"
 FEEDS_FILE="feeds.conf"
 PACKAGE_NAME="secp256k1"
-TARGET_DIR="bin/packages/*/*"
+cpTARGET_DIR="bin/packages/*/*"
 
 # Clone the OpenWrt repository if it doesn't exist
 if [ ! -d "$OPENWRT_DIR" ]; then
@@ -53,6 +53,9 @@ fi
 # Navigate to the existing OpenWrt build directory
 cd $OPENWRT_DIR
 
+# Copy configuration files
+cp ~/nostrSigner/.config $OPENWRT_DIR/.config
+cp ~/nostrSigner/feeds.conf $OPENWRT_DIR/feeds.conf
 
 # Update and install all feeds
 ./scripts/feeds update -a
@@ -65,7 +68,6 @@ if [ $? -ne 0 ]; then
     echo "Toolchain install failed"
     exit 1
 fi
-
 
 # Copy configuration files
 cp ~/nostrSigner/.config $OPENWRT_DIR/.config
