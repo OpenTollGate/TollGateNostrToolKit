@@ -69,14 +69,6 @@ echo "Updating custom feed..."
 echo "Installing secp256k1 package from custom feed..."
 ./scripts/feeds install $PACKAGE_NAME
 
-
-make toolchain/install
-if [ $? -ne 0 ]; then
-    echo "Toolchain install failed"
-    exit 1
-fi
-
-
 # Check for feed install errors
 if [ $? -ne 0 ]; then
     echo "Feeds install failed"
@@ -84,21 +76,27 @@ if [ $? -ne 0 ]; then
 fi
 
 
+make -j$(nproc) toolchain/install
+if [ $? -ne 0 ]; then
+    echo "Toolchain install failed"
+    exit 1
+fi
+
 # Build the specific package
 echo "Building the $PACKAGE_NAME package..."
-make package/$PACKAGE_NAME/download V=s
+make -j$(nproc) package/$PACKAGE_NAME/download V=s
 if [ $? -ne 0 ]; then
     echo "$PACKAGE_NAME download failed."
     exit 1
 fi
 
-make package/$PACKAGE_NAME/check V=s
+make -j$(nproc) package/$PACKAGE_NAME/check V=s
 if [ $? -ne 0 ]; then
     echo "$PACKAGE_NAME check failed."
     exit 1
 fi
 
-make package/$PACKAGE_NAME/compile V=s
+make -j$(nproc) package/$PACKAGE_NAME/compile V=s
 if [ $? -ne 0 ]; then
     echo "$PACKAGE_NAME compile failed."
     exit 1
