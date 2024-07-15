@@ -39,9 +39,35 @@ OPENWRT_DIR=~/openwrt
 CONFIG_FILE=".config"
 SOURCE_FILE="$PWD/sign_event.c"
 MIPS_BINARY="$PWD/sign_event_mips"
-
+FEED_NAME="custom"
 PACKAGE_NAME="secp256k1"
 TARGET_DIR="bin/packages/*/*"
+
+OPENWRT_DIR=~/openwrt
+BUILD_DIR="$OPENWRT_DIR/build_dir/target-*/secp256k1-*/"
+STAGING_DIR="$OPENWRT_DIR/staging_dir/target-*/"
+TOOLCHAIN_DIR="$STAGING_DIR/toolchain-*/"
+
+STAGING_DIR=$(pwd)/staging_dir
+TOOLCHAIN_DIR=$STAGING_DIR/toolchain-mips_24kc_gcc-11.2.0_musl
+export PATH=$TOOLCHAIN_DIR/bin:$PATH
+export STAGING_DIR
+
+# Make sure secp256k1 headers and libraries are available
+SECP256K1_DIR="$LIB_DIR/secp256k1"
+INCLUDE_DIR="$SECP256K1_DIR/include"
+LIBS="-L$SECP256K1_DIR/.libs -lsecp256k1 -lgmp"
+
+# Source file and output binary
+SOURCE_FILE="$PWD/sign_event.c"
+MIPS_BINARY="$PWD/sign_event_mips"
+
+# Paths to secp256k1 library and include directories
+INCLUDE_DIR="$STAGING_DIR/usr/include"
+LIB_DIR="$STAGING_DIR/usr/lib"
+
+# Set toolchain path
+export PATH=$TOOLCHAIN_DIR/bin:$PATH
 
 # Clone the OpenWrt repository if it doesn't exist
 if [ ! -d "$OPENWRT_DIR" ]; then
@@ -150,16 +176,6 @@ echo "OpenWrt build completed successfully!"
 
 # Compile the sign_event program for MIPS architecture
 echo "Compiling sign_event.c for MIPS architecture..."
-STAGING_DIR=$(pwd)/staging_dir
-TOOLCHAIN_DIR=$STAGING_DIR/toolchain-mips_24kc_gcc-11.2.0_musl
-export PATH=$TOOLCHAIN_DIR/bin:$PATH
-export STAGING_DIR
-
-# Make sure secp256k1 headers and libraries are available
-SECP256K1_DIR="$LIB_DIR/secp256k1"
-INCLUDE_DIR="$SECP256K1_DIR/include"
-LIBS="-L$SECP256K1_DIR/.libs -lsecp256k1 -lgmp"
-
 mips-openwrt-linux-gcc -I$INCLUDE_DIR -o $MIPS_BINARY $SOURCE_FILE $LIBS -static
 
 if [ $? -eq 0 ]; then
@@ -174,15 +190,24 @@ ROUTER_IP="192.168.8.1"
 REMOTE_PATH="/tmp"
 REMOTE_USER="root"
 REMOTE_PASS="1"
-echo "Transferring $MIPS_BINARY to the router..."
-scp $MIPS_BINARY $REMOTE_USER@$ROUTER_IP:$REMOTE_PATH/
 
-# Run the binary on the router
-echo "Running $MIPS_BINARY on the router..."
-sshpass -p $REMOTE_PASS ssh $REMOTE_USER@$ROUTER_IP << EOF
+# Check if the router is reachable
+if ping -c 1 $ROUTER_IP &> /dev/null; then
+  echo "Router is reachable. Proceeding with file transfer and execution..."
+
+  echo "Transferring $MIPS_BINARY to the router..."
+  scp $MIPS_BINARY $REMOTE_USER@$ROUTER_IP:$REMOTE_PATH/
+
+  echo "Running $MIPS_BINARY on the router..."
+  sshpass -p $REMOTE_PASS ssh $REMOTE_USER@$ROUTER_IP << EOF
 chmod +x $REMOTE_PATH/$(basename $MIPS_BINARY)
 $REMOTE_PATH/$(basename $MIPS_BINARY)
 EOF
+
+  echo "Done!"
+else
+  echo "Error: Router is not reachable. Skipping file transfer and execution."
+fi
 
 echo "Done!"
 
