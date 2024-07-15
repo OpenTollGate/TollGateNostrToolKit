@@ -2,6 +2,7 @@
 
 # Get the directory of the script
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+OPENWRT_DIR="$HOME/openwrt"
 
 # Copy configuration files
 cp $SCRIPT_DIR/.config $OPENWRT_DIR/.config

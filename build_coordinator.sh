@@ -10,27 +10,7 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 ./setup_dependencies.sh
-
-
-####################################
-### BEGIN: Download openwrt repo ###
-####################################
-
-OPENWRT_DIR=~/openwrt
-# Clone the OpenWrt repository if it doesn't exist
-if [ ! -d "$OPENWRT_DIR" ]; then
-  echo "Cloning OpenWrt repository..."
-  git clone --depth 1 --branch v23.05.3 https://github.com/openwrt/openwrt.git $OPENWRT_DIR
-  if [ $? -ne 0 ]; then
-    echo "Failed to clone OpenWrt repository"
-    exit 1
-  fi
-else
-  echo "OpenWrt directory already exists."
-fi
-
-# Navigate to the existing OpenWrt build directory
-cd $OPENWRT_DIR
+./clone_openwrt_sdk.sh
 
 ####################################
 ### END: Download openwrt repo   ###
