@@ -1,10 +1,13 @@
 #!/bin/bash
 
+# Define the OpenWrt base directory
+OPENWRT_DIR="$HOME/openwrt"
+
 # Paths to toolchain and libraries
-STAGING_DIR=$(find ~/openwrt/staging_dir/ -type d -wholename "*/toolchain-mips_24kc_gcc-12.3.0_musl/usr" | head -n 1)
+STAGING_DIR=$(find $OPENWRT_DIR/staging_dir/ -type d -wholename "*/toolchain-mips_24kc_gcc-12.3.0_musl/usr" | head -n 1)
 TOOLCHAIN_DIR=$(dirname "$STAGING_DIR")
-INCLUDE_DIR=$(find ~/openwrt/staging_dir/ -type d -wholename "*/target-mips_24kc_musl/root-ath79/usr/include" | head -n 1)
-LIB_DIR=$(find ~/openwrt/build_dir/ -type d -wholename "*/secp256k1-0.1" | head -n 1)/.libs
+INCLUDE_DIR=$(find $OPENWRT_DIR/staging_dir/ -type d -wholename "*/target-mips_24kc_musl/root-ath79/usr/include" | head -n 1)
+LIB_DIR=$(find $OPENWRT_DIR/build_dir/ -type d -wholename "*/secp256k1-0.1" | head -n 1)/.libs
 
 # Ensure the toolchain is in the PATH
 export PATH=$TOOLCHAIN_DIR/bin:$PATH
@@ -32,21 +35,20 @@ REMOTE_PASS="1"
 
 # Check if the router is reachable
 if ping -c 1 $ROUTER_IP &> /dev/null; then
-    echo "Router is reachable. Proceeding with file transfer and execution..."
+  echo "Router is reachable. Proceeding with file transfer and execution..."
 
-    echo "Transferring $MIPS_BINARY to the router..."
-    scp $MIPS_BINARY $REMOTE_USER@$ROUTER_IP:$REMOTE_PATH/
+  echo "Transferring $MIPS_BINARY to the router..."
+  scp $MIPS_BINARY $REMOTE_USER@$ROUTER_IP:$REMOTE_PATH/
 
-    echo "Running $MIPS_BINARY on the router..."
-      sshpass -p $REMOTE_PASS ssh $REMOTE_USER@$ROUTER_IP <<EOF
- 'EOF'
+  echo "Running $MIPS_BINARY on the router..."
+  sshpass -p $REMOTE_PASS ssh $REMOTE_USER@$ROUTER_IP << 'EOF'
 chmod +x $REMOTE_PATH/$(basename $MIPS_BINARY)
 $REMOTE_PATH/$(basename $MIPS_BINARY)
 EOF
 
-      echo "Done!"
+  echo "Done!"
 else
-    echo "Error: Router is not reachable. Skipping file transfer and execution."
+  echo "Error: Router is not reachable. Skipping file transfer and execution."
 fi
 
 echo "Done!"
