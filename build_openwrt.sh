@@ -57,6 +57,10 @@ cd $OPENWRT_DIR
 cp ~/nostrSigner/.config $OPENWRT_DIR/.config
 cp ~/nostrSigner/feeds.conf $OPENWRT_DIR/feeds.conf
 
+# Update and install all feeds
+./scripts/feeds update -a
+./scripts/feeds install -a
+
 # Update the custom feed
 echo "Updating custom feed..."
 ./scripts/feeds update custom
@@ -65,21 +69,13 @@ echo "Updating custom feed..."
 echo "Installing secp256k1 package from custom feed..."
 ./scripts/feeds install $PACKAGE_NAME
 
-# Update and install all feeds
-./scripts/feeds update -a
-./scripts/feeds install -a
 
-# Set up the environment and compile the toolchain if not already done
-if [ ! -d "$OPENWRT_DIR/staging_dir" ]; then
-    echo "Setting up the environment..."
-    make toolchain/install
-    if [ $? -ne 0 ]; then
-        echo "Toolchain install failed"
-        exit 1
-    fi
-else
-    echo "Toolchain already set up."
+make toolchain/install
+if [ $? -ne 0 ]; then
+    echo "Toolchain install failed"
+    exit 1
 fi
+
 
 # Check for feed install errors
 if [ $? -ne 0 ]; then
@@ -87,15 +83,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Set up the environment for building
-echo "Setting up the environment..."
-cp ~/nostrSigner/.config $OPENWRT_DIR/.config
-
-# Check for configuration copy errors
-if [ $? -ne 0 ]; then
-    echo "Failed to copy .config."
-    exit 1
-fi
 
 # Build the specific package
 echo "Building the $PACKAGE_NAME package..."
