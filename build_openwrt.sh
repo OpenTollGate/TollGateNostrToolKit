@@ -57,13 +57,40 @@ cd $OPENWRT_DIR
 cp ~/nostrSigner/.config $OPENWRT_DIR/.config
 cp ~/nostrSigner/feeds.conf $OPENWRT_DIR/feeds.conf
 
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "Error: secp256k1 is not set to true in the .config file."
+  exit 1
+fi
+
 # Update and install all feeds
 ./scripts/feeds update -a
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After update, Error: secp256k1 is not set to true in the .config file."
+  exit 1
+fi
+
 ./scripts/feeds install -a
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After install, Error: secp256k1 is not set to true in the .config file."
+  exit 1
+fi
+
 
 # Update the custom feed
 echo "Updating custom feed..."
 ./scripts/feeds update custom
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After custom update, Error: secp256k1 is not set to true in the .config file."
+  exit 1
+fi
 
 # Install the secp256k1 package from the custom feed
 echo "Installing secp256k1 package from custom feed..."
@@ -75,11 +102,23 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After custom install, Error: secp256k1 is not set to true in the .config file."
+  exit 1
+fi
+
 
 make -j$(nproc) toolchain/install
 if [ $? -ne 0 ]; then
     echo "Toolchain install failed"
     exit 1
+fi
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After toolchain install, Error: secp256k1 is not set to true in the .config file."
+  exit 1
 fi
 
 # Build the specific package
@@ -100,6 +139,13 @@ make -j$(nproc) package/$PACKAGE_NAME/compile V=s
 if [ $? -ne 0 ]; then
     echo "$PACKAGE_NAME compile failed."
     exit 1
+fi
+
+
+# Verify if secp256k1 is set to true in .config
+if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
+  echo "After compile, Error: secp256k1 is not set to true in the .config file."
+  exit 1
 fi
 
 # Build the firmware
