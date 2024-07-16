@@ -35,9 +35,9 @@ run_if_not_today "build_toolchain.sh"
 run_if_not_today "build_secp256k1_openwrt.sh"
 
 run_if_not_today "compile_sign_event.sh"
-run_if_not_today "transfer_to_router.sh"
-
 run_if_not_today "generate_checksums.sh"
+
+# run_if_not_today "transfer_to_router.sh"
 
 echo "All tasks completed successfully."
 
