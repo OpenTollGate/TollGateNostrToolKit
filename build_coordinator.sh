@@ -48,7 +48,7 @@ run_if_not_today "compile_for_local.sh"
 
 ##### Generate checksum  #####
 
-run_if_not_today "generate_checksums.sh"
+./generate_checksums.sh
 
 # run_if_not_today "transfer_to_router.sh"
 
