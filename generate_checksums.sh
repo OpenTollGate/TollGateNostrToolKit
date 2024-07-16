@@ -16,21 +16,25 @@ function find_binaries() {
 # Function to generate checksums and file sizes, and save them in a JSON file
 function generate_checksums() {
     echo "Generating checksums and file sizes..."
-    checksums="{\n"
+    checksums="{"
     for binary in $binaries; do
         if [ -f "$binary" ]; then
             checksum=$(sha256sum "$binary" | awk '{print $1}')
             size=$(stat --format="%s" "$binary")
-            checksums+="  \"${binary}_checksum\": \"$checksum\",\n"
-            checksums+="  \"${binary}_size\": \"$size\",\n"
+            checksums+="\"${binary}_checksum\": \"$checksum\","
+            checksums+="\"${binary}_size\": \"$size\","
         fi
     done
-    checksums="${checksums%,\n}\n}"  # Remove the last comma and add the closing brace
+    # Remove the last comma and add the closing brace
+    checksums=$(echo "$checksums" | sed 's/,$//')
+    checksums="${checksums}}"
 
-    echo -e "$checksums" > $CHECKSUM_FILE
+    # Format the JSON using jq
+    echo "$checksums" | jq . > $CHECKSUM_FILE
     echo "Checksums and file sizes saved to $CHECKSUM_FILE"
 }
 
 # Main execution flow
 find_binaries
 generate_checksums
+
