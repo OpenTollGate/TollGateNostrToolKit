@@ -16,6 +16,7 @@ declare -a packages=(
   "build-essential" "libncurses5-dev" "libncursesw5-dev" "git" "python3" 
   "rsync" "file" "wget" "clang" "flex" "bison" "g++" "gawk" "gcc-multilib"
   "g++-multilib" "gettext" "libssl-dev" "python3-distutils" "unzip" "zlib1g-dev" "jq"
+  "musl-tools"
 )
 
 # Install necessary dependencies only if they are not already installed
@@ -26,4 +27,18 @@ for pkg in "${packages[@]}"; do
     echo "$pkg is already installed"
   fi
 done
+
+# Install Rust and musl target if not already installed
+if ! command -v rustup &> /dev/null; then
+  echo "Installing Rust..."
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  source $HOME/.cargo/env
+else
+  echo "Rust is already installed"
+fi
+
+# Ensure the required Rust target is added
+rustup target add mips-unknown-linux-musl
+
+echo "All dependencies are installed and up to date."
 
