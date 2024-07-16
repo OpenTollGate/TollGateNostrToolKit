@@ -8,11 +8,12 @@ check_secp256k1_config() {
   fi
 }
 
+SCRIPT_DIR="$HOME/nostrSigner"
 OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 
 # Copy configuration files again
-cp $SCRIPT_DIR/.config_after_update $OPENWRT_DIR/.config
+cp $SCRIPT_DIR/.config_secp256k1 $OPENWRT_DIR/.config
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 make oldconfig
 
