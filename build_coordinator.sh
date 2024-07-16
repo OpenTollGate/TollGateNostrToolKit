@@ -9,15 +9,35 @@ if [ "$EUID" -eq 0 ]; then
   exit 1
 fi
 
-./setup_dependencies.sh
-./clone_openwrt_sdk.sh
+# Function to check and run a script if it hasn't been run today
+run_if_not_today() {
+  local script_name=$1
+  local timestamp_file="/tmp/$(basename $script_name).timestamp"
 
-./build_toolchain.sh
-./build_secp256k1_openwrt.sh
+  if [ ! -f "$timestamp_file" ] || [ "$(date +%Y-%m-%d)" != "$(cat $timestamp_file)" ]; then
+    echo "Running $script_name"
+    ./$script_name
+    if [ $? -eq 0 ]; then
+      echo "$(date +%Y-%m-%d)" > "$timestamp_file"
+    else
+      echo "Error: $script_name failed to run."
+      exit 1
+    fi
+  else
+    echo "$script_name has already been run today"
+  fi
+}
 
-./compile_sign_event.sh
+run_if_not_today "setup_dependencies.sh"
+run_if_not_today "clone_openwrt_sdk.sh"
 
-./transfer_to_router.sh
+run_if_not_today "build_toolchain.sh"
+run_if_not_today "build_secp256k1_openwrt.sh"
 
+run_if_not_today "compile_sign_event.sh"
+run_if_not_today "transfer_to_router.sh"
 
-./generate_checksums.sh
+run_if_not_today "generate_checksums.sh"
+
+echo "All tasks completed successfully."
+
