@@ -58,11 +58,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Verify if websocat is set to true in .config
-if ! grep -q "^CONFIG_PACKAGE_websocat=y" .config; then
-  echo "After compile, Error: websocat is not set to true in the .config file."
-  exit 1
-fi
+check_websocat_config
 
 # Build the firmware
 echo "Building the firmware..."
