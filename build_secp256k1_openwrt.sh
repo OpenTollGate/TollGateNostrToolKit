@@ -58,11 +58,9 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Verify if secp256k1 is set to true in .config
-if ! grep -q "^CONFIG_PACKAGE_secp256k1=y" .config; then
-  echo "After compile, Error: secp256k1 is not set to true in the .config file."
-  exit 1
-fi
+
+check_secp256k1_config
+
 
 # Build the firmware
 echo "Building the firmware..."
