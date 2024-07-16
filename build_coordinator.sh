@@ -28,6 +28,9 @@ run_if_not_today() {
   fi
 }
 
+
+##### MIPS Architecture  #####
+
 run_if_not_today "setup_dependencies.sh"
 run_if_not_today "clone_openwrt_sdk.sh"
 
@@ -35,6 +38,16 @@ run_if_not_today "build_toolchain.sh"
 run_if_not_today "build_secp256k1_openwrt.sh"
 
 run_if_not_today "compile_sign_event.sh"
+
+##### Local Architecture #####
+
+run_if_not_today "setup_x86_dependencies.sh"
+run_if_not_today "compile_openssl_for_local.sh"
+run_if_not_today "compile_secp256k1_for_local.sh"
+run_if_not_today "compile_for_local.sh"
+
+##### Generate checksum  #####
+
 run_if_not_today "generate_checksums.sh"
 
 # run_if_not_today "transfer_to_router.sh"
