@@ -35,7 +35,8 @@ run_if_not_today "setup_dependencies.sh"
 run_if_not_today "clone_openwrt_sdk.sh"
 
 run_if_not_today "build_toolchain.sh"
-run_if_not_today "build_secp256k1_openwrt.sh"
+# run_if_not_today "build_secp256k1_openwrt.sh"
+# run_if_not_today "build_websocat_openwrt.sh"
 
 run_if_not_today "compile_sign_event.sh"
 
