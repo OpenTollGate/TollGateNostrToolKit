@@ -1,11 +1,5 @@
 {
-  "local_binary_dynamic_checksum": "d12a708a15219876c701748e7a3419bb6fe3336dd25f127b23741bddc6c9d0bd",
-  "local_binary_dynamic_size": "1631024",
-  "local_binary_checksum": "d12a708a15219876c701748e7a3419bb6fe3336dd25f127b23741bddc6c9d0bd",
-  "local_binary_size": "1631024",
-  "mips_binary_checksum": "9daceadb4b06f9ddf004e78fe5a92efdab2e29457ce2263dd28a58682cee3a38",
-  "mips_binary_size": "2448688",
-  "mips_binary_dynamic_checksum": "404301572fb02ff5a1c6228ac3b83c54879c025636b0638b67bab9121f40da47",
-  "mips_binary_dynamic_size": "1727624",
+  "sign_event_mips_checksum": "56f0302195363e847a6d7d91a5e56762d4fbf6406ad4c8879492c549fdbcfb67",
+  "sign_event_mips_size": "1621704",
 
 }
