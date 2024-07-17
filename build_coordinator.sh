@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Exit on any error
-# set -e
+set -e
 
 # Function to check if the script is run as root
 if [ "$EUID" -eq 0 ]; then
@@ -10,9 +10,10 @@ if [ "$EUID" -eq 0 ]; then
 fi
 
 # Function to check and run a script if it hasn't been run today
-run_if_not_today() {
+execute_if_new_day() {
   local script_name=$1
-  local timestamp_file="/tmp/$(basename $script_name).timestamp"
+  local base_name=$(basename $script_name)
+  local timestamp_file="/tmp/my_script_${base_name}.timestamp"  # Adding unique prefix
 
   if [ ! -f "$timestamp_file" ] || [ "$(date +%Y-%m-%d)" != "$(cat $timestamp_file)" ]; then
     echo "Running $script_name"
@@ -28,30 +29,30 @@ run_if_not_today() {
   fi
 }
 
+# Clear all script-related timestamps
+# rm -f /tmp/my_script_*.timestamp
 
-##### MIPS Architecture  #####
+##### MIPS Architecture #####
 
-run_if_not_today "setup_dependencies.sh"
-run_if_not_today "clone_openwrt_sdk.sh"
-
-run_if_not_today "build_toolchain.sh"
-run_if_not_today "build_secp256k1_openwrt.sh"
-run_if_not_today "build_websocat_openwrt.sh"
-
-run_if_not_today "compile_sign_event.sh"
+execute_if_new_day "setup_dependencies.sh"
+execute_if_new_day "clone_openwrt_sdk.sh"
+execute_if_new_day "build_toolchain.sh"
+execute_if_new_day "build_custom_dependencies.sh"
+execute_if_new_day "compile_relay_link.sh"
+execute_if_new_day "compile_sign_event.sh"
 
 ##### Local Architecture #####
 
-run_if_not_today "setup_x86_dependencies.sh"
-run_if_not_today "compile_openssl_for_local.sh"
-run_if_not_today "compile_secp256k1_for_local.sh"
-run_if_not_today "compile_for_local.sh"
+execute_if_new_day "setup_x86_dependencies.sh"
+execute_if_new_day "compile_openssl_for_local.sh"
+execute_if_new_day "compile_secp256k1_for_local.sh"
+execute_if_new_day "compile_for_local.sh"
 
 ##### Generate checksum  #####
 
-./generate_checksums.sh
+execute_if_new_day "generate_checksums.sh"
 
-# run_if_not_today "transfer_to_router.sh"
+# execute_if_new_day "transfer_to_router.sh"
 
 echo "All tasks completed successfully."
 
