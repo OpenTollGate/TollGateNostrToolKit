@@ -46,6 +46,7 @@ execute_if_new_day "compile_sign_event.sh"
 execute_if_new_day "setup_x86_dependencies.sh"
 execute_if_new_day "compile_openssl_for_local.sh"
 execute_if_new_day "compile_secp256k1_for_local.sh"
+execute_if_new_day "build_relay_link.sh"
 execute_if_new_day "compile_for_local.sh"
 
 ##### Generate checksum  #####
