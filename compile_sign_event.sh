@@ -13,8 +13,8 @@ LIB_DIR=$(find $OPENWRT_DIR/build_dir/ -type d -wholename "*/secp256k1-0.1" | he
 export PATH=$TOOLCHAIN_DIR/bin:$PATH
 
 # Source file and output binary
-SOURCE_FILE="$HOME/nostrSigner/sign_event.c"
-MIPS_BINARY="$HOME/nostrSigner/sign_event_mips"
+SOURCE_FILE="$HOME/TollGateNostrToolKit/sign_event.c"
+MIPS_BINARY="$HOME/TollGateNostrToolKit/sign_event_mips"
 
 # Compile the sign_event program for MIPS architecture
 echo "Compiling sign_event.c for MIPS architecture..."

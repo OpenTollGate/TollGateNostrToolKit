@@ -5,8 +5,8 @@ set -e
 
 # Define directories and paths
 OPENWRT_DIR="$HOME/openwrt"
-SCRIPT_DIR="$HOME/TollGateNostrToolKit"
-PROGRAM_NAME="RelayLink"
+SCRIPT_DIR="$HOME/GLTollGate/nostr/c"
+PROGRAM_NAME="generate_npub"
 C_FILE="$SCRIPT_DIR/${PROGRAM_NAME}.c"
 OBJ_FILE="$SCRIPT_DIR/${PROGRAM_NAME}.o"
 MIPS_BINARY="$SCRIPT_DIR/${PROGRAM_NAME}_mips"
@@ -29,16 +29,15 @@ export LD_LIBRARY_PATH=${LIB_DIRS[0]}:$LD_LIBRARY_PATH
 
 # Compile the source file to an object file with verbose output
 echo "Compiling ${PROGRAM_NAME}.c to object file..."
-mips-openwrt-linux-gcc -v -I$INCLUDE_DIR -c $C_FILE -o $OBJ_FILE
+mips-openwrt-linux-gcc -v -I$INCLUDE_DIR -I$SCRIPT_DIR/../../../nostr_client_relay/src/nostril -c $C_FILE -o $OBJ_FILE
 
 # Link the object file to create the final binary with verbose output and full paths to static libraries
 echo "Linking object file to create binary..."
 mips-openwrt-linux-gcc -v -o $MIPS_BINARY $OBJ_FILE \
-  $OPENWRT_DIR/staging_dir/target-mips_24kc_musl/usr/lib/libwebsockets.a \
+  $OPENWRT_DIR/staging_dir/target-mips_24kc_musl/usr/lib/libwallycore.a \
   $OPENWRT_DIR/staging_dir/target-mips_24kc_musl/usr/lib/libssl.a \
   $OPENWRT_DIR/staging_dir/target-mips_24kc_musl/usr/lib/libcrypto.a \
-  $OPENWRT_DIR/staging_dir/target-mips_24kc_musl/usr/lib/libcap.a \
-  $OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/lib/libatomic.a \
+  $OPENWRT_DIR/staging_dir/target-mips_24kc_musl/usr/lib/libsecp256k1.a \
   -static
 
 if [ $? -eq 0 ]; then
@@ -47,4 +46,3 @@ else
     echo "Failed to compile ${PROGRAM_NAME}.c for MIPS architecture."
     exit 1
 fi
-
