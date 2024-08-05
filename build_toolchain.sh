@@ -6,6 +6,8 @@ OPENWRT_DIR="$HOME/openwrt"
 
 cd $OPENWRT_DIR || { echo "Failed to cd to $OPENWRT_DIR"; exit 1; }
 
+# make clean && make dirclean && make package/nostr_client_relay/clean
+
 # WARNING: your configuration is out of sync. Please run make menuconfig, oldconfig or defconfig!
 cp $SCRIPT_DIR/.config $OPENWRT_DIR/.config
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
