@@ -8,7 +8,7 @@ check_websocat_config() {
   fi
 }
 
-SCRIPT_DIR="$HOME/nostrSigner"
+SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 

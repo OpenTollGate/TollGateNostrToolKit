@@ -5,7 +5,7 @@ set -e
 
 # Define directories and paths
 OPENWRT_DIR="$HOME/openwrt"
-SCRIPT_DIR="$HOME/nostrSigner"
+SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 PROGRAM_NAME="RelayLink"
 C_FILE="$SCRIPT_DIR/${PROGRAM_NAME}.c"
 OBJ_FILE="$SCRIPT_DIR/${PROGRAM_NAME}.o"

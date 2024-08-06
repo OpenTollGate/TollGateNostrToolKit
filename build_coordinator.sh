@@ -30,7 +30,8 @@ execute_if_new_day() {
 }
 
 # Clear all script-related timestamps
-# rm -f /tmp/my_script_*.timestamp
+rm -f /tmp/build_*.timestamp
+rm -f /tmp/compile_*.timestamp
 
 ##### MIPS Architecture #####
 

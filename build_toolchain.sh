@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Get the directory of the script
-SCRIPT_DIR="$HOME/nostrSigner"
+SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 OPENWRT_DIR="$HOME/openwrt"
 
 cd $OPENWRT_DIR || { echo "Failed to cd to $OPENWRT_DIR"; exit 1; }
