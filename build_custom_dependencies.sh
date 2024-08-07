@@ -40,20 +40,24 @@ fi
 check_secp256k1_config
 
 # Build the specific packages
-echo "Building the dependencies..."
+echo "Building libwebsockets..."
 make -j$(nproc) package/libwebsockets/download V=s
-make -j$(nproc) package/secp256k1/download V=s
-make -j$(nproc) package/libwally/download V=s
-make -j$(nproc) package/nostr_client_relay/download V=s
-
 make -j$(nproc) package/libwebsockets/check V=s
-make -j$(nproc) package/secp256k1/check V=s
-make -j$(nproc) package/libwally/check V=s
-make -j$(nproc) package/nostr_client_relay/check V=s
-
 make -j$(nproc) package/libwebsockets/compile V=s
+
+echo "Building secp256k1..."
+make -j$(nproc) package/secp256k1/download V=s
+make -j$(nproc) package/secp256k1/check V=s
 make -j$(nproc) package/secp256k1/compile V=s
+
+echo "Building libwally..."
+make -j$(nproc) package/libwally/download V=s
+make -j$(nproc) package/libwally/check V=s
 make -j$(nproc) package/libwally/compile V=s
+
+echo "Building nostr_client_relay..."
+make -j$(nproc) package/nostr_client_relay/download V=s
+make -j$(nproc) package/nostr_client_relay/check V=s
 make -j$(nproc) package/nostr_client_relay/compile V=s
 
 check_secp256k1_config
