@@ -44,10 +44,10 @@ make -j$(nproc) package/libwally/download V=s
 make -j$(nproc) package/libwally/check V=s
 make -j$(nproc) package/libwally/compile V=s
 
-echo "Building nostr_client_relay..."
+# echo "Building nostr_client_relay..."
 make -j$(nproc) package/nostr_client_relay/download V=s
 make -j$(nproc) package/nostr_client_relay/check V=s
-make -j$(nproc) package/nostr_client_relay/compile V=s
+# make -j$(nproc) package/nostr_client_relay/compile V=s
 
 echo "Building gltollgate..."
 make -j$(nproc) package/gltollgate/download V=s
