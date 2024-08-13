@@ -6,16 +6,18 @@ SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 
+# Clean the build environment
+echo "Cleaning the build environment..."
+make clean
+
 # Copy configuration files again
 cp $SCRIPT_DIR/.config_secp256k1 $OPENWRT_DIR/.config
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 make oldconfig
 
-
 # Update the custom feed
 echo "Updating custom feed..."
 ./scripts/feeds update custom
-
 
 # Install the dependencies from the custom feed
 echo "Installing dependencies from custom feed..."
