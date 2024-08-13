@@ -44,6 +44,13 @@ make -j$(nproc) package/libwally/download V=s
 make -j$(nproc) package/libwally/check V=s
 make -j$(nproc) package/libwally/compile V=s
 
+echo "Build with dependencies before using them..."
+make -j$(nproc) V=s
+if [ $? -ne 0 ]; then
+    echo "Firmware build failed."
+    exit 1
+fi
+
 # echo "Building nostr_client_relay..."
 make -j$(nproc) package/nostr_client_relay/download V=s
 make -j$(nproc) package/nostr_client_relay/check V=s
