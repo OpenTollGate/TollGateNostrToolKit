@@ -54,23 +54,22 @@ if [ $? -ne 0 ]; then
 fi
 
 # echo "Building nostr_client_relay..."
-make -j$(nproc) package/nostr_client_relay/download V=s
-make -j$(nproc) package/nostr_client_relay/check V=s
+# make -j$(nproc) package/nostr_client_relay/download V=s
+# make -j$(nproc) package/nostr_client_relay/check V=s
 # make -j$(nproc) package/nostr_client_relay/compile V=s
 
 echo "Building gltollgate..."
-make -j$(nproc) package/gltollgate/download V=s
-make -j$(nproc) package/gltollgate/check V=s
-make -j$(nproc) package/gltollgate/compile V=s
-
+# make -j$(nproc) package/gltollgate/download V=s
+# make -j$(nproc) package/gltollgate/check V=s
+# make -j$(nproc) package/gltollgate/compile V=s
 
 # Build the firmware
-echo "Building the firmware..."
-make -j$(nproc) V=s
-if [ $? -ne 0 ]; then
-    echo "Firmware build failed."
-    exit 1
-fi
+# echo "Building the firmware..."
+# make -j$(nproc) V=s
+# if [ $? -ne 0 ]; then
+#    echo "Firmware build failed."
+#     exit 1
+# fi
 
 # Find and display the generated IPK file
 echo "Finding the generated IPK file..."
@@ -78,8 +77,8 @@ TARGET_DIR="bin/packages/*/*"
 find $TARGET_DIR -name "*secp256k1*.ipk"
 find $TARGET_DIR -name "*libwebsockets*.ipk"
 find $TARGET_DIR -name "*libwally*.ipk"
-find $TARGET_DIR -name "*nostr_client_relay*.ipk"
-find $TARGET_DIR -name "*gltollgate*.ipk"
+# find $TARGET_DIR -name "*nostr_client_relay*.ipk"
+# find $TARGET_DIR -name "*gltollgate*.ipk"
 
 echo "OpenWrt build completed successfully!"
 
