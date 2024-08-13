@@ -1,6 +1,6 @@
 # Setup build environment from scratch
 ```
-https://raw.githubusercontent.com/chGoodchild/TollGateNostrToolKit/nostr_client_relay/setup_from_scratch.sh
+curl -sSL https://raw.githubusercontent.com/chGoodchild/TollGateNostrToolKit/nostr_client_relay/setup_from_scratch.sh | bash
 ```
 
 # Build everything
