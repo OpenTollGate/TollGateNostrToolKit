@@ -33,6 +33,9 @@ Running setup_dependencies.sh
 make -j$(nproc) V=s > make_logs.md 2>&1
 ```
 
+[Updating Feeds Configuration in OpenWRT](updating_feeds_conf_in_openwrt.md)
+
+
 # Build everything
 ```
 sudo ./build_coordinator.sh
