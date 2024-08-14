@@ -18,20 +18,10 @@ fi
 
 # Switch to the new user
 sudo su - $USERNAME <<EOF
-    # Clone the repository or pull the latest changes
-    if [ -d "$REPO_DIR" ]; then
-        cd "$REPO_DIR"
-        git pull
-    else
-        git clone "$REPO_URL" "$REPO_DIR"
-    fi
-
-    # Check out the branch
-    cd "$REPO_DIR"
-    git checkout -b nostr_client_relay origin/nostr_client_relay
+    curl -sSL https://raw.githubusercontent.com/chGoodchild/TollGateNostrToolKit/nostr_client_relay/setup_repo.sh | bash
 
     # Log in to the new user's shell
-    exec bash
+    # exec bash
 EOF
 
 # Login as the new user

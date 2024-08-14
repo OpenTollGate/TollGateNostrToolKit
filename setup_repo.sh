@@ -1,4 +1,6 @@
-
+USERNAME="username"  # Replace with the desired username
+REPO_DIR="/home/$USERNAME/TollGateNostrToolKit"
+REPO_URL="https://github.com/chGoodchild/TollGateNostrToolKit.git"
 
 if [ -d "$REPO_DIR" ]; then
     cd "$REPO_DIR"
