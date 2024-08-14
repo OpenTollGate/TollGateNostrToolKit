@@ -15,7 +15,7 @@ fi
 declare -a packages=(
   "build-essential" "libncurses5-dev" "libncursesw5-dev" "git" "python3" 
   "rsync" "file" "wget" "clang" "flex" "bison" "g++" "gawk" "gcc-multilib"
-  "g++-multilib" "gettext" "libssl-dev" "python3-distutils" "unzip" "zlib1g-dev" "jq"
+  "g++-multilib" "gettext" "libssl-dev" "python3-distutils-extra" "unzip" "zlib1g-dev" "jq"
 )
 
 # Install necessary dependencies only if they are not already installed
