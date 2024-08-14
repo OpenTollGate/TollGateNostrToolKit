@@ -28,6 +28,11 @@ Running setup_dependencies.sh
 [sudo] password for username:
 ```
 
+# Collecting logs
+```
+make -j$(nproc) V=s > make_logs.md 2>&1
+```
+
 # Build everything
 ```
 sudo ./build_coordinator.sh
