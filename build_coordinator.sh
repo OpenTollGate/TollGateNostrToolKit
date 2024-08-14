@@ -39,6 +39,7 @@ rm sign_event_mips sign_event_local RelayLink_mips
 execute_if_new_day "setup_dependencies.sh"
 execute_if_new_day "clone_openwrt_sdk.sh"
 execute_if_new_day "build_toolchain.sh"
+exit 0
 execute_if_new_day "build_custom_dependencies.sh"
 execute_if_new_day "compile_relay_link.sh"
 execute_if_new_day "compile_sign_event.sh"

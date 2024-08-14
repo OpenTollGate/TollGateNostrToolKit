@@ -1,18 +1,38 @@
-REPO_DIR="$HOME/TollGateNostrToolKit"
+# Define variables
+USERNAME="username"  # Replace with the desired username
+REPO_DIR="/home/$USERNAME/TollGateNostrToolKit"
 REPO_URL="https://github.com/chGoodchild/TollGateNostrToolKit.git"
 
 
-curl -sSL https://raw.githubusercontent.com/chGoodchild/vps_general_setup/main/setup.sh | bash
+# Execute the curl script as root
+curl -sSL https://raw.githubusercontent.com/chGoodchild/vps_general_setup/main/setup.sh | sudo bash
 
-if [ -d "$REPO_DIR" ]; then
-    # If the directory exists, navigate into it and pull the latest changes
-    cd "$REPO_DIR"
-    git pull
+# Check if the user already exists
+if id "$USERNAME" &>/dev/null; then
+    echo "User $USERNAME already exists."
 else
-    # If the directory does not exist, clone the repository
-    git clone "$REPO_URL"
+    # Create the non-root user and add to the sudo group
+    sudo adduser $USERNAME
+    sudo usermod -aG sudo $USERNAME
 fi
 
+# Switch to the new user
+sudo su - $USERNAME <<EOF
+    # Clone the repository or pull the latest changes
+    if [ -d "$REPO_DIR" ]; then
+        cd "$REPO_DIR"
+        git pull
+    else
+        git clone "$REPO_URL" "$REPO_DIR"
+    fi
 
-git checkout -b nostr_client_relay origin/nostr_client_relay
+    # Check out the branch
+    cd "$REPO_DIR"
+    git checkout -b nostr_client_relay origin/nostr_client_relay
 
+    # Log in to the new user's shell
+    exec bash
+EOF
+
+# Login as the new user
+ssh $USERNAME@localhost
