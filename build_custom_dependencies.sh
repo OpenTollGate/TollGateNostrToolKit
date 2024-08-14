@@ -7,8 +7,8 @@ OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 
 # Clean the build environment
-echo "Cleaning the build environment..."
-make clean
+# echo "Cleaning the build environment..."
+# make clean
 
 # Copy configuration files again
 cp $SCRIPT_DIR/.config_secp256k1 $OPENWRT_DIR/.config
