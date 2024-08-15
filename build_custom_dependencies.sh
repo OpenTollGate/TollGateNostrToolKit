@@ -47,6 +47,7 @@ echo "Building libwally..."
 make -j$(nproc) package/libwally/download V=s
 make -j$(nproc) package/libwally/check V=s
 make -j$(nproc) package/libwally/compile V=s
+make -j$(nproc) package/libwally/install V=s
 
 echo "Building gltollgate..."
 make -j$(nproc) package/gltollgate/download V=s
