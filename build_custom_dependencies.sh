@@ -35,11 +35,13 @@ echo "Building libwebsockets..."
 make -j$(nproc) package/libwebsockets/download V=s
 make -j$(nproc) package/libwebsockets/check V=s
 make -j$(nproc) package/libwebsockets/compile V=s
+make -j$(nproc) package/libwebsockets/install V=s
 
 echo "Building secp256k1..."
 make -j$(nproc) package/secp256k1/download V=s
 make -j$(nproc) package/secp256k1/check V=s
 make -j$(nproc) package/secp256k1/compile V=s
+make -j$(nproc) package/secp256k1/install V=s
 
 echo "Building libwally..."
 make -j$(nproc) package/libwally/download V=s
