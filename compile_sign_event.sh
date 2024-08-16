@@ -7,10 +7,11 @@ OPENWRT_DIR="$HOME/openwrt"
 STAGING_DIR=$(find $OPENWRT_DIR/staging_dir/ -type d -wholename "*/toolchain-mips_24kc_gcc-12.3.0_musl/usr" | head -n 1)
 TOOLCHAIN_DIR=$(dirname "$STAGING_DIR")
 INCLUDE_DIR=$(find $OPENWRT_DIR/staging_dir/ -type d -wholename "*/target-mips_24kc_musl/root-ath79/usr/include" | head -n 1)
-LIB_DIR=$(find $OPENWRT_DIR/build_dir/ -type d -wholename "*/secp256k1-0.1" | head -n 1)/.libs
+LIB_DIR=$(find $OPENWRT_DIR/build_dir/ -type d -wholename "*/libsecp256k1-0.1" | head -n 1)/.libs
 
 # Ensure the toolchain is in the PATH
 export PATH=$TOOLCHAIN_DIR/bin:$PATH
+export STAGING_DIR
 
 # Source file and output binary
 SOURCE_FILE="$HOME/TollGateNostrToolKit/sign_event.c"
