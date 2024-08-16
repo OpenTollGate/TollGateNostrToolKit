@@ -4646,6 +4646,7 @@ CONFIG_PACKAGE_libnl-tiny=y
 # CONFIG_PACKAGE_libsasl2 is not set
 # CONFIG_PACKAGE_libsasl2-sasldb is not set
 # CONFIG_PACKAGE_libseccomp is not set
+CONFIG_PACKAGE_libsecp256k1=y
 # CONFIG_PACKAGE_libselinux is not set
 # CONFIG_PACKAGE_libsemanage is not set
 # CONFIG_PACKAGE_libsensors is not set
@@ -4716,7 +4717,7 @@ CONFIG_PACKAGE_libustream-mbedtls=y
 # CONFIG_PACKAGE_libvorbis is not set
 # CONFIG_PACKAGE_libvorbisidec is not set
 # CONFIG_PACKAGE_libvpx is not set
-CONFIG_PACKAGE_libwally=y
+CONFIG_PACKAGE_libwallycore=y
 # CONFIG_PACKAGE_libwebp is not set
 # CONFIG_PACKAGE_libwebsockets-full is not set
 # CONFIG_PACKAGE_libwebsockets-mbedtls is not set
@@ -4759,7 +4760,6 @@ CONFIG_PACKAGE_libwally=y
 # CONFIG_PACKAGE_rpcd-mod-rad2-enc is not set
 # CONFIG_PACKAGE_rpcd-mod-rrdns is not set
 # CONFIG_PACKAGE_sbc is not set
-CONFIG_PACKAGE_secp256k1=y
 # CONFIG_PACKAGE_serdisplib is not set
 # CONFIG_PACKAGE_taglib is not set
 # CONFIG_PACKAGE_terminfo is not set
