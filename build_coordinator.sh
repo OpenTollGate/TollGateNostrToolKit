@@ -31,7 +31,7 @@ execute_if_new_day() {
 
 # Clear all script-related timestamps
 rm -f /tmp/my_script_*.timestamp
-rm sign_event_mips sign_event_local RelayLink_mips generate_npub_optimized
+# rm sign_event_mips sign_event_local RelayLink_mips generate_npub_optimized
 
 
 ##### MIPS Architecture #####
