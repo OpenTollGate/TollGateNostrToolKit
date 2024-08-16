@@ -54,10 +54,9 @@ make -j$(nproc) package/gltollgate/download V=s
 make -j$(nproc) package/gltollgate/check V=s
 make -j$(nproc) package/gltollgate/compile V=s
 
-exit 0
 
 echo "Build with dependencies before using them..."
-make -j$(nproc) V=s
+make -j$(nproc) V=sc
 if [ $? -ne 0 ]; then
     echo "Firmware build failed."
     exit 1
@@ -83,7 +82,10 @@ find $TARGET_DIR -name "*secp256k1*.ipk"
 find $TARGET_DIR -name "*libwebsockets*.ipk"
 find $TARGET_DIR -name "*libwally*.ipk"
 # find $TARGET_DIR -name "*nostr_client_relay*.ipk"
-# find $TARGET_DIR -name "*gltollgate*.ipk"
+find $TARGET_DIR -name "*gltollgate*.ipk"
+
+cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_with_debug
+cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized
 
 echo "OpenWrt build completed successfully!"
 
