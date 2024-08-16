@@ -31,7 +31,7 @@ execute_if_new_day() {
 
 # Clear all script-related timestamps
 rm -f /tmp/my_script_*.timestamp
-# rm sign_event_mips sign_event_local RelayLink_mips
+rm sign_event_mips sign_event_local RelayLink_mips generate_npub_optimized
 
 
 ##### MIPS Architecture #####
@@ -40,7 +40,6 @@ execute_if_new_day "setup_dependencies.sh"
 execute_if_new_day "clone_openwrt_sdk.sh"
 # execute_if_new_day "build_toolchain.sh"
 execute_if_new_day "build_custom_dependencies.sh"
-exit 0
 execute_if_new_day "compile_relay_link.sh"
 execute_if_new_day "compile_sign_event.sh"
 
