@@ -10,9 +10,18 @@ cd $OPENWRT_DIR
 # echo "Cleaning the build environment..."
 # make clean
 
+cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
+
+# Update the custom feed
+echo "Updating custom feed..."
+./scripts/feeds update -a
+
+# Install the dependencies from the custom feed
+echo "Installing dependencies from custom feed..."
+./scripts/feeds install -a
+
 # Copy configuration files again
 cp $SCRIPT_DIR/.config_secp256k1 $OPENWRT_DIR/.config
-cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
 # Ensure toolchain directory exists
 TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
@@ -23,13 +32,6 @@ fi
 
 make oldconfig
 
-# Update the custom feed
-echo "Updating custom feed..."
-./scripts/feeds update -a
-
-# Install the dependencies from the custom feed
-echo "Installing dependencies from custom feed..."
-./scripts/feeds install -a
 
 # Check for feed install errors
 if [ $? -ne 0 ]; then
@@ -93,13 +95,13 @@ find $TARGET_DIR -name "*libwally*.ipk"
 # find $TARGET_DIR -name "*nostr_client_relay*.ipk"
 # find $TARGET_DIR -name "*gltollgate*.ipk"
 
-# cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_with_debug
-# cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized
+cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_with_debug
+cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized
 
-cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/generate_npub /home/username/TollGateNostrToolKit/generate_npub || {
-  echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
-  exit 1
-}
+# cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/generate_npub /home/username/TollGateNostrToolKit/generate_npub || {
+#   echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
+#   exit 1
+# }
 
 echo "OpenWrt build completed successfully!"
 
