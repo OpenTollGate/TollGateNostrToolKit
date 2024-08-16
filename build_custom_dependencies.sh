@@ -63,8 +63,8 @@ fi
 echo "Build with dependencies before using them..."
 make -j$(nproc) V=sc
 if [ $? -ne 0 ]; then
-    echo "Firmware build failed."
-    exit 1
+   echo "Firmware build failed."
+   exit 1
 fi
 
 
@@ -95,13 +95,13 @@ find $TARGET_DIR -name "*libwally*.ipk"
 # find $TARGET_DIR -name "*nostr_client_relay*.ipk"
 # find $TARGET_DIR -name "*gltollgate*.ipk"
 
-cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_with_debug
-cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized
+# cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_with_debug
+# cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized
 
-# cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/generate_npub /home/username/TollGateNostrToolKit/generate_npub || {
-#   echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
-#   exit 1
-# }
+cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized || {
+   echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
+   exit 1
+}
 
 echo "OpenWrt build completed successfully!"
 
