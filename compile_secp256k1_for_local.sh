@@ -4,6 +4,8 @@
 PARENT_DIR=".."
 CURRENT_DIR=$(pwd)
 
+sudo apt-get install -y libtool
+
 # Function to compile secp256k1 for local architecture (x86_64)
 echo "Compiling secp256k1 for local architecture..."
 cd $PARENT_DIR/secp256k1_mips_architecture
