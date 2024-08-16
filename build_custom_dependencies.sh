@@ -13,6 +13,14 @@ cd $OPENWRT_DIR
 # Copy configuration files again
 cp $SCRIPT_DIR/.config_secp256k1 $OPENWRT_DIR/.config
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
+
+# Ensure toolchain directory exists
+TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
+if [ ! -d "$TOOLCHAIN_DIR" ]; then
+    echo "Creating missing toolchain directory: $TOOLCHAIN_DIR"
+    mkdir -p "$TOOLCHAIN_DIR"
+fi
+
 make oldconfig
 
 # Update the custom feed
@@ -31,22 +39,22 @@ fi
 
 
 # Build the specific packages
-echo "Building libwebsockets..."
-make -j$(nproc) package/libwebsockets/download V=s
-make -j$(nproc) package/libwebsockets/check V=s
-make -j$(nproc) package/libwebsockets/compile V=s
+# echo "Building libwebsockets..."
+# make -j$(nproc) package/libwebsockets/download V=s
+# make -j$(nproc) package/libwebsockets/check V=s
+# make -j$(nproc) package/libwebsockets/compile V=s
 # make -j$(nproc) package/libwebsockets/install V=s
 
-echo "Building secp256k1..."
-make -j$(nproc) package/secp256k1/download V=s
-make -j$(nproc) package/secp256k1/check V=s
-make -j$(nproc) package/secp256k1/compile V=s
+# echo "Building secp256k1..."
+# make -j$(nproc) package/secp256k1/download V=s
+# make -j$(nproc) package/secp256k1/check V=s
+# make -j$(nproc) package/secp256k1/compile V=s
 # make -j$(nproc) package/secp256k1/install V=s
 
-echo "Building libwally..."
-make -j$(nproc) package/libwally/download V=s
-make -j$(nproc) package/libwally/check V=s
-make -j$(nproc) package/libwally/compile V=s
+# echo "Building libwally..."
+# make -j$(nproc) package/libwally/download V=s
+# make -j$(nproc) package/libwally/check V=s
+# make -j$(nproc) package/libwally/compile V=s
 # make -j$(nproc) package/libwally/install V=s
 
 
