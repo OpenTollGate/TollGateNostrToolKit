@@ -21,7 +21,7 @@ echo "Installing dependencies from custom feed..."
 ./scripts/feeds install -a
 
 # Copy configuration files again
-cp $SCRIPT_DIR/routers/archer_c7_v2/.config $OPENWRT_DIR/.config
+cp $SCRIPT_DIR/routers/archer_c7_v2_config $OPENWRT_DIR/.config
 
 # Ensure toolchain directory exists
 TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
@@ -73,18 +73,6 @@ if [ $? -ne 0 ]; then
 fi
 
 
-# echo "Building nostr_client_relay..."
-# make -j$(nproc) package/nostr_client_relay/download V=s
-# make -j$(nproc) package/nostr_client_relay/check V=s
-# make -j$(nproc) package/nostr_client_relay/compile V=s
-
-# Build the firmware
-# echo "Building the firmware..."
-# make -j$(nproc) V=s
-# if [ $? -ne 0 ]; then
-#    echo "Firmware build failed."
-#     exit 1
-# fi
 
 # Find and display the generated IPK file
 echo "Finding the generated IPK file..."
@@ -93,13 +81,10 @@ find $TARGET_DIR -name "*secp256k1*.ipk"
 find $TARGET_DIR -name "*libwebsockets*.ipk"
 find $TARGET_DIR -name "*libwally*.ipk"
 find $TARGET_DIR -name "*nodogsplash*.ipk"
-# find $TARGET_DIR -name "*nostr_client_relay*.ipk"
-# find $TARGET_DIR -name "*gltollgate*.ipk"
+find $TARGET_DIR -name "*gltollgate*.ipk"
 
-# cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_with_debug
-# cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_optimized
 
-cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_optimized || {
+cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_optimized_archer_c7_v2 || {
    echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
    exit 1
 }
