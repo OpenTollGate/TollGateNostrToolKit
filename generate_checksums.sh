@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# Define the output JSON file
-CHECKSUM_FILE="checksums.json"
+# Define the output JSON file within the binaries directory
+BINARY_DIR="./binaries"
+CHECKSUM_FILE="${BINARY_DIR}/checksums.json"
 
-# Function to find binaries (files without extensions) and .tar.gz files in the current directory
+# Function to find binaries (files without extensions) and .tar.gz files in the binaries directory
 function find_binaries_and_archives() {
-    echo "Finding binaries and .tar.gz files in the current directory..."
-    binaries_and_archives=$(ls -p | grep -v / | grep -E '(^[^.]+$|\.tar\.gz$)')
+    echo "Finding binaries and .tar.gz files in the binaries directory..."
+    binaries_and_archives=$(ls -p "$BINARY_DIR" | grep -v / | grep -E '(^[^.]+$|\.tar\.gz$)')
     if [ -z "$binaries_and_archives" ]; then
-        echo "No binaries or .tar.gz files found in the current directory."
+        echo "No binaries or .tar.gz files found in the binaries directory."
         exit 1
     fi
 }
@@ -18,9 +19,10 @@ function generate_checksums() {
     echo "Generating checksums and file sizes..."
     checksums="{"
     for file in $binaries_and_archives; do
-        if [ -f "$file" ]; then
-            checksum=$(sha256sum "$file" | awk '{print $1}')
-            size=$(stat --format="%s" "$file")
+        file_path="$BINARY_DIR/$file"
+        if [ -f "$file_path" ]; then
+            checksum=$(sha256sum "$file_path" | awk '{print $1}')
+            size=$(stat --format="%s" "$file_path")
             checksums+="\"${file}_checksum\": \"$checksum\","
             checksums+="\"${file}_size\": \"$size\","
         fi
