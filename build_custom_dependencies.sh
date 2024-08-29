@@ -2,14 +2,20 @@
 
 set -e
 
+SCRIPT_DIR="$HOME/TollGateNostrToolKit"
+ROUTERS_DIR="$SCRIPT_DIR/routers"
+
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <router_type>"
+    echo "Available options:"
+    for file in "$ROUTERS_DIR"/*_config; do
+        basename "${file}" | sed 's/_config$//'
+    done
     exit 1
 fi
 
 ROUTER_TYPE=$1
 
-SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 
@@ -28,9 +34,13 @@ echo "Installing dependencies from custom feed..."
 ./scripts/feeds install -a
 
 # Copy configuration files
-CONFIG_FILE="$SCRIPT_DIR/routers/${ROUTER_TYPE}_config"
+CONFIG_FILE="$ROUTERS_DIR/${ROUTER_TYPE}_config"
 if [ ! -f "$CONFIG_FILE" ]; then
     echo "Configuration file for ${ROUTER_TYPE} not found!"
+    echo "Available options:"
+    for file in "$ROUTERS_DIR"/*_config; do
+        basename "${file}" | sed 's/_config$//'
+    done
     exit 1
 fi
 cp $CONFIG_FILE $OPENWRT_DIR/.config
