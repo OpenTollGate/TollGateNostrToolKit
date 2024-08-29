@@ -20,8 +20,8 @@ OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 
 # Clean the build environment
-# echo "Cleaning the build environment..."
-# make clean
+echo "Cleaning the build environment..."
+make clean
 
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
