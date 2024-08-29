@@ -21,7 +21,7 @@ echo "Installing dependencies from custom feed..."
 ./scripts/feeds install -a
 
 # Copy configuration files again
-cp $SCRIPT_DIR/routers/glar300m/.config_secp256k1 $OPENWRT_DIR/.config
+cp $SCRIPT_DIR/routers/archer_c7_v2/.config $OPENWRT_DIR/.config
 
 # Ensure toolchain directory exists
 TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
