@@ -96,15 +96,15 @@ find $TARGET_DIR -name "*nodogsplash*.ipk"
 # find $TARGET_DIR -name "*nostr_client_relay*.ipk"
 # find $TARGET_DIR -name "*gltollgate*.ipk"
 
-# cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_with_debug
-# cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized
+# cp /home/username/openwrt/staging_dir/target-mips_24kc_musl/root-ath79/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_with_debug
+# cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_optimized
 
-cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/generate_npub_optimized || {
+cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_optimized || {
    echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
    exit 1
 }
 
-tar -czvf /home/username/TollGateNostrToolKit/mips_24kc_packages_archer_c7_v2.tar.gz -C /home/username/openwrt/bin/packages mips_24kc
+tar -czvf /home/username/TollGateNostrToolKit/binaries/mips_24kc_packages_archer_c7_v2.tar.gz -C /home/username/openwrt/bin/packages mips_24kc
 
 echo "OpenWrt build completed successfully!"
 
