@@ -59,6 +59,11 @@ fi
 # make -j$(nproc) package/libwally/compile V=s
 # make -j$(nproc) package/libwally/install V=s
 
+# echo "Building gltollgate..."
+# make -j$(nproc) package/gltollgate/download V=s
+# make -j$(nproc) package/gltollgate/check V=s
+# make -j$(nproc) package/gltollgate/compile V=s
+
 
 echo "Build with dependencies before using them..."
 make -j$(nproc) V=sc
@@ -67,11 +72,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-
-echo "Building gltollgate..."
-make -j$(nproc) package/gltollgate/download V=s
-make -j$(nproc) package/gltollgate/check V=s
-make -j$(nproc) package/gltollgate/compile V=s
 
 # echo "Building nostr_client_relay..."
 # make -j$(nproc) package/nostr_client_relay/download V=s
