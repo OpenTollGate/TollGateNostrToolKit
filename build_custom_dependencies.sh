@@ -104,5 +104,7 @@ cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mi
    exit 1
 }
 
+tar -czvf /home/username/TollGateNostrToolKit/mips_24kc_packages_archer_c7_v2.tar.gz -C /home/username/openwrt/bin/packages mips_24kc
+
 echo "OpenWrt build completed successfully!"
 
