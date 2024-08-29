@@ -92,6 +92,7 @@ TARGET_DIR="bin/packages/*/*"
 find $TARGET_DIR -name "*secp256k1*.ipk"
 find $TARGET_DIR -name "*libwebsockets*.ipk"
 find $TARGET_DIR -name "*libwally*.ipk"
+find $TARGET_DIR -name "*nodogsplash*.ipk"
 # find $TARGET_DIR -name "*nostr_client_relay*.ipk"
 # find $TARGET_DIR -name "*gltollgate*.ipk"
 
