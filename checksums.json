@@ -1,6 +1,8 @@
 {
   "generate_npub_optimized_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
   "generate_npub_optimized_size": "1311108",
+  "mips_24kc_packages_archer_c7_v2.tar.gz_checksum": "0261669cccaf950840b08052ecfeaeb28df5a407bb161c29e495477df553e2af",
+  "mips_24kc_packages_archer_c7_v2.tar.gz_size": "10834020",
   "RelayLink_mips_checksum": "7f73a2d49fe5056a8a80e341025e322a40a3166abdb62d89573edb40fdd59f76",
   "RelayLink_mips_size": "5107468",
   "sign_event_local_checksum": "6fe55dd8f00c02353df0e993182c5dadb5c90fa2f9e1aa1e54e0888cc0f3f918",
