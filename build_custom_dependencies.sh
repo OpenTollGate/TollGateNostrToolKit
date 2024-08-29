@@ -2,6 +2,13 @@
 
 set -e
 
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <router_type>"
+    exit 1
+fi
+
+ROUTER_TYPE=$1
+
 SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
@@ -20,8 +27,13 @@ echo "Updating custom feed..."
 echo "Installing dependencies from custom feed..."
 ./scripts/feeds install -a
 
-# Copy configuration files again
-cp $SCRIPT_DIR/routers/archer_c7_v2_config $OPENWRT_DIR/.config
+# Copy configuration files
+CONFIG_FILE="$SCRIPT_DIR/routers/${ROUTER_TYPE}_config"
+if [ ! -f "$CONFIG_FILE" ]; then
+    echo "Configuration file for ${ROUTER_TYPE} not found!"
+    exit 1
+fi
+cp $CONFIG_FILE $OPENWRT_DIR/.config
 
 # Ensure toolchain directory exists
 TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
@@ -32,38 +44,11 @@ fi
 
 make oldconfig
 
-
 # Check for feed install errors
 if [ $? -ne 0 ]; then
     echo "Feeds install failed"
     exit 1
 fi
-
-
-# Build the specific packages
-# echo "Building libwebsockets..."
-# make -j$(nproc) package/libwebsockets/download V=s
-# make -j$(nproc) package/libwebsockets/check V=s
-# make -j$(nproc) package/libwebsockets/compile V=s
-# make -j$(nproc) package/libwebsockets/install V=s
-
-# echo "Building secp256k1..."
-# make -j$(nproc) package/secp256k1/download V=s
-# make -j$(nproc) package/secp256k1/check V=s
-# make -j$(nproc) package/secp256k1/compile V=s
-# make -j$(nproc) package/secp256k1/install V=s
-
-# echo "Building libwally..."
-# make -j$(nproc) package/libwally/download V=s
-# make -j$(nproc) package/libwally/check V=s
-# make -j$(nproc) package/libwally/compile V=s
-# make -j$(nproc) package/libwally/install V=s
-
-# echo "Building gltollgate..."
-# make -j$(nproc) package/gltollgate/download V=s
-# make -j$(nproc) package/gltollgate/check V=s
-# make -j$(nproc) package/gltollgate/compile V=s
-
 
 echo "Build with dependencies before using them..."
 make -j$(nproc) V=sc
@@ -72,10 +57,8 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-
-
 # Find and display the generated IPK file
-echo "Finding the generated IPK file..."
+echo "Finding the generated IPK files..."
 TARGET_DIR="bin/packages/*/*"
 find $TARGET_DIR -name "*secp256k1*.ipk"
 find $TARGET_DIR -name "*libwebsockets*.ipk"
@@ -83,13 +66,14 @@ find $TARGET_DIR -name "*libwally*.ipk"
 find $TARGET_DIR -name "*nodogsplash*.ipk"
 find $TARGET_DIR -name "*gltollgate*.ipk"
 
+BINARY_DIR="$HOME/TollGateNostrToolKit/binaries"
+OUTPUT_BINARY="$BINARY_DIR/generate_npub_optimized_${ROUTER_TYPE}"
 
-cp /home/username/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub /home/username/TollGateNostrToolKit/binaries/generate_npub_optimized_archer_c7_v2 || {
+cp "$HOME/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub" "$OUTPUT_BINARY" || {
    echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
    exit 1
 }
 
-tar -czvf /home/username/TollGateNostrToolKit/binaries/mips_24kc_packages_archer_c7_v2.tar.gz -C /home/username/openwrt/bin/packages mips_24kc
+tar -czvf "$BINARY_DIR/mips_24kc_packages_${ROUTER_TYPE}.tar.gz" -C "$HOME/openwrt/bin/packages" mips_24kc
 
 echo "OpenWrt build completed successfully!"
-
