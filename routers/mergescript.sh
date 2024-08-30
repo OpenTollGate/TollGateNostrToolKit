@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Path to the old and new config files
-old_config="glar300m/.config"
-new_config="archer_c7_v2/.config"
+old_config="glar300m_config"
+new_config="archer_c7_v2_config"
 
 # Merge the packages section from old config to new config
 awk '/CONFIG_PACKAGE_/ || /CONFIG_TARGET_PROFILE/ || /CONFIG_DEFAULT_/ {
