@@ -19,9 +19,6 @@ ROUTER_TYPE=$1
 OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 
-# Clean the build environment
-echo "Cleaning the build environment..."
-make clean
 
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
@@ -45,6 +42,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 cp $CONFIG_FILE $OPENWRT_DIR/.config
 
+
 # Ensure toolchain directory exists
 TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
 if [ ! -d "$TOOLCHAIN_DIR" ]; then
@@ -60,8 +58,12 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+# Clean the build environment
+echo "Cleaning the build environment..."
+make clean
+
 echo "Build with dependencies before using them..."
-make -j$(nproc) V=sc
+make -j$(nproc) V=sc > make_logs.md 2>&1
 if [ $? -ne 0 ]; then
    echo "Firmware build failed."
    exit 1
