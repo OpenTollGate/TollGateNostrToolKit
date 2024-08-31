@@ -40,6 +40,7 @@ execute_if_new_day "setup_dependencies.sh"
 execute_if_new_day "clone_openwrt_sdk.sh"
 exit 0
 execute_if_new_day "build_all_dependencies.sh"
+exit 0
 # execute_if_new_day "compile_relay_link.sh"
 # execute_if_new_day "compile_sign_event.sh"
 
