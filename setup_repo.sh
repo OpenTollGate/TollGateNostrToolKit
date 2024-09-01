@@ -11,4 +11,4 @@ fi
 
 # Check out the branch
 cd "$REPO_DIR"
-git checkout -b nostr_client_relay origin/nostr_client_relay
+git checkout -b build_tollgates origin/build_tollgates

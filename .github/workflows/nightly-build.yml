@@ -1,0 +1,42 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Run every day at 2 AM UTC
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential git-core libncurses5-dev zlib1g-dev gawk flex quilt libssl-dev xsltproc libxml-parser-perl mercurial bzr ecj cvs unzip
+
+    - name: Run build coordinator
+      run: |
+        chmod +x build_coordinator.sh
+        ./build_coordinator.sh
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: build-artifacts
+        path: |
+          sign_event_mips
+          sign_event_local
+          RelayLink_mips
+          generate_npub_optimized
+        if-no-files-found: warn
+
+    - name: Check for build errors
+      run: |
+        if [ $? -ne 0 ]; then
+          echo "Build failed. Check the logs for more information."
+          exit 1
+        fi
