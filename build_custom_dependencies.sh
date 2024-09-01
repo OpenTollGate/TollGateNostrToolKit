@@ -62,6 +62,16 @@ fi
 echo "Cleaning the build environment..."
 make clean
 
+# Install the toolchain
+echo "Installing toolchain..."
+make -j$(nproc) toolchain/install
+if [ $? -ne 0 ]; then
+    echo "Toolchain install failed"
+    exit 1
+fi
+
+exit 0
+
 echo "Build with dependencies before using them..."
 make -j$(nproc) V=sc > make_logs.md 2>&1
 if [ $? -ne 0 ]; then
