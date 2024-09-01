@@ -3,6 +3,10 @@
 # Define directories
 PARENT_DIR=".."
 CURRENT_DIR=$(pwd)
+BINARIES_DIR="$CURRENT_DIR/binaries"
+
+# Ensure binaries directory exists
+mkdir -p $BINARIES_DIR
 
 # URLs of the dependencies
 OPENSSL_URL="https://github.com/openssl/openssl.git"
