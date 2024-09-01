@@ -1,10 +1,10 @@
 {
-  "generate_npub_optimized_archer_c7_v2_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
-  "generate_npub_optimized_archer_c7_v2_size": "1311108",
-  "generate_npub_optimized_glar300m_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
-  "generate_npub_optimized_glar300m_size": "1311108",
-  "mips_24kc_packages_archer_c7_v2.tar.gz_checksum": "34660a11986ef241a7571e74c51f10112f5e38e96298a86fdee09eab1590316b",
-  "mips_24kc_packages_archer_c7_v2.tar.gz_size": "10648622",
-  "mips_24kc_packages_glar300m.tar.gz_checksum": "9a5c60b89341d13ac46b7981f07492835254194d0e23dbd43068346e6ab052fe",
-  "mips_24kc_packages_glar300m.tar.gz_size": "10648624"
+  "generate_npub_optimized_ath79_archer_c7_v2_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
+  "generate_npub_optimized_ath79_archer_c7_v2_size": "1311108",
+  "generate_npub_optimized_ath79_glar300m_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
+  "generate_npub_optimized_ath79_glar300m_size": "1311108",
+  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_checksum": "3f5c4e4bddad19423199411602941a8605e6178c46e7699351514aba59eef067",
+  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_size": "12013229",
+  "mips_24kc_packages_ath79_glar300m.tar.gz_checksum": "48564440c503428d080b20fe8b9b7af319c25967741a3af2e94716eaa9afdd31",
+  "mips_24kc_packages_ath79_glar300m.tar.gz_size": "12013228"
 }
