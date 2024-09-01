@@ -70,8 +70,6 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-exit 0
-
 echo "Build with dependencies before using them..."
 make -j$(nproc) V=sc > make_logs.md 2>&1
 if [ $? -ne 0 ]; then
