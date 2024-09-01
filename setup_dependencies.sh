@@ -13,9 +13,13 @@ fi
 
 # List of necessary dependencies
 declare -a packages=(
-  "build-essential" "libncurses5-dev" "libncursesw5-dev" "git" "python3" 
-  "rsync" "file" "wget" "clang" "flex" "bison" "g++" "gawk" "gcc-multilib"
-  "g++-multilib" "gettext" "libssl-dev" "python3-distutils-extra" "unzip" "zlib1g-dev" "jq"
+  "build-essential" "ccache" "fastjar" "file" "g++" "gawk" "gettext" "git"
+  "libelf-dev" "libncurses-dev" "libssl-dev" "python3" "python3-dev"
+  "unzip" "wget" "python3-setuptools" "rsync" "subversion" "swig" "time"
+  "xsltproc" "zlib1g-dev" "libexpat1-dev" "libpython3-dev" "libzstd-dev"
+  "python3.12-dev" "javascript-common" "libapr1t64" "libaprutil1t64"
+  "libhiredis1.1.0" "libjs-jquery" "libjs-sphinxdoc" "libjs-underscore"
+  "libserf-1-1" "libsvn1" "libutf8proc3"
 )
 
 # Install necessary dependencies only if they are not already installed
@@ -26,4 +30,3 @@ for pkg in "${packages[@]}"; do
     echo "$pkg is already installed"
   fi
 done
-
