@@ -43,13 +43,6 @@ execute_if_new_day "build_all_dependencies.sh"
 # execute_if_new_day "compile_relay_link.sh"
 # execute_if_new_day "compile_sign_event.sh"
 
-##### Local Architecture #####
-
-# execute_if_new_day "x86_setup_dependencies.sh"
-# execute_if_new_day "x86_compile_openssl.sh"
-# execute_if_new_day "x86_compile_secp256k1.sh"
-# execute_if_new_day "x86_compile.sh"
-
 ##### Generate checksum  #####
 
 execute_if_new_day "generate_checksums.sh"
