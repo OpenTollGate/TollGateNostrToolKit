@@ -45,16 +45,14 @@ execute_if_new_day "build_all_dependencies.sh"
 
 ##### Local Architecture #####
 
-# execute_if_new_day "setup_x86_dependencies.sh"
-# execute_if_new_day "compile_openssl_for_local.sh"
-# execute_if_new_day "compile_secp256k1_for_local.sh"
-# execute_if_new_day "compile_for_local.sh"
+# execute_if_new_day "x86_setup_dependencies.sh"
+# execute_if_new_day "x86_compile_openssl.sh"
+# execute_if_new_day "x86_compile_secp256k1.sh"
+# execute_if_new_day "x86_compile.sh"
 
 ##### Generate checksum  #####
 
 execute_if_new_day "generate_checksums.sh"
-
-# execute_if_new_day "transfer_to_router.sh"
 
 echo "All tasks completed successfully."
 
