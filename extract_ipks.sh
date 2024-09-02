@@ -16,6 +16,7 @@ IPK_FILES=(
     "mips_24kc/custom/libwallycore_0.8.1-1_mips_24kc.ipk"
     "mips_24kc/custom/libsecp256k1_0.1-1_mips_24kc.ipk"
     "mips_24kc/custom/gltollgate_1.0-1_mips_24kc.ipk"
+    "mips_24kc/routing/nodogsplash_5.0.2-1_mips_24kc.ipk"
 )
 
 # Function to extract device type from filename
