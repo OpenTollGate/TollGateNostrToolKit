@@ -2,31 +2,31 @@
   "ath79_archer_c7_v2": {
     "target": "ath79/generic",
     "profile": "tplink_archer-c7-v2",
-    "packages": "luci luci-ssl openssh-sftp-server"
+    "packages": "ath10k-firmware-qca988x-ct base-files busybox ca-bundle dnsmasq dropbear firewall4 fstools kmod-ath10k-ct kmod-ath9k kmod-gpio-button-hotplug kmod-nft-offload kmod-usb-ledtrig-usbport kmod-usb2 libc libgcc libustream-mbedtls logd luci mtd netifd nftables odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe procd procd-seccomp procd-ujail swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wpad-basic-mbedtls"
   },
   "ath79_archer_c7_v5": {
     "target": "ath79/generic",
     "profile": "tplink_archer-c7-v5",
-    "packages": "luci luci-ssl openssh-sftp-server"
+    "packages": "ath10k-firmware-qca988x-ct base-files busybox ca-bundle dnsmasq dropbear firewall4 fstools kmod-ath10k-ct kmod-ath9k kmod-gpio-button-hotplug kmod-nft-offload kmod-usb-ledtrig-usbport kmod-usb2 libc libgcc libustream-mbedtls logd luci mtd netifd nftables odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe procd procd-seccomp procd-ujail swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wpad-basic-mbedtls"
   },
   "ath79_glar300m": {
     "target": "ath79/nand",
     "profile": "glinet_gl-ar300m-nor",
-    "packages": "luci luci-ssl openssh-sftp-server"
+    "packages": "base-files busybox ca-bundle dnsmasq dropbear firewall4 fstools kmod-ath9k kmod-gpio-button-hotplug kmod-nft-offload kmod-usb2 libc libgcc libustream-mbedtls logd luci mtd netifd nftables odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe procd procd-seccomp procd-ujail swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wpad-basic-mbedtls"
   },
   "atheros_ipq806x_netgear_R7800": {
     "target": "ipq806x/generic",
     "profile": "netgear_r7800",
-    "packages": "luci luci-ssl openssh-sftp-server"
+    "packages": "ath10k-firmware-qca9984-ct base-files busybox ca-bundle dnsmasq dropbear firewall4 fstools kmod-ata-ahci kmod-ata-ahci-platform kmod-ath10k-ct kmod-gpio-button-hotplug kmod-leds-gpio kmod-nft-offload kmod-phy-qcom-ipq806x-usb kmod-ramoops kmod-usb-dwc3-qcom kmod-usb-ledtrig-usbport kmod-usb-ohci kmod-usb2 kmod-usb3 libc libgcc libustream-mbedtls logd luci mtd netifd nftables odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe procd procd-seccomp procd-ujail swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wpad-basic-mbedtls"
   },
   "mt_mips_gl_mt300n": {
-    "target": "ramips/mt7620",
+    "target": "ramips/mt76x8",
     "profile": "gl-mt300n",
-    "packages": "luci luci-ssl openssh-sftp-server"
+    "packages": "base-files busybox ca-bundle dnsmasq dropbear firewall4 fstools kmod-gpio-button-hotplug kmod-leds-gpio kmod-mt7603 kmod-nft-offload kmod-usb-ohci kmod-usb2 libc libgcc libustream-mbedtls logd luci mtd netifd nftables odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe procd procd-seccomp procd-ujail swconfig uci uclient-fetch urandom-seed urngd wpad-basic-mbedtls"
   },
   "mt_mips_MR200": {
     "target": "ramips/mt7620",
     "profile": "zbtlink_zbt-we826-32m",
-    "packages": "luci luci-ssl openssh-sftp-server"
+    "packages": "adb-enablemodem base-files busybox ca-bundle dnsmasq dropbear firewall4 fstools kmod-gpio-button-hotplug kmod-leds-gpio kmod-mt76x0e kmod-nft-offload kmod-rt2800-soc kmod-usb-net-rndis kmod-usb-serial-option kmod-usb2 libc libgcc libustream-mbedtls logd luci mtd netifd nftables odhcp6c odhcpd-ipv6only opkg ppp ppp-mod-pppoe procd procd-seccomp procd-ujail swconfig uci uclient-fetch urandom-seed urngd wpad-basic-mbedtls"
   }
 }
