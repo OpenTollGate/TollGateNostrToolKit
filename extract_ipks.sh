@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Directory containing the tar files
-SOURCE_DIR="/home/username/TollGateNostrToolKit/binaries"
+SOURCE_DIR="./binaries/."
 
 # Directory where files will be extracted
-EXTRACT_DIR="/tmp/extracted_ipks"
+EXTRACT_DIR="./binaries/."
 
 # Create extraction directory if it doesn't exist
 mkdir -p "$EXTRACT_DIR"
