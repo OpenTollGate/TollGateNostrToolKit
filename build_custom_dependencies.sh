@@ -77,23 +77,66 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-# Find and display the generated IPK file
+
+
+# Find and display the generated IPK files
 echo "Finding the generated IPK files..."
 TARGET_DIR="bin/packages/*/*"
-find $TARGET_DIR -name "*secp256k1*.ipk"
-find $TARGET_DIR -name "*libwebsockets*.ipk"
-find $TARGET_DIR -name "*libwally*.ipk"
-find $TARGET_DIR -name "*nodogsplash*.ipk"
-find $TARGET_DIR -name "*gltollgate*.ipk"
 
-BINARY_DIR="$HOME/TollGateNostrToolKit/binaries"
-OUTPUT_BINARY="$BINARY_DIR/generate_npub_optimized_${ROUTER_TYPE}"
+# Array of file patterns to search for
+file_patterns=(
+    "*secp256k1*.ipk"
+    "*libwebsockets*.ipk"
+    "*libwally*.ipk"
+    "*nodogsplash*.ipk"
+    "*gltollgate*.ipk"
+    "*relaylink*.ipk"
+    "*signevent*.ipk"
+)
 
-cp "$HOME/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub" "$OUTPUT_BINARY" || {
-   echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
-   exit 1
-}
+# Flag to track if all files are found
+all_files_found=true
 
-tar -czvf "$BINARY_DIR/mips_24kc_packages_${ROUTER_TYPE}.tar.gz" -C "$HOME/openwrt/bin/packages" mips_24kc
+# Loop through each file pattern
+for pattern in "${file_patterns[@]}"; do
+    # Find the file
+    found_file=$(find $TARGET_DIR -name "$pattern")
+    
+    # Check if the file was found
+    if [ -z "$found_file" ]; then
+        echo "Error: $pattern not found"
+        all_files_found=false
+    else
+        echo "Found: $found_file"
+    fi
+done
+
+# Exit with status 1 if any file wasn't found
+if [ "$all_files_found" = false ]; then
+    echo "One or more required IPK files were not found."
+    exit 1
+fi
+
+echo "All required IPK files were found successfully."
+
+# Find the sysupgrade.bin file
+SYSUPGRADE_FILE=$(find ./bin/. -regex ".*openwrt-.*-sysupgrade.bin")
+
+# Check if file was found
+if [ -z "$SYSUPGRADE_FILE" ]; then
+    echo "No sysupgrade.bin file found."
+    exit 1
+fi
+
+# Copy the file to the destination directory
+cp "$SYSUPGRADE_FILE" ~/TollGateNostrToolKit/binaries/.
+
+# Check if copy was successful
+if [ $? -eq 0 ]; then
+    echo "Successfully copied $(basename "$SYSUPGRADE_FILE") to ~/TollGateNostrToolKit/binaries/."
+else
+    echo "Failed to copy file."
+    exit 1
+fi
 
 echo "OpenWrt build completed successfully!"
