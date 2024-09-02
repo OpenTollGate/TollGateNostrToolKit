@@ -10,3 +10,5 @@ Run `./build_coordinator.sh` to build for all routers listed under `./routers/*_
 - [Updating Feeds Configuration in OpenWrt](updating_feeds_conf_in_openwrt.md): Guide on how to update the feeds configuration in OpenWrt.
 
 - [Uploading Binaries to GitHub Releases](upload_binaries_to_github.md): Instructions for uploading binaries to GitHub releases without adding them to the git repository.
+
+- [Setting DNS Server](setting_dns_server.md): Instructions for setting DNS server.
