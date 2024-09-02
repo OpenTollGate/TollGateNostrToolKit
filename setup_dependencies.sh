@@ -30,3 +30,24 @@ for pkg in "${packages[@]}"; do
     echo "$pkg is already installed"
   fi
 done
+
+# Setup OpenWrt Image Builder
+OPENWRT_VERSION="23.05.4"
+TARGET="ath79/nand"
+BUILDER_DIR="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET/\//-}.Linux-x86_64"
+BUILDER_ARCHIVE="${BUILDER_DIR}.tar.xz"
+
+if [ ! -d "$BUILDER_DIR" ]; then
+  echo "Downloading OpenWrt Image Builder..."
+  wget "https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET}/${BUILDER_ARCHIVE}"
+  
+  echo "Extracting OpenWrt Image Builder..."
+  tar xJf "$BUILDER_ARCHIVE"
+  
+  echo "Cleaning up..."
+  rm "$BUILDER_ARCHIVE"
+else
+  echo "OpenWrt Image Builder already set up"
+fi
+
+echo "Setup complete!"
