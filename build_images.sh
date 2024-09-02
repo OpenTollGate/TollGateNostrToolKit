@@ -18,6 +18,7 @@ TARGET="$1"
 PROFILE="$2"
 PACKAGES="$3"
 BUILDER_DIR="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET/\//-}.Linux-x86_64"
+BINARIES_DIR="./binaries"
 
 # Check if Image Builder directory exists
 if [ ! -d "$BUILDER_DIR" ]; then
@@ -25,6 +26,9 @@ if [ ! -d "$BUILDER_DIR" ]; then
     echo "Please run setup_dependencies.sh with the correct target first."
     exit 1
 fi
+
+# Create binaries directory if it doesn't exist
+mkdir -p "$BINARIES_DIR"
 
 # Change to the Image Builder directory
 cd "$BUILDER_DIR" || exit 1
@@ -53,10 +57,23 @@ make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files"
 # Check if the build was successful
 if [ $? -eq 0 ]; then
     echo "Build successful!"
-    echo "The image can be found in the bin/targets/${TARGET}/ directory."
+    echo "Copying sysupgrade files to $BINARIES_DIR"
+    
+    # Find and copy sysupgrade files
+    find "bin/targets/${TARGET}" -name "*-sysupgrade.bin" -exec cp {} "$BINARIES_DIR" \;
+    
+    # Check if any files were copied
+    if [ "$(ls -A "$BINARIES_DIR")" ]; then
+        echo "Sysupgrade files have been copied to $BINARIES_DIR"
+    else
+        echo "No sysupgrade files found to copy"
+    fi
 else
     echo "Build failed. Please check the output for errors."
 fi
 
 # Clean up
 rm -rf "files"
+
+# Return to the original directory
+cd - > /dev/null
