@@ -11,13 +11,12 @@ combine_packages() {
 json_file="build_image_arguments.json"
 json_content=$(cat "$json_file")
 
-./setup_dependencies.sh ath79/generic
-./setup_dependencies.sh ipq806x/generic
-./setup_dependencies.sh ramips/mt7620
-./setup_dependencies.sh ramips/mt76x8
-
 # Extract common packages
 common_packages=$(echo "$json_content" | jq -r '.common.packages')
+
+# Create binaries directory if it doesn't exist
+BINARIES_DIR="./binaries"
+mkdir -p "$BINARIES_DIR"
 
 # Iterate over each device
 for device in $(echo "$json_content" | jq -r 'keys[] | select(. != "common")')
@@ -34,8 +33,22 @@ do
     echo "Profile: $profile"
     echo "Packages: $all_packages"
 
+    # Setup dependencies for this target
+    ./setup_dependencies.sh "$target"
+
     # Call build_images.sh
     ./build_images.sh "$target" "$profile" "$all_packages"
 
     echo "----------------------------------------"
 done
+
+# After all builds are complete, find and copy all sysupgrade files
+echo "Copying all sysupgrade files to $BINARIES_DIR"
+find . -regex ".*openwrt-.*-sysupgrade.bin" -exec cp {} "$BINARIES_DIR" \;
+
+# Check if any files were copied
+if [ "$(ls -A "$BINARIES_DIR")" ]; then
+    echo "Sysupgrade files have been copied to $BINARIES_DIR"
+else
+    echo "No sysupgrade files found to copy"
+fi

@@ -57,17 +57,6 @@ make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files"
 # Check if the build was successful
 if [ $? -eq 0 ]; then
     echo "Build successful!"
-    echo "Copying sysupgrade files to $BINARIES_DIR"
-    
-    # Find and copy sysupgrade files
-    find "bin/targets/${TARGET}" -name "*-sysupgrade.bin" -exec cp {} "$BINARIES_DIR" \;
-    
-    # Check if any files were copied
-    if [ "$(ls -A "$BINARIES_DIR")" ]; then
-        echo "Sysupgrade files have been copied to $BINARIES_DIR"
-    else
-        echo "No sysupgrade files found to copy"
-    fi
 else
     echo "Build failed. Please check the output for errors."
 fi
