@@ -1,0 +1,32 @@
+{
+  "ath79_archer_c7_v2": {
+    "target": "ath79/generic",
+    "profile": "tplink_archer-c7-v2",
+    "packages": "luci luci-ssl openssh-sftp-server"
+  },
+  "ath79_archer_c7_v5": {
+    "target": "ath79/generic",
+    "profile": "tplink_archer-c7-v5",
+    "packages": "luci luci-ssl openssh-sftp-server"
+  },
+  "ath79_glar300m": {
+    "target": "ath79/nand",
+    "profile": "glinet_gl-ar300m-nor",
+    "packages": "luci luci-ssl openssh-sftp-server"
+  },
+  "atheros_ipq806x_netgear_R7800": {
+    "target": "ipq806x/generic",
+    "profile": "netgear_r7800",
+    "packages": "luci luci-ssl openssh-sftp-server"
+  },
+  "mt_mips_gl_mt300n": {
+    "target": "ramips/mt7620",
+    "profile": "gl-mt300n",
+    "packages": "luci luci-ssl openssh-sftp-server"
+  },
+  "mt_mips_MR200": {
+    "target": "ramips/mt7620",
+    "profile": "zbtlink_zbt-we826-32m",
+    "packages": "luci luci-ssl openssh-sftp-server"
+  }
+}
