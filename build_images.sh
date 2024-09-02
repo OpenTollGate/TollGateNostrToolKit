@@ -29,13 +29,26 @@ fi
 # Change to the Image Builder directory
 cd "$BUILDER_DIR" || exit 1
 
+# Create a temporary file for UCI defaults
+UCI_DEFAULTS_FILE="files/etc/uci-defaults/99-custom-settings"
+mkdir -p "files/etc/uci-defaults"
+cat > "$UCI_DEFAULTS_FILE" << EOF
+#!/bin/sh
+
+$(cat ../uci_commands.sh)
+
+exit 0
+EOF
+
+chmod +x "$UCI_DEFAULTS_FILE"
+
 # Build the image
 echo "Building OpenWrt image..."
 echo "Target: $TARGET"
 echo "Profile: $PROFILE"
 echo "Packages: $PACKAGES"
 
-make image PROFILE="$PROFILE" PACKAGES="$PACKAGES"
+make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files"
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
@@ -44,3 +57,6 @@ if [ $? -eq 0 ]; then
 else
     echo "Build failed. Please check the output for errors."
 fi
+
+# Clean up
+rm -rf "files"
