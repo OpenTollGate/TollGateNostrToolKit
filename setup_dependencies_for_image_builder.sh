@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Check if a target is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <target>"
+    echo "Example: $0 ath79/generic"
+    exit 1
+fi
+
+TARGET="$1"
+
 # Check if the script has been run today
 LAST_UPDATE_FILE="/tmp/last_update_check"
 
@@ -31,3 +40,32 @@ for pkg in "${packages[@]}"; do
   fi
 done
 
+# Setup OpenWrt Image Builder
+OPENWRT_VERSION="23.05.4"
+BUILDER_DIR="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET/\//-}.Linux-x86_64"
+BUILDER_ARCHIVE="${BUILDER_DIR}.tar.xz"
+
+if [ ! -d "$BUILDER_DIR" ]; then
+  echo "Downloading OpenWrt Image Builder for $TARGET..."
+  wget "https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET}/${BUILDER_ARCHIVE}"
+  
+  if [ $? -ne 0 ]; then
+    echo "Failed to download Image Builder for $TARGET. Please check if the target is correct."
+    exit 1
+  fi
+  
+  echo "Extracting OpenWrt Image Builder..."
+  tar xJf "$BUILDER_ARCHIVE"
+  
+  if [ $? -ne 0 ]; then
+    echo "Failed to extract Image Builder archive."
+    exit 1
+  fi
+  
+  echo "Cleaning up..."
+  rm "$BUILDER_ARCHIVE"
+else
+  echo "OpenWrt Image Builder for $TARGET is already set up"
+fi
+
+echo "Setup complete for $TARGET!"
