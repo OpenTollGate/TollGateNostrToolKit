@@ -42,6 +42,7 @@ execute_if_new_day "build_all_dependencies.sh"
 
 ##### Generate checksum  #####
 
+execute_if_new_day "build_all_images.sh"
 execute_if_new_day "generate_checksums.sh"
 
 echo "All tasks completed successfully."
