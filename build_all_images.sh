@@ -11,6 +11,11 @@ combine_packages() {
 json_file="build_image_arguments.json"
 json_content=$(cat "$json_file")
 
+./setup_dependencies.sh ath79/generic
+./setup_dependencies.sh ipq806x/generic
+./setup_dependencies.sh ramips/mt7620
+./setup_dependencies.sh ramips/mt76x8
+
 # Extract common packages
 common_packages=$(echo "$json_content" | jq -r '.common.packages')
 
