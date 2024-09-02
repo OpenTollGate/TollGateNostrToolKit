@@ -44,6 +44,8 @@ done
 
 # After all builds are complete, find and copy all sysupgrade files
 echo "Copying all sysupgrade files to $BINARIES_DIR"
+# TODO: Be sure not to copy the sysupgrade.bin from the tmp file. It needs to be from bin
+exit 1
 find . -regex ".*openwrt-.*-sysupgrade.bin" -exec cp {} "$BINARIES_DIR" \;
 
 # Check if any files were copied
