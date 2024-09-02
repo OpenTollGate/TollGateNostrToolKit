@@ -1,10 +1,10 @@
 {
   "generate_npub_optimized_ath79_archer_c7_v2_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
   "generate_npub_optimized_ath79_archer_c7_v2_size": "1311108",
+  "mips_24kc_packages_ath79_glar300m.tar.gz_checksum": "ab7acf3b5ac7a1214e49e63f803186c23ae8d78d692dc41684b89c7c7a08ce4f",
+  "mips_24kc_packages_ath79_glar300m.tar.gz_size": "12012599",
+  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_checksum": "f1f9a33d68fd0cc88df367937aff6bff9b46f1a5af6351a9719b98b2ffd23e8c",
+  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_size": "12012608",
   "generate_npub_optimized_ath79_glar300m_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
-  "generate_npub_optimized_ath79_glar300m_size": "1311108",
-  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_checksum": "3f5c4e4bddad19423199411602941a8605e6178c46e7699351514aba59eef067",
-  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_size": "12013229",
-  "mips_24kc_packages_ath79_glar300m.tar.gz_checksum": "48564440c503428d080b20fe8b9b7af319c25967741a3af2e94716eaa9afdd31",
-  "mips_24kc_packages_ath79_glar300m.tar.gz_size": "12013228"
+  "generate_npub_optimized_ath79_glar300m_size": "1311108"
 }
