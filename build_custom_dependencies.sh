@@ -81,17 +81,17 @@ fi
 
 # Find and display the generated IPK files
 echo "Finding the generated IPK files..."
-TARGET_DIR="bin/packages/*/*"
+TARGET_DIR="$OPENWRT_DIR/bin/packages"
 
 # Array of file patterns to search for
 file_patterns=(
-    "*secp256k1*.ipk"
-    "*libwebsockets*.ipk"
-    "*libwally*.ipk"
-    "*nodogsplash*.ipk"
-    "*gltollgate*.ipk"
-    "*relaylink*.ipk"
-    "*signevent*.ipk"
+    "secp256k1*.ipk"
+    "libwebsockets*.ipk"
+    "libwally*.ipk"
+    "nodogsplash*.ipk"
+    "gltollgate*.ipk"
+    "relaylink*.ipk"
+    "signevent*.ipk"
 )
 
 # Flag to track if all files are found
@@ -100,7 +100,7 @@ all_files_found=true
 # Loop through each file pattern
 for pattern in "${file_patterns[@]}"; do
     # Find the file
-    found_file=$(find $TARGET_DIR -name "$pattern")
+    found_file=$(find "$TARGET_DIR" -type f -name "$pattern")
     
     # Check if the file was found
     if [ -z "$found_file" ]; then
@@ -120,7 +120,7 @@ fi
 echo "All required IPK files were found successfully."
 
 # Find the sysupgrade.bin file
-SYSUPGRADE_FILE=$(find ./bin/. -regex ".*openwrt-.*-sysupgrade.bin")
+SYSUPGRADE_FILE=$(find "$OPENWRT_DIR/bin" -type f -name "*sysupgrade.bin")
 
 # Check if file was found
 if [ -z "$SYSUPGRADE_FILE" ]; then
