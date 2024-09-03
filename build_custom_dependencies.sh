@@ -85,7 +85,6 @@ TARGET_DIR="$OPENWRT_DIR/bin/packages"
 
 # Array of file patterns to search for
 file_patterns=(
-    "secp256k1*.ipk"
     "libwebsockets*.ipk"
     "libwally*.ipk"
     "nodogsplash*.ipk"
