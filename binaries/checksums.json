@@ -1,4 +1,6 @@
 {
+  "openwrt-ath79-nand-glinet_gl-ar300m-nand-squashfs-sysupgrade.bin_checksum": "093e24871127cd1315acf9c7860ad969456aefe44c6acc8061e7d0989bd00d5b",
+  "openwrt-ath79-nand-glinet_gl-ar300m-nand-squashfs-sysupgrade.bin_size": "12360511",
   "openwrt-ath79-generic-tplink_archer-c7-v5-squashfs-sysupgrade.bin_checksum": "29d54d2489467cfb19bac34ef4d24e98f23fe861cade0ee12a217ba9b66dcce2",
   "openwrt-ath79-generic-tplink_archer-c7-v5-squashfs-sysupgrade.bin_size": "12124986",
   "openwrt-ath79-generic-tplink_archer-c7-v2-squashfs-sysupgrade.bin_checksum": "3fba8e50d155eef71846db04a16612c1a57774d3879030eb4696176d5070f174",
@@ -9,6 +11,8 @@
   ".gitignore_size": "0",
   "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_checksum": "6098382243b423f242e0ef95dfcd79a8689ce1b691caf34a8027f67f0fa8d90b",
   "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_size": "12013224",
+  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade.bin_checksum": "bb13049452d9954f9fdd95349df57b24fc931968be033e084ee47eca0e769047",
+  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade.bin_size": "12387150",
   "upload_new_files.sh_checksum": "4197b8f2ab8f92251914cbbe4f59e7b666072d20087c20e1e163a19b2f755297",
   "upload_new_files.sh_size": "501",
   "openwrt-ath79-generic-glinet_gl-ar300m16-squashfs-sysupgrade.bin_checksum": "667c605040df3e2304cce44153c5f027db686da4d72636230acf515ef88c2e36",
