@@ -18,7 +18,8 @@ for config_file in "$SOURCE_DIR"/*_config; do
         cd ~/openwrt
         
         # Run make oldconfig
-	make olddefconfig
+	# make olddefconfig V=sc
+	make menuconfig
         
         # Copy the updated config back to the original file
         cp "$OPENWRT_CONFIG" "$config_file"
