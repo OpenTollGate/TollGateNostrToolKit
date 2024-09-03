@@ -12,3 +12,5 @@ Run `./build_coordinator.sh` to build for all routers listed under `./routers/*_
 - [Uploading Binaries to GitHub Releases](upload_binaries_to_github.md): Instructions for uploading binaries to GitHub releases without adding them to the git repository.
 
 - [Setting DNS Server](setting_dns_server.md): Instructions for setting DNS server.
+
+- [Find error in logs](find_error_in_logs.md): Commands for parsing through `build_logs.md` to find relevant lines.
