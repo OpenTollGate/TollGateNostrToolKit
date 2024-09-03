@@ -16,5 +16,7 @@
   "generate_npub_optimized_ath79_glar300m_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
   "generate_npub_optimized_ath79_glar300m_size": "1311108",
   "mips_24kc_packages_ath79_glar300m.tar.gz_checksum": "353338472aec1c542cc685c6637e703637a10cea40a5ca769f235ed86dff5bd6",
-  "mips_24kc_packages_ath79_glar300m.tar.gz_size": "12013224"
+  "mips_24kc_packages_ath79_glar300m.tar.gz_size": "12013224",
+  "openwrt-ath79-generic-glinet_gl-ar300m-lite-squashfs-sysupgrade.bin_checksum": "29687100ccf02ca3d8349e3d4c0ea6ad7a346da6cd2e84ce29d5bd06f0da57ff",
+  "openwrt-ath79-generic-glinet_gl-ar300m-lite-squashfs-sysupgrade.bin_size": "12124987"
 }
