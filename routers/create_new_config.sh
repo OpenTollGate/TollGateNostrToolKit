@@ -8,7 +8,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Set paths
-SOURCE_CONFIG=~/TollGateNostrToolKit/routers/ath79_glar300m_config
+SOURCE_CONFIG=~/TollGateNostrToolKit/routers/working/ath79_glar300m_config
 OPENWRT_CONFIG=~/openwrt/.config
 NEW_CONFIG=~/TollGateNostrToolKit/routers/$1
 

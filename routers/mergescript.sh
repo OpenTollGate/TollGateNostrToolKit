@@ -8,7 +8,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # Path to the old config file
-old_config="ath79_glar300m_config"
+old_config="working/ath79_glar300m_config"
 
 # New config file from command-line argument
 new_config="$1"
