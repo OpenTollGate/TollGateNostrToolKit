@@ -50,7 +50,7 @@ if [ ! -d "$TOOLCHAIN_DIR" ]; then
     mkdir -p "$TOOLCHAIN_DIR"
 fi
 
-make olddefconfig
+make oldconfig
 
 # Check for feed install errors
 if [ $? -ne 0 ]; then
