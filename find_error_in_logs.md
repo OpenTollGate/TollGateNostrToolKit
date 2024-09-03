@@ -38,4 +38,7 @@ tail -n 100 ~/openwrt/make_logs.md | grep -n -E "Error|failed"
 
 These commands will help you identify error messages in the log file. The `-n` option with `grep` will show line numbers, which can be helpful for locating the errors in the file.
 
-If these don't yield useful results, you might need to examine the entire log file manually or use more specific search terms based on what you see in the file.
+Find out whcih config is currently being built:
+```bash
+cat ~/openwrt/.config | grep "CONFIG_TARGET_.*=y"
+```

@@ -14,3 +14,4 @@ Run `./build_coordinator.sh` to build for all routers listed under `./routers/*_
 - [Setting DNS Server](setting_dns_server.md): Instructions for setting DNS server.
 
 - [Find error in logs](find_error_in_logs.md): Commands for parsing through `build_logs.md` to find relevant lines.
+
