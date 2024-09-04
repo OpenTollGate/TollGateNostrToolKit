@@ -19,7 +19,6 @@ ROUTER_TYPE=$1
 OPENWRT_DIR="$HOME/openwrt"
 cd $OPENWRT_DIR
 
-
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
 # Update the custom feed
@@ -29,6 +28,10 @@ echo "Updating custom feed..."
 # Install the dependencies from the custom feed
 echo "Installing dependencies from custom feed..."
 ./scripts/feeds install -a
+
+# Explicitly install tollgateconfigs
+echo "Installing tollgateconfigs..."
+./scripts/feeds install tollgateconfigs
 
 # Copy configuration files
 CONFIG_FILE="$ROUTERS_DIR/${ROUTER_TYPE}_config"
@@ -41,6 +44,11 @@ if [ ! -f "$CONFIG_FILE" ]; then
     exit 1
 fi
 cp $CONFIG_FILE $OPENWRT_DIR/.config
+
+# Ensure tollgateconfigs is enabled in the config
+echo "Enabling tollgateconfigs in .config..."
+sed -i 's/# CONFIG_PACKAGE_tollgateconfigs is not set/CONFIG_PACKAGE_tollgateconfigs=y/' .config
+echo "CONFIG_PACKAGE_tollgateconfigs=y" >> .config
 
 make oldconfig
 
