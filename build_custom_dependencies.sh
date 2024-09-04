@@ -42,8 +42,6 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 cp $CONFIG_FILE $OPENWRT_DIR/.config
 
-exit 0 # Investigate with make menuconfig
-
 make oldconfig
 
 # Check for feed install errors

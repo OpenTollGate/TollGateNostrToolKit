@@ -25,9 +25,6 @@ for config_file in "$ROUTERS_DIR"/*_config; do
     fi
     
     echo "Build successful for router type: $router_type"
-
-    exit 0
-
 done
 
 echo "All builds completed successfully!"
