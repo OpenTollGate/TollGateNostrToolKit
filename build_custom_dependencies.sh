@@ -29,10 +29,6 @@ echo "Updating custom feed..."
 echo "Installing dependencies from custom feed..."
 ./scripts/feeds install -a
 
-# Explicitly install tollgateconfigs
-echo "Installing tollgateconfigs..."
-./scripts/feeds install tollgateconfigs
-
 # Copy configuration files
 CONFIG_FILE="$ROUTERS_DIR/${ROUTER_TYPE}_config"
 if [ ! -f "$CONFIG_FILE" ]; then
@@ -44,11 +40,6 @@ if [ ! -f "$CONFIG_FILE" ]; then
     exit 1
 fi
 cp $CONFIG_FILE $OPENWRT_DIR/.config
-
-# Ensure tollgateconfigs is enabled in the config
-echo "Enabling tollgateconfigs in .config..."
-sed -i 's/# CONFIG_PACKAGE_tollgateconfigs is not set/CONFIG_PACKAGE_tollgateconfigs=y/' .config
-echo "CONFIG_PACKAGE_tollgateconfigs=y" >> .config
 
 make oldconfig
 
