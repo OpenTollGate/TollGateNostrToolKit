@@ -42,13 +42,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 cp $CONFIG_FILE $OPENWRT_DIR/.config
 
-
-# Ensure toolchain directory exists
-TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
-if [ ! -d "$TOOLCHAIN_DIR" ]; then
-    echo "Creating missing toolchain directory: $TOOLCHAIN_DIR"
-    mkdir -p "$TOOLCHAIN_DIR"
-fi
+exit 0 # Investigate with make menuconfig
 
 make oldconfig
 
