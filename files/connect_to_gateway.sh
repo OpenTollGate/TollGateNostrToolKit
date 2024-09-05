@@ -10,23 +10,33 @@ fi
 NEW_SSID=$1
 NEW_PASSWORD=$2
 
+# Update firewall configuration
+uci set firewall.@zone[1].network='wan wan6 wwan'
+
+# Update network configuration
+uci set network.wwan=interface
+uci set network.wwan.proto='dhcp'
+
+# Update wireless configuration
+uci set wireless.radio0.disabled='0'
+uci set wireless.radio0.cell_density='0'
+uci set wireless.default_radio0.disabled='1'
+
 # Remove existing wifinet1 configuration if it exists
-uci delete wireless.@wifi-iface[1]
+uci delete wireless.wifinet1
 
 # Create a new wifi-iface section named 'wifinet1'
-uci add wireless wifi-iface
-uci set wireless.@wifi-iface[-1]=wifi-iface
-uci set wireless.@wifi-iface[-1].name='wifinet1'
-
-# Set the options for the new wifi-iface
-uci set wireless.@wifi-iface[-1].device='radio0'
-uci set wireless.@wifi-iface[-1].mode='sta'
-uci set wireless.@wifi-iface[-1].network='wwan'
-uci set wireless.@wifi-iface[-1].ssid="$NEW_SSID"
-uci set wireless.@wifi-iface[-1].encryption='sae'
-uci set wireless.@wifi-iface[-1].key="$NEW_PASSWORD"
+uci set wireless.wifinet1=wifi-iface
+uci set wireless.wifinet1.device='radio0'
+uci set wireless.wifinet1.mode='sta'
+uci set wireless.wifinet1.network='wwan'
+uci set wireless.wifinet1.ssid="$NEW_SSID"
+uci set wireless.wifinet1.encryption='sae'
+uci set wireless.wifinet1.key="$NEW_PASSWORD"
 
 # Commit the changes
+uci commit firewall
+uci commit network
 uci commit wireless
 
 # Restart the network to apply changes
@@ -34,11 +44,10 @@ uci commit wireless
 
 # Check if the changes were made successfully
 if [ $? -eq 0 ]; then
-    echo "SSID and PASSWORD updated successfully."
+    echo "Wireless configuration updated successfully."
     echo "New SSID: $NEW_SSID"
     echo "New PASSWORD: $NEW_PASSWORD"
 else
     echo "Error: Failed to update the wireless configuration."
     exit 1
 fi
-
