@@ -30,7 +30,7 @@ if [ ! -f /etc/first_login_done ]; then
         read -s password
 
         # Update WiFi configuration
-        /etc/./update_wireless_config.sh "$ssid" "$password"
+        /etc/./connect_to_gateway.sh "$ssid" "$password"
 
         # Restart network
         /etc/init.d/network restart
