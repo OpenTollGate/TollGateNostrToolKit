@@ -20,7 +20,7 @@ start() {
             read -s password
 
             # Update WiFi configuration
-            ./update_wireless_config.sh "$ssid" "$password"
+            /etc/./update_wireless_config.sh "$ssid" "$password"
 
             # Restart network
             /etc/init.d/network restart
