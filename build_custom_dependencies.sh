@@ -61,14 +61,37 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "Build with dependencies before using them..."
+echo "Building firmware..."
 make -j$(nproc) V=sc > make_logs.md 2>&1
 if [ $? -ne 0 ]; then
    echo "Firmware build failed."
    exit 1
 fi
 
+# Manually install custom files
+echo "Manually installing custom files..."
+CUSTOM_FILES_DIR="$SCRIPT_DIR/files"
+if [ -d "$CUSTOM_FILES_DIR" ]; then
+    # Create necessary directories
+    mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
+    
+    # Copy files from the custom directory to the OpenWrt files directory
+    cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
+    cp "$CUSTOM_FILES_DIR/99-first-login" "$OPENWRT_DIR/files/etc/uci-defaults/"
+    cp "$CUSTOM_FILES_DIR/update_wireless_config.sh" "$OPENWRT_DIR/files/etc/"
+    
+    echo "Custom files copied to OpenWrt files directory"
+else
+    echo "Custom files directory not found. Skipping manual installation."
+fi
 
+# Rebuild firmware to include manual changes
+echo "Rebuilding firmware..."
+make -j$(nproc) V=sc >> make_logs.md 2>&1
+if [ $? -ne 0 ]; then
+   echo "Firmware rebuild failed."
+   exit 1
+fi
 
 # Find and display the generated IPK files
 echo "Finding the generated IPK files..."
