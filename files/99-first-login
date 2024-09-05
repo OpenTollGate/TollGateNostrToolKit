@@ -1,0 +1,64 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=15
+
+. /lib/functions/network.sh
+
+start() {
+    if [ ! -f /etc/first_login_done ]; then
+        # Prompt user to set a password
+        echo "Please set a password for the router:"
+        passwd
+
+        # WiFi setup loop
+        while true; do
+            # Prompt for WiFi credentials
+            echo "Enter WiFi gateway SSID:"
+            read ssid
+            echo "Enter WiFi gateway Password:"
+            read -s password
+
+            # Update WiFi configuration
+            ./update_wireless_config.sh "$ssid" "$password"
+
+            # Restart network
+            /etc/init.d/network restart
+
+            # Wait for network to be ready
+            echo "Waiting for network to be ready..."
+            wait_for_network
+
+            # Check connectivity
+            if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
+                echo "WiFi setup successful!"
+                break
+            else
+                echo "Failed to connect. Please try again."
+            fi
+        done
+
+        # Mark as done
+        touch /etc/first_login_done
+    fi
+}
+
+stop() {
+    # Optional: Add any cleanup steps here
+    :
+}
+
+# Function to wait for network
+wait_for_network() {
+    local max_attempts=60
+    local attempt=0
+
+    while [ $attempt -lt $max_attempts ]; do
+        network_is_up && return 0
+        sleep 1
+        attempt=$((attempt + 1))
+    done
+
+    return 1
+}
+
