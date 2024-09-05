@@ -2,6 +2,20 @@
 
 . /lib/functions/network.sh
 
+# Function to wait for network
+wait_for_network() {
+    local max_attempts=60
+    local attempt=0
+
+    while [ $attempt -lt $max_attempts ]; do
+        network_is_up && return 0
+        sleep 1
+        attempt=$((attempt + 1))
+    done
+
+    return 1
+}
+
 if [ ! -f /etc/first_login_done ]; then
     # Prompt user to set a password
     echo "Please set a password for the router:"
@@ -38,16 +52,3 @@ if [ ! -f /etc/first_login_done ]; then
     touch /etc/first_login_done
 fi
 
-# Function to wait for network
-wait_for_network() {
-    local max_attempts=60
-    local attempt=0
-
-    while [ $attempt -lt $max_attempts ]; do
-        network_is_up && return 0
-        sleep 1
-        attempt=$((attempt + 1))
-    done
-
-    return 1
-}
