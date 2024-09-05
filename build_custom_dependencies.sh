@@ -75,6 +75,8 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
     # Create necessary directories
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
     mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
+    mkdir -p "$OPENWRT_DIR/files/etc/init.d"
+    mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
     
     # Copy files from the custom directory to the OpenWrt files directory
     cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
@@ -83,27 +85,53 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
     cp "$CUSTOM_FILES_DIR/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$CUSTOM_FILES_DIR/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
 
+    # Set execute permissions
+    chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
+    chmod +x "$OPENWRT_DIR/files/etc/connect_to_gateway.sh"
+
     # Copy uci_commands.sh and make it run on first boot
-    mkdir -p files/etc/opkg/
+    mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
     cp "$CUSTOM_FILES_DIR/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
     cp "$CUSTOM_FILES_DIR/uci_commands.sh" "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
     chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
 
-    # Create a file to modify /etc/profile
-    cat << EOF > "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-profile"
-#!/bin/sh
-
-cat << 'EOT' >> /etc/profile
+    # Directly modify /etc/profile
+    cat << 'EOF' >> "$OPENWRT_DIR/files/etc/profile"
 
 # TollGateNostr first login setup
-if [ ! -f /etc/first_login_done ] && [ "\$SSH_TTY" != "" -o "\$(tty)" = "/dev/tts/0" ]; then
+if [ ! -f /etc/first_login_done ] && [ "$SSH_TTY" != "" -o "$(tty)" = "/dev/tts/0" ]; then
     /usr/local/bin/first-login-setup
 fi
-EOT
+EOF
 
-chmod +x /usr/local/bin/first-login-setup
+    # Create a startup script
+    cat << 'EOF' > "$OPENWRT_DIR/files/etc/init.d/99-run-first-login"
+#!/bin/sh /etc/rc.common
+
+START=99
+
+start() {
+    if [ ! -f /etc/first_login_done ]; then
+        /usr/local/bin/first-login-setup
+    fi
+}
+EOF
+
+    chmod +x "$OPENWRT_DIR/files/etc/init.d/99-run-first-login"
+    ln -sf ../init.d/99-run-first-login "$OPENWRT_DIR/files/etc/rc.d/S99run-first-login"
+
+    # Create UCI defaults script
+    cat << 'EOF' > "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-setup"
+#!/bin/sh
+
+[ -f /etc/first_login_done ] || {
+    /usr/local/bin/first-login-setup
+}
+
 exit 0
 EOF
+
+    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-setup"
     
     echo "Custom files copied to OpenWrt files directory"
 else
