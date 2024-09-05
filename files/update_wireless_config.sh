@@ -10,25 +10,27 @@ fi
 NEW_SSID=$1
 NEW_PASSWORD=$2
 
-# Path to the wireless config file
-CONFIG_FILE="/etc/config/wireless"
+# Remove existing wifinet1 configuration if it exists
+uci delete wireless.@wifi-iface[1]
 
-# Use awk to replace the SSID and PASSWORD
-awk -v ssid="$NEW_SSID" -v pass="$NEW_PASSWORD" '
-/config wifi-iface '"'"'wifinet1'"'"'/ {
-    in_wifinet1 = 1
-}
-in_wifinet1 && /option ssid/ {
-    $0 = "\toption ssid '"'"'" ssid "'"'"'"
-}
-in_wifinet1 && /option key/ {
-    $0 = "\toption key '"'"'" pass "'"'"'"
-}
-/config / && !/config wifi-iface '"'"'wifinet1'"'"'/ {
-    in_wifinet1 = 0
-}
-{print}
-' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+# Create a new wifi-iface section named 'wifinet1'
+uci add wireless wifi-iface
+uci set wireless.@wifi-iface[-1]=wifi-iface
+uci set wireless.@wifi-iface[-1].name='wifinet1'
+
+# Set the options for the new wifi-iface
+uci set wireless.@wifi-iface[-1].device='radio0'
+uci set wireless.@wifi-iface[-1].mode='sta'
+uci set wireless.@wifi-iface[-1].network='wwan'
+uci set wireless.@wifi-iface[-1].ssid="$NEW_SSID"
+uci set wireless.@wifi-iface[-1].encryption='sae'
+uci set wireless.@wifi-iface[-1].key="$NEW_PASSWORD"
+
+# Commit the changes
+uci commit wireless
+
+# Restart the network to apply changes
+/etc/init.d/network restart
 
 # Check if the changes were made successfully
 if [ $? -eq 0 ]; then
@@ -36,6 +38,7 @@ if [ $? -eq 0 ]; then
     echo "New SSID: $NEW_SSID"
     echo "New PASSWORD: $NEW_PASSWORD"
 else
-    echo "Error: Failed to update the config file."
+    echo "Error: Failed to update the wireless configuration."
     exit 1
 fi
+
