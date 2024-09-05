@@ -74,11 +74,26 @@ CUSTOM_FILES_DIR="$SCRIPT_DIR/files"
 if [ -d "$CUSTOM_FILES_DIR" ]; then
     # Create necessary directories
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
+    mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
     
     # Copy files from the custom directory to the OpenWrt files directory
     cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
-    cp "$CUSTOM_FILES_DIR/99-first-login" "$OPENWRT_DIR/files/etc/uci-defaults/"
+    cp "$CUSTOM_FILES_DIR/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     cp "$CUSTOM_FILES_DIR/update_wireless_config.sh" "$OPENWRT_DIR/files/etc/"
+    
+    # Create a file to modify /etc/profile
+    cat << EOF > "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-profile"
+#!/bin/sh
+
+cat << 'EOT' >> /etc/profile
+
+if [ ! -f /etc/first_login_done ] && [ "\$SSH_TTY" != "" -o "\$(tty)" = "/dev/tts/0" ]; then
+    /usr/local/bin/first-login-setup
+fi
+EOT
+
+exit 0
+EOF
     
     echo "Custom files copied to OpenWrt files directory"
 else
