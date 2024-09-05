@@ -80,6 +80,8 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
     cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
     cp "$CUSTOM_FILES_DIR/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     cp "$CUSTOM_FILES_DIR/connect_to_gateway.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$CUSTOM_FILES_DIR/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$CUSTOM_FILES_DIR/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
 
     # Copy uci_commands.sh and make it run on first boot
     mkdir -p files/etc/opkg/
