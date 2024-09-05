@@ -82,6 +82,7 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
     cp "$CUSTOM_FILES_DIR/update_wireless_config.sh" "$OPENWRT_DIR/files/etc/"
 
     # Copy uci_commands.sh and make it run on first boot
+    cp "$CUSTOM_FILES_DIR/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
     cp "$CUSTOM_FILES_DIR/uci_commands.sh" "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
     chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
 

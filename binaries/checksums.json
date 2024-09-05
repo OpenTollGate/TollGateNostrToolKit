@@ -3,6 +3,6 @@
   ".gitignore_size": "0",
   "upload_new_files.sh_checksum": "4197b8f2ab8f92251914cbbe4f59e7b666072d20087c20e1e163a19b2f755297",
   "upload_new_files.sh_size": "501",
-  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade.bin_checksum": "8f105c644cdf9101e128519e0877abf85a0b1ffabc687c20b5ee1b08e0f84ebe",
-  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade.bin_size": "13108046"
+  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_setup_script_installed.bin_checksum": "3a47b4b7d57a295e6f2f61073bb5465060f0fd130f3ac236cd0d04ab2bbae2df",
+  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_setup_script_installed.bin_size": "13108046"
 }
