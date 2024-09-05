@@ -80,7 +80,10 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
     cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
     cp "$CUSTOM_FILES_DIR/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     cp "$CUSTOM_FILES_DIR/update_wireless_config.sh" "$OPENWRT_DIR/files/etc/"
-    
+
+    # Add this line to copy the new DNS configuration file
+    cp "$CUSTOM_FILES_DIR/99-custom-dns" "$OPENWRT_DIR/files/etc/uci-defaults/"
+
     # Create a file to modify /etc/profile
     cat << EOF > "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-profile"
 #!/bin/sh
