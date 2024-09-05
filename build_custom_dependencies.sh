@@ -87,11 +87,13 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
 
 cat << 'EOT' >> /etc/profile
 
+# TollGateNostr first login setup
 if [ ! -f /etc/first_login_done ] && [ "\$SSH_TTY" != "" -o "\$(tty)" = "/dev/tts/0" ]; then
     /usr/local/bin/first-login-setup
 fi
 EOT
 
+chmod +x /usr/local/bin/first-login-setup
 exit 0
 EOF
     
