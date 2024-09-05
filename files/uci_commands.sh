@@ -9,8 +9,10 @@ uci set wireless.default_radio0.network='lan'        # Bind the Wi-Fi to the LAN
 uci set wireless.default_radio0.disable='0'        # Bind the Wi-Fi to the LAN network
 uci commit wireless
 
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+echo "nameserver 8.8.8.8" > /etc/resolv.dnsmasq.conf
+echo "nameserver 1.1.1.1" >> /etc/resolv.dnsmasq.conf
+uci set dhcp.@dnsmasq[0].resolv_file='/etc/resolv.dnsmasq.conf'
+uci commit dhcp
 /etc/init.d/dnsmasq restart
 
 /etc/init.d/network restart
