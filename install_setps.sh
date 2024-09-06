@@ -25,6 +25,7 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
 	mkdir -p "$DESTINATION_DIR/www/cgi-bin"
 	mkdir -p "$DESTINATION_DIR/etc/nodogsplash/htdocs"
 	mkdir -p "$DESTINATION_DIR/etc/firewall.nodogsplash"
+	mkdir -p "$DESTINATION_DIR/etc/config/"
 
 	# Copy files from the custom directory to the OpenWrt files directory
 	cp "$CUSTOM_FILES_DIR/80_mount_root" "$DESTINATION_DIR/etc/uci-defaults/"
