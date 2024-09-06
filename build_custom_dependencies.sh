@@ -31,7 +31,7 @@ echo "Installing dependencies from custom feed..."
 
 # Copy configuration files
 CONFIG_FILE="$ROUTERS_DIR/${ROUTER_TYPE}_config"
-if [ ! -f "$CONFIG_FILE" ]; then
+if [! -f "$CONFIG_FILE" ]; then
     echo "Configuration file for ${ROUTER_TYPE} not found!"
     echo "Available options:"
     for file in "$ROUTERS_DIR"/*_config; do
@@ -72,31 +72,40 @@ fi
 echo "Manually installing custom files..."
 CUSTOM_FILES_DIR="$SCRIPT_DIR/files"
 if [ -d "$CUSTOM_FILES_DIR" ]; then
-    # Create necessary directories
-    mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
-    mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
-    mkdir -p "$OPENWRT_DIR/files/etc/init.d"
-    mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
-    
-    # Copy files from the custom directory to the OpenWrt files directory
-    cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
-    cp "$CUSTOM_FILES_DIR/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
-    cp "$CUSTOM_FILES_DIR/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
-    cp "$CUSTOM_FILES_DIR/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
-    cp "$CUSTOM_FILES_DIR/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+	# Create necessary directories
+	mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
+	mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
+	mkdir -p "$OPENWRT_DIR/files/etc/init.d"
+	mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
+	mkdir -p "$OPENWRT_DIR/files/www/cgi-bin"
+	mkdir -p "$OPENWRT_DIR/files/etc/config/nodogsplash"
+	mkdir -p "$OPENWRT_DIR/files/etc/nodogsplash/htdocs"
+	mkdir -p "$OPENWRT_DIR/files/etc/firewall.nodogsplash"
 
-    # Set execute permissions
-    chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
-    chmod +x "$OPENWRT_DIR/files/etc/connect_to_gateway.sh"
+	# Copy files from the custom directory to the OpenWrt files directory
+	cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
+	cp "$CUSTOM_FILES_DIR/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
+	cp "$CUSTOM_FILES_DIR/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
+	cp "$CUSTOM_FILES_DIR/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+	cp "$CUSTOM_FILES_DIR/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+	cp "$CUSTOM_FILES_DIR/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
+	cp -r "$CUSTOM_FILES_DIR/etc/config/nodogsplash" "$OPENWRT_DIR/files/etc/config/"
+	cp -r "$CUSTOM_FILES_DIR/etc/nodogsplash/htdocs/"* "$OPENWRT_DIR/files/etc/nodogsplash/htdocs/"
+	cp -r "$CUSTOM_FILES_DIR/etc/firewall.nodogsplash" "$OPENWRT_DIR/files/etc/"
+	cp -r "$CUSTOM_FILES_DIR/etc/nodogsplash" "$OPENWRT_DIR/files/etc/"
 
-    # Copy uci_commands.sh and make it run on first boot
-    mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
-    cp "$CUSTOM_FILES_DIR/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
-    cp "$CUSTOM_FILES_DIR/uci_commands.sh" "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
-    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
+	# Set execute permissions
+	chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
+	chmod +x "$OPENWRT_DIR/files/etc/connect_to_gateway.sh"
 
-    # Directly modify /etc/profile
-    cat << 'EOF' >> "$OPENWRT_DIR/files/etc/profile"
+	# Copy uci_commands.sh and make it run on first boot
+	mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
+	cp "$CUSTOM_FILES_DIR/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
+	cp "$CUSTOM_FILES_DIR/uci_commands.sh" "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
+	chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
+
+	# Directly modify /etc/profile
+	cat << 'EOF' >> "$OPENWRT_DIR/files/etc/profile"
 
 # TollGateNostr first login setup
 if [ ! -f /etc/first_login_done ] && [ "$SSH_TTY" != "" -o "$(tty)" = "/dev/tts/0" ]; then
@@ -131,11 +140,11 @@ EOF
 exit 0
 EOF
 
-    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-setup"
+	chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-setup"
     
-    echo "Custom files copied to OpenWrt files directory"
+	echo "Custom files copied to OpenWrt files directory"
 else
-    echo "Custom files directory not found. Skipping manual installation."
+	echo "Custom files directory not found. Skipping manual installation."
 fi
 
 # Rebuild firmware to include manual changes
