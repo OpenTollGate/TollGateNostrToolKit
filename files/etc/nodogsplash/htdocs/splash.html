@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" no-cache">
+<meta http-equiv="Expires" content="0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="shortcut icon" href="/images/splash.jpg" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="/splash.css">
+
+<title>Wifi Internet TollGate</title>
+
+</head>
+
+<body>
+<div class="offset">
+<med-blue>Wifi Internet TollGate</med-blue>
+<div class="insert">
+<br>
+<img src="/images/splash.jpg" alt="Splash Page: For access to the Internet, please click Continue.">
+<hr>
+<big-red>Welcome!</big-red>
+<hr>
+<br>
+<italic-black>Paste e-cash below and press Pay for internet access.</italic-black>
+<br><br>
+<italic-black>The price is 0.2 sat per second.</italic-black>
+<br><br>
+<form method="get" action="$authaction" style="display: flex; align-items: center;">
+  <input type="hidden" name="tok" value="$tok">
+  <input type="hidden" name="redir" value="$redir">
+  <input type="text" name="username" placeholder="Paste e-cash here" required style="flex: 1; margin-right: 10px;">
+  <input type="submit" value="Pay">
+</form>
+<div style="margin-top: 10px;">
+  <italic-black>Note: E-cash denomination must be a power of two.</italic-black><br>
+  <italic-black>LNURL-Withdraw is also accepted.</italic-black>
+</div>
+<hr>
+<copy-right>Copyright &copy; The Nodogsplash Contributors 2004-2019.<br>This software is released under the GNU GPL license.</copy-right>
+
+</div></div>
+</body>
+</html>
+

@@ -1,10 +1,8 @@
 {
-  "generate_npub_optimized_ath79_archer_c7_v2_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
-  "generate_npub_optimized_ath79_archer_c7_v2_size": "1311108",
-  "generate_npub_optimized_ath79_glar300m_checksum": "32197ad721a607f140c862dc40c7d4ccec77afd47b0978d6449767d099d2ff55",
-  "generate_npub_optimized_ath79_glar300m_size": "1311108",
-  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_checksum": "3f5c4e4bddad19423199411602941a8605e6178c46e7699351514aba59eef067",
-  "mips_24kc_packages_ath79_archer_c7_v2.tar.gz_size": "12013229",
-  "mips_24kc_packages_ath79_glar300m.tar.gz_checksum": "48564440c503428d080b20fe8b9b7af319c25967741a3af2e94716eaa9afdd31",
-  "mips_24kc_packages_ath79_glar300m.tar.gz_size": "12013228"
+  ".gitignore_checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  ".gitignore_size": "0",
+  "upload_new_files.sh_checksum": "4197b8f2ab8f92251914cbbe4f59e7b666072d20087c20e1e163a19b2f755297",
+  "upload_new_files.sh_size": "501",
+  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_setup_script_installed.bin_checksum": "39659b55665bf6b7482d44e5e28a860a34909723057060354ecd84bcb3548e68",
+  "openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_setup_script_installed.bin_size": "13173582"
 }

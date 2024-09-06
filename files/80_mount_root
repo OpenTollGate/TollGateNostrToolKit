@@ -1,0 +1,1 @@
+[ -f /etc/init.d/99-first-login ] && /etc/init.d/99-first-login enable
