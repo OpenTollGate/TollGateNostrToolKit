@@ -68,7 +68,8 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-./install_steps.sh
+chmod +x $SCRIPT_DIR/./install_steps.sh
+$SCRIPT_DIR/./install_steps.sh
 
 # Rebuild firmware to include manual changes
 echo "Rebuilding firmware..."
