@@ -26,7 +26,7 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
 
     # Set execute permissions
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
-    chmod +x "$OPENWRT_DIR/files/etc/connect_to_gateway.sh"
+    chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
 
     # Copy uci_commands.sh and make it run on first boot
     mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
