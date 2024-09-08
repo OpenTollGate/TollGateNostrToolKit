@@ -1,6 +1,7 @@
 # Setup build environment from scratch
 ```
-curl -sSL https://raw.githubusercontent.com/chGoodchild/TollGateNostrToolKit/nostr_client_relay/setup_from_scratch.sh | bash
+
+curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/quickstart/setup_from_scratch.sh | bash
 ```
 
 Set password for user called `username`:
@@ -18,7 +19,7 @@ root@ubuntu-32gb-nbg1-1:~# ssh username@localhost
 
 Get repo:
 ```
-curl -sSL https://raw.githubusercontent.com/chGoodchild/TollGateNostrToolKit/nostr_client_relay/setup_repo.sh | bash
+curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/nostr_client_relay/setup_repo.sh | bash
 ```
 
 Run build script:

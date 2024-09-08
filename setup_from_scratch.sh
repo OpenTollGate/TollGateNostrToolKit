@@ -1,7 +1,7 @@
 # Define variables
 USERNAME="username"  # Replace with the desired username
 REPO_DIR="/home/$USERNAME/TollGateNostrToolKit"
-REPO_URL="https://github.com/chGoodchild/TollGateNostrToolKit.git"
+REPO_URL="https://github.com/OpenTollGate/TollGateNostrToolKit.git"
 
 
 # Check if the user already exists
@@ -16,8 +16,8 @@ fi
 # Switch to the new user
 sudo su - $USERNAME <<EOF
      # Execute the curl script as root
-     curl -sSL https://raw.githubusercontent.com/chGoodchild/vps_general_setup/main/setup.sh | sudo bash
-     curl -sSL https://raw.githubusercontent.com/chGoodchild/TollGateNostrToolKit/nostr_client_relay/setup_repo.sh | bash
+     curl -sSL https://raw.githubusercontent.com/OpenTollGate/vps_general_setup/main/setup.sh | sudo bash
+     curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/quickstart/setup_repo.sh | bash
 
      # Log in to the new user's shell
      # exec bash
