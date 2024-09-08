@@ -75,8 +75,7 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
     # Create necessary directories
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
     mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
-    mkdir -p "$OPENWRT_DIR/files/etc/init.d"
-    mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
+    mkdir -p "$OPENWRT_DIR/files/etc"
     
     # Copy files from the custom directory to the OpenWrt files directory
     cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
@@ -99,40 +98,12 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
     cat << 'EOF' >> "$OPENWRT_DIR/files/etc/profile"
 
 # TollGateNostr first login setup
-if [ ! -f /etc/first_login_done ] && [ "\$SSH_TTY" != "" -o "\$(tty)" = "/dev/tts/0" ]; then
+if [ ! -f /etc/first_login_done ] && [ -t 0 ] && [ -t 1 ]; then
     /usr/local/bin/first-login-setup
 fi
 EOF
 
-    # Create a startup script
-    cat << 'EOF' > "$OPENWRT_DIR/files/etc/init.d/99-run-first-login"
-#!/bin/sh /etc/rc.common
-
-START=99
-
-start() {
-    if [ ! -f /etc/first_login_done ]; then
-        /usr/local/bin/first-login-setup
-    fi
-}
-EOF
-
-    chmod +x "$OPENWRT_DIR/files/etc/init.d/99-run-first-login"
-    ln -sf ../init.d/99-run-first-login "$OPENWRT_DIR/files/etc/rc.d/S99run-first-login"
-
-    # Create UCI defaults script
-    cat << 'EOF' > "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-setup"
-#!/bin/sh
-
-[ -f /etc/first_login_done ] || {
-    /usr/local/bin/first-login-setup
-}
-
-exit 0
-EOF
-
-    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-first-login-setup"
-    
+    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/80_mount_root"
     echo "Custom files copied to OpenWrt files directory"
 else
     echo "Custom files directory not found. Skipping manual installation."

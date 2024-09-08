@@ -1,1 +1,2 @@
-[ -f /etc/init.d/99-first-login ] && /etc/init.d/99-first-login enable
+#!/bin/sh
+[ ! -f /etc/first_login_done ] && /usr/local/bin/first-login-setup

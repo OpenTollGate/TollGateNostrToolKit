@@ -16,11 +16,12 @@ wait_for_network() {
     return 1
 }
 
-if [ ! -f /etc/first_login_done ]; then
-    # Prompt user to set a password
-    echo "Please set a password for the router:"
-    passwd
+# Check if script is running interactively
+is_interactive() {
+    [ -t 0 ] && [ -t 1 ]
+}
 
+setup_wifi() {
     # WiFi setup loop
     while true; do
         # Prompt for WiFi credentials
@@ -47,8 +48,24 @@ if [ ! -f /etc/first_login_done ]; then
             echo "Failed to connect. Please try again."
         fi
     done
+}
 
-    # Mark as done
-    touch /etc/first_login_done
+if [ ! -f /etc/first_login_done ]; then
+    if is_interactive; then
+        # Prompt user to set a password
+        echo "Please set a password for the router:"
+        passwd
+
+        # Setup WiFi
+        setup_wifi
+
+        # Mark as done
+        touch /etc/first_login_done
+    else
+        # Non-interactive mode: Set default password and skip WiFi setup
+        # echo "root:tollgate" | chpasswd
+        echo "Password not set. Please set it upon first login."
+    fi
+
 fi
 
