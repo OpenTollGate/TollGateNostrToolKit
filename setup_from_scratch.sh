@@ -17,7 +17,7 @@ fi
 sudo su - $USERNAME <<EOF
      # Execute the curl script as root
      curl -sSL https://raw.githubusercontent.com/chGoodchild/vps_general_setup/main/setup.sh | sudo bash
-     curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/quickstart/setup_repo.sh | bash
+     # curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/quickstart/setup_repo.sh | bash
 
      # Log in to the new user's shell
      # exec bash
