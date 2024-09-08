@@ -3,7 +3,8 @@
 sudo apt-get -y install bc
 
 # List of VPS servers
-servers=("helsinki" "falkenstein" "nuremberg")
+# servers=("helsinki" "falkenstein" "nuremberg")
+servers=("falkenstein")
 # servers=("falkenstein" "nuremberg")
 
 # Function to check load average
