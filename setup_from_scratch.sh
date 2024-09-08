@@ -13,15 +13,17 @@ else
     sudo usermod -aG sudo $USERNAME
 fi
 
+curl -sSL https://raw.githubusercontent.com/chGoodchild/vps_general_setup/main/setup.sh | sudo bash
+
 # Switch to the new user
-sudo su - $USERNAME <<EOF
+# sudo su - $USERNAME <<EOF
      # Execute the curl script as root
-     curl -sSL https://raw.githubusercontent.com/chGoodchild/vps_general_setup/main/setup.sh | sudo bash
+     # curl -sSL https://raw.githubusercontent.com/chGoodchild/vps_general_setup/main/setup.sh | sudo bash
      # curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/quickstart/setup_repo.sh | bash
 
      # Log in to the new user's shell
      # exec bash
-EOF
+# EOF
 
 # Login as the new user
 # ssh $USERNAME@localhost
