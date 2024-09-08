@@ -24,4 +24,4 @@ sudo su - $USERNAME <<EOF
 EOF
 
 # Login as the new user
-ssh $USERNAME@localhost
+# ssh $USERNAME@localhost
