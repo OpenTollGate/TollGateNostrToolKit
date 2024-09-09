@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # Check if the correct number of arguments are passed
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <SCRIPT_DIR> <OPENWRT_DIR>"
@@ -14,23 +16,36 @@ OPENWRT_DIR="$2"
 echo "SCRIPT_DIR: $SCRIPT_DIR"
 echo "OPENWRT_DIR: $OPENWRT_DIR"
 
+
+cd $OPENWRT_DIR
+
 # Manually install custom files
 echo "Manually installing custom files..."
-CUSTOM_FILES_DIR="$SCRIPT_DIR/files"
-echo "CUSTOM_FILES_DIR: $CUSTOM_FILES_DIR"
 
-if [ -d "$CUSTOM_FILES_DIR" ]; then
+if [ -d "$SCRIPT_DIR/files" ]; then
     # Create necessary directories
-    mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
+    mkdir -p "$OPENWRT_DIR/files/www/cgi-bin"
     mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
+    mkdir -p "$OPENWRT_DIR/files/etc/nodogsplash/htdocs"
+    mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
+    mkdir -p "$OPENWRT_DIR/files/etc/config/"
+    mkdir -p "$OPENWRT_DIR/files/etc/init.d"
+    mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
     mkdir -p "$OPENWRT_DIR/files/etc"
-    
+
     # Copy files from the custom directory to the OpenWrt files directory
-    cp "$CUSTOM_FILES_DIR/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
-    cp "$CUSTOM_FILES_DIR/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
-    cp "$CUSTOM_FILES_DIR/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
-    cp "$CUSTOM_FILES_DIR/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
-    cp "$CUSTOM_FILES_DIR/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+
+    cp "$SCRIPT_DIR/files/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
+
+    cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
+    cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
+    cp -r "$SCRIPT_DIR/files/nodogsplash" "$OPENWRT_DIR/files/etc/config/"
+    cp -r "$SCRIPT_DIR/files/etc/nodogsplash/htdocs/"* "$OPENWRT_DIR/files/etc/nodogsplash/htdocs/"
+    cp -r "$SCRIPT_DIR/files/firewall.nodogsplash" "$OPENWRT_DIR/files/etc/"
+    cp -r "$SCRIPT_DIR/files/etc/nodogsplash" "$OPENWRT_DIR/files/etc/"
 
     # Set execute permissions
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
@@ -38,8 +53,8 @@ if [ -d "$CUSTOM_FILES_DIR" ]; then
 
     # Copy uci_commands.sh and make it run on first boot
     mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
-    cp "$CUSTOM_FILES_DIR/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
-    cp "$CUSTOM_FILES_DIR/uci_commands.sh" "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
+    cp "$SCRIPT_DIR/files/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
+    cp "$SCRIPT_DIR/files/uci_commands.sh" "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
     chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
 
     # Directly modify /etc/profile
