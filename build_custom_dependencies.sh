@@ -2,8 +2,14 @@
 
 set -e
 
+# Define necessary variables
 SCRIPT_DIR="$HOME/TollGateNostrToolKit"
+OPENWRT_DIR="$HOME/openwrt"
 ROUTERS_DIR="$SCRIPT_DIR/routers"
+
+# Debug: Print current paths and variables
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+echo "OPENWRT_DIR: $OPENWRT_DIR"
 
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <router_type>"
@@ -16,7 +22,7 @@ fi
 
 ROUTER_TYPE=$1
 
-OPENWRT_DIR="$HOME/openwrt"
+
 cd $OPENWRT_DIR
 
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
@@ -68,7 +74,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-$SCRIPT_DIR/./install_script.sh
+$SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
 # Rebuild firmware to include manual changes
 echo "Rebuilding firmware..."

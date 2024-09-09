@@ -1,8 +1,24 @@
 #!/bin/bash
 
+# Check if the correct number of arguments are passed
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <SCRIPT_DIR> <OPENWRT_DIR>"
+    exit 1
+fi
+
+# Get the arguments
+SCRIPT_DIR="$1"
+OPENWRT_DIR="$2"
+
+# Debug: Print current paths and variables
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+echo "OPENWRT_DIR: $OPENWRT_DIR"
+
 # Manually install custom files
 echo "Manually installing custom files..."
 CUSTOM_FILES_DIR="$SCRIPT_DIR/files"
+echo "CUSTOM_FILES_DIR: $CUSTOM_FILES_DIR"
+
 if [ -d "$CUSTOM_FILES_DIR" ]; then
     # Create necessary directories
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
