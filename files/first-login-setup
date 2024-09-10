@@ -43,7 +43,11 @@ setup_wifi() {
         # Check connectivity
         if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
             echo "WiFi setup successful!"
-            opkg update && opkg install coreutils-base64 &
+
+	    if ! base64 --version &>/dev/null; then
+                opkg update && opkg install coreutils-base64 &
+            fi
+
 	    /www/cgi-bin/./generate_keys.sh
             break
         else
