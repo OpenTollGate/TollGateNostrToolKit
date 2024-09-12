@@ -21,6 +21,13 @@ is_interactive() {
     [ -t 0 ] && [ -t 1 ]
 }
 
+setup_vpn() {
+    echo "Setting up VPN..."
+    /etc/./setup_vpn.sh
+    echo "VPN setup complete. Starting VPN..."
+    /etc/./startup_vpn.sh
+}
+
 setup_wifi() {
     # WiFi setup loop
     while true; do
@@ -47,6 +54,8 @@ setup_wifi() {
 	    if ! base64 --version &>/dev/null; then
                 opkg update && opkg install coreutils-base64 &
             fi
+
+            setup_wifi
 
 	    /www/cgi-bin/./generate_keys.sh
             break

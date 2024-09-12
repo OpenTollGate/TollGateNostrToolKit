@@ -29,11 +29,22 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc/nodogsplash/htdocs"
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
     mkdir -p "$OPENWRT_DIR/files/etc/config/"
+    mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
     mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
     mkdir -p "$OPENWRT_DIR/files/etc"
 
-    # Copy files from the custom directory to the OpenWrt files directory
+    cp "$SCRIPT_DIR/files/vpn/firewall" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/vpn/network" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/vpn/openvpn" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/vpn/pia_latvia.ovpn" "$OPENWRT_DIR/files/etc/openvpn/"
+    cp "$SCRIPT_DIR/files/vpn/firewall.user" "$OPENWRT_DIR/files/etc/"
+
+    # Copy VPN setup and startup scripts
+    cp "$SCRIPT_DIR/files/setup_vpn.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/startup_vpn.sh" "$OPENWRT_DIR/files/etc/"
+    chmod +x "$OPENWRT_DIR/files/etc/setup_vpn.sh"
+    chmod +x "$OPENWRT_DIR/files/etc/startup_vpn.sh"
 
     cp "$SCRIPT_DIR/files/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
 

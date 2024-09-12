@@ -1,17 +1,25 @@
 #!/bin/sh
 
-# ~/TollGateNostrToolKit/files/vpn$ ls
-# firewall  firewall.user  network  openvpn  pia_latvia.ovpn
-# Copy files to their respective locations on the router
-#
-# root@192.168.8.1:/etc/openvpn/
-# root@192.168.8.1:/etc/openvpn/
-# root@192.168.8.1:/etc/config/
-# root@192.168.8.1:/etc/config/
-# root@192.168.8.1:/etc/config/
-# root@192.168.8.1:/etc/
+# Function to check if a package is installed
+is_package_installed() {
+    opkg list-installed | grep -q "^$1 "
+}
 
-# Install Luci app openvpn and dig if they aren't already installed
-# opkg update && opkg install luci-app-openvpn dig
+# Function to install a package if it's not already installed
+install_package_if_needed() {
+    if ! is_package_installed "$1"; then
+        if [ "$update_run" != "true" ]; then
+            opkg update
+            update_run=true
+        fi
+        opkg install "$1"
+    fi
+}
 
+# Install necessary packages if they're not already installed
+update_run=false
+install_package_if_needed "luci-app-openvpn"
+install_package_if_needed "openvpn-openssl"
+install_package_if_needed "dig"
 
+echo "VPN setup complete."
