@@ -22,4 +22,14 @@ install_package_if_needed "luci-app-openvpn"
 install_package_if_needed "openvpn-openssl"
 install_package_if_needed "dig"
 
+# Prompt user for username and password
+echo "Please enter your VPN username:"
+read username
+echo "Please enter your VPN password:"
+read -s password
+
+# Save username and password to auth.txt
+echo -e "$username\n$password" > /etc/openvpn/auth.txt
+
+echo "VPN credentials saved to /etc/openvpn/auth.txt"
 echo "VPN setup complete."
