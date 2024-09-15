@@ -1,15 +1,28 @@
-##!/bin/sh
+#!/bin/sh
 
-#!/bin/sh -e
-set -x
+##!/bin/sh -e
+# set -x
 
 # Base URLs of the services
 MINT_URL="https://mint.minibits.cash/Bitcoin"
 LNURL="https://minibits.cash/.well-known/lnurlp/chandran"
 
-# Token can be passed as an argument to the script
-TOKEN="$1"
+# File path can be passed as an argument to the script
+TOKEN_FILE="$1"
 VERBOSE="false"
+
+# Function to read token from file
+read_token_from_file() {
+    if [ ! -f "$TOKEN_FILE" ]; then
+        echo "Error: File $TOKEN_FILE does not exist."
+        exit 1
+    fi
+    TOKEN=$(cat "$TOKEN_FILE")
+    if [ -z "$TOKEN" ]; then
+        echo "Error: Token file is empty."
+        exit 1
+    fi
+}
 
 # Function to decode the token and calculate total amount
 decode_token() {
@@ -19,11 +32,13 @@ decode_token() {
     # Remove the 'cashuA' prefix before decoding
     # BASE64_TOKEN=$(echo "${TOKEN:6}")
     BASE64_TOKEN=$(echo "$TOKEN" | cut -b 7-)
-    
+    echo "BASE64_TOKEN: $BASE64_TOKEN"
+
     [ "$VERBOSE" = "true" ] && echo "Base64 Token: $BASE64_TOKEN"
 
     # Clean up the base64 token to remove any invalid characters
     CLEANED_BASE64_TOKEN=$(echo "$BASE64_TOKEN" | tr -d '\n\r')
+    echo "CLEANED_BASE64_TOKEN: $CLEANED_BASE64_TOKEN"
     [ "$VERBOSE" = "true" ] && echo "Cleaned Base64 Token: $CLEANED_BASE64_TOKEN"
 
     # Ensure proper padding
@@ -34,7 +49,8 @@ decode_token() {
     [ "$VERBOSE" = "true" ] && echo "Padded Base64 Token: $CLEANED_BASE64_TOKEN"
 
     # Decode base64, handle any errors
-    DECODED_TOKEN=$(echo "$CLEANED_BASE64_TOKEN" | base64 --decode 2>/dev/null)
+    DECODED_TOKEN=$(echo "$CLEANED_BASE64_TOKEN" | base64 --decode -w 0)
+    echo "DECODED_TOKEN: $DECODED_TOKEN"
     if [ -z "$DECODED_TOKEN" ]; then
         echo "Error decoding token or token is empty."
         exit 1
@@ -236,6 +252,17 @@ redeem_token() {
 }
 
 
+# Check if file path is provided
+if [ -z "$TOKEN_FILE" ]; then
+    echo "Usage: $0 <token_file_path>"
+    exit 1
+fi
+
+echo "Curl request - Token file: $TOKEN_FILE" >> /tmp/arguments_log.md
+
+# Read token from file
+read_token_from_file
+
 # Check if token is provided
 if [ -z "$TOKEN" ]; then
   echo "Usage: $0 <token>"
@@ -243,7 +270,7 @@ if [ -z "$TOKEN" ]; then
 fi
 
 
-echo "Curl request - ECASH: $ECASH" >> /tmp/arguments_log.md
+echo "Curl request - ECASH: $TOKEN" >> /tmp/arguments_log.md
 
 # Decode the token
 decode_token
