@@ -30,15 +30,12 @@ decode_token() {
     [ "$VERBOSE" = "true" ] && echo $TOKEN
     
     # Remove the 'cashuA' prefix before decoding
-    # BASE64_TOKEN=$(echo "${TOKEN:6}")
     BASE64_TOKEN=$(echo "$TOKEN" | cut -b 7-)
-    echo "BASE64_TOKEN: $BASE64_TOKEN"
 
     [ "$VERBOSE" = "true" ] && echo "Base64 Token: $BASE64_TOKEN"
 
     # Clean up the base64 token to remove any invalid characters
     CLEANED_BASE64_TOKEN=$(echo "$BASE64_TOKEN" | tr -d '\n\r')
-    echo "CLEANED_BASE64_TOKEN: $CLEANED_BASE64_TOKEN"
     [ "$VERBOSE" = "true" ] && echo "Cleaned Base64 Token: $CLEANED_BASE64_TOKEN"
 
     # Ensure proper padding
@@ -50,7 +47,6 @@ decode_token() {
 
     # Decode base64, handle any errors
     DECODED_TOKEN=$(echo "$CLEANED_BASE64_TOKEN" | base64 --decode -w 0)
-    echo "DECODED_TOKEN: $DECODED_TOKEN"
     if [ -z "$DECODED_TOKEN" ]; then
         echo "Error decoding token or token is empty."
         exit 1
