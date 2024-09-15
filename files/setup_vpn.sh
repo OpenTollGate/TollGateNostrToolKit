@@ -20,7 +20,7 @@ install_package_if_needed() {
 update_run=false
 install_package_if_needed "luci-app-openvpn"
 install_package_if_needed "openvpn-openssl"
-install_package_if_needed "dig"
+install_package_if_needed "bind-tools"
 
 # Prompt user for username and password
 echo "Please enter your VPN username:"

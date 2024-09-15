@@ -18,7 +18,7 @@ config nodogsplash
   #option webroot '/etc/nodogsplash/htdocs'
 
   # Use plain configuration file
-  #option config '/etc/nodogsplash/nodogsplash.conf'
+  option config '/etc/nodogsplash/nodogsplash.conf'
 
   # Use this option to set the device nodogsplash will bind to.
   # The value may be an interface section in /etc/config/network or a device name such as br-lan.

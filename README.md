@@ -15,3 +15,4 @@ Run `./build_coordinator.sh` to build for all routers listed under `./routers/*_
 
 - [Find error in logs](find_error_in_logs.md): Commands for parsing through `build_logs.md` to find relevant lines.
 
+- [Syncronize nodogsplash.conf with UCI](nodogsplash_configuration.md): nodogsplash gets its commands from `/etc/nodogsplash/nodogsplash.conf`, but the UCI commands modify `/etc/config/nodogsplash`. Logic is required to transfer the UCI settings to `nodogsplash.conf` on startup.

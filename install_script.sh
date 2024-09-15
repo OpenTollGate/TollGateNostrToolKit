@@ -53,7 +53,8 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
-    cp -r "$SCRIPT_DIR/files/nodogsplash" "$OPENWRT_DIR/files/etc/config/"
+    cp -r "$SCRIPT_DIR/files/nodogsplash" "$OPENWRT_DIR/files/etc/config/" # Config files for openwrt (with UCI)
+    rm "$OPENWRT_DIR/files/etc/nodogsplash/nodogsplash.conf" # Config files for traditional linux distros without UCI
     cp -r "$SCRIPT_DIR/files/etc/nodogsplash/htdocs/"* "$OPENWRT_DIR/files/etc/nodogsplash/htdocs/"
     cp -r "$SCRIPT_DIR/files/firewall.nodogsplash" "$OPENWRT_DIR/files/etc/"
     cp -r "$SCRIPT_DIR/files/etc/nodogsplash" "$OPENWRT_DIR/files/etc/"
