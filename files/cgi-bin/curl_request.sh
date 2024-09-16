@@ -3,13 +3,57 @@
 ##!/bin/sh -e
 # set -x
 
-# Base URLs of the services
-MINT_URL="https://mint.minibits.cash/Bitcoin"
-LNURL="https://minibits.cash/.well-known/lnurlp/chandran"
-
-# File path can be passed as an argument to the script
+# File path and LNURL can be passed as arguments to the script
 TOKEN_FILE="$1"
+RECIPIENT_LNURL="$2"
 VERBOSE="false"
+
+# Function to map domain to mint URL
+map_domain_to_mint() {
+    local domain="$1"
+    case "$domain" in
+        "minibits.cash" | "nimo.cash")
+            echo "https://mint.$domain/Bitcoin"
+            ;;
+        "8333.space")
+            echo "https://$domain"
+            ;;
+        "umint.cash")
+            echo "https://stablenut.$domain"
+            ;;
+        *)
+            # Default to mint subdomain if unknown
+            echo "https://mint.$domain/Bitcoin"
+            ;;
+    esac
+}
+
+# Function to generate MINT_URL and LNURL from the recipient's LNURL
+generate_urls() {
+    if [ -z "$RECIPIENT_LNURL" ]; then
+        echo "Error: Recipient's LNURL is not provided."
+        echo "Usage: $0 <token_file_path> <username@domain>"
+        exit 1
+    fi
+
+    # Extract username and domain from the LNURL
+    USERNAME=$(echo "$RECIPIENT_LNURL" | cut -d '@' -f 1)
+    DOMAIN=$(echo "$RECIPIENT_LNURL" | cut -d '@' -f 2)
+
+    if [ -z "$USERNAME" ] || [ -z "$DOMAIN" ]; then
+        echo "Error: Invalid LNURL format. Expected format: username@domain"
+        exit 1
+    fi
+
+    # Generate MINT_URL
+    MINT_URL=$(map_domain_to_mint "$DOMAIN")
+
+    # Generate LNURL
+    LNURL="https://$DOMAIN/.well-known/lnurlp/$USERNAME"
+
+    [ "$VERBOSE" = "true" ] && echo "Generated MINT_URL: $MINT_URL"
+    [ "$VERBOSE" = "true" ] && echo "Generated LNURL: $LNURL"
+}
 
 # Function to read token from file
 read_token_from_file() {
@@ -248,20 +292,24 @@ redeem_token() {
 }
 
 
-# Check if file path is provided
-if [ -z "$TOKEN_FILE" ]; then
-    echo "Usage: $0 <token_file_path>"
+# Check if file path and LNURL are provided
+if [ -z "$TOKEN_FILE" ] || [ -z "$RECIPIENT_LNURL" ]; then
+    echo "Usage: $0 <token_file_path> <username@domain>"
     exit 1
 fi
 
 echo "Curl request - Token file: $TOKEN_FILE" >> /tmp/arguments_log.md
+echo "Curl request - Recipient LNURL: $RECIPIENT_LNURL" >> /tmp/arguments_log.md
+
+# Generate MINT_URL and LNURL
+generate_urls
 
 # Read token from file
 read_token_from_file
 
 # Check if token is provided
 if [ -z "$TOKEN" ]; then
-  echo "Usage: $0 <token>"
+  echo "Error: Token is empty."
   exit 1
 fi
 
