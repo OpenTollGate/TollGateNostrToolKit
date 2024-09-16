@@ -27,24 +27,30 @@ get_latest_commit() {
     git -C "$1" rev-parse HEAD
 }
 
-# Function to extract custom feed URL from feeds.conf
-get_custom_feed_url() {
-    grep "src-git-full custom" "$1" | cut -d' ' -f3 | cut -d';' -f1
+# Function to extract custom feed URL and branch from feeds.conf
+get_custom_feed_info() {
+    local feed_line=$(grep "src-git-full custom" "$1")
+    local url=$(echo "$feed_line" | cut -d' ' -f3 | cut -d';' -f1)
+    local branch=$(echo "$feed_line" | cut -d';' -f2)
+    echo "$url $branch"
 }
 
-# Get custom feed URL
-CUSTOM_FEED_URL=$(get_custom_feed_url "$SCRIPT_DIR/feeds.conf")
+# Get custom feed URL and branch
+read CUSTOM_FEED_URL CUSTOM_FEED_BRANCH <<< $(get_custom_feed_info "$SCRIPT_DIR/feeds.conf")
 CUSTOM_FEED_NAME=$(basename "$CUSTOM_FEED_URL" .git)
 CUSTOM_FEED_DIR="$HOME/$CUSTOM_FEED_NAME"
 
 # Clone or update custom feed repository
 if [ ! -d "$CUSTOM_FEED_DIR" ]; then
-    git clone "$CUSTOM_FEED_URL" "$CUSTOM_FEED_DIR"
+    git clone -b "$CUSTOM_FEED_BRANCH" "$CUSTOM_FEED_URL" "$CUSTOM_FEED_DIR"
 else
-    git -C "$CUSTOM_FEED_DIR" pull
+    git -C "$CUSTOM_FEED_DIR" fetch
+    git -C "$CUSTOM_FEED_DIR" checkout "$CUSTOM_FEED_BRANCH"
+    git -C "$CUSTOM_FEED_DIR" pull origin "$CUSTOM_FEED_BRANCH"
 fi
 
 echo "CUSTOM_FEED_DIR: $CUSTOM_FEED_DIR"
+echo "CUSTOM_FEED_BRANCH: $CUSTOM_FEED_BRANCH"
 
 cd $OPENWRT_DIR
 
