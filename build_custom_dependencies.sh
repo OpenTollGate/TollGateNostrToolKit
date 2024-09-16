@@ -22,16 +22,51 @@ fi
 
 ROUTER_TYPE=$1
 
+# Function to get the latest commit hash
+get_latest_commit() {
+    git -C "$1" rev-parse HEAD
+}
+
+# Function to extract custom feed URL from feeds.conf
+get_custom_feed_url() {
+    grep "src-git-full custom" "$1" | cut -d' ' -f3 | cut -d';' -f1
+}
+
+# Get custom feed URL
+CUSTOM_FEED_URL=$(get_custom_feed_url "$SCRIPT_DIR/feeds.conf")
+CUSTOM_FEED_NAME=$(basename "$CUSTOM_FEED_URL" .git)
+CUSTOM_FEED_DIR="$HOME/$CUSTOM_FEED_NAME"
+
+# Clone or update custom feed repository
+if [ ! -d "$CUSTOM_FEED_DIR" ]; then
+    git clone "$CUSTOM_FEED_URL" "$CUSTOM_FEED_DIR"
+else
+    git -C "$CUSTOM_FEED_DIR" pull
+fi
+
+echo "CUSTOM_FEED_DIR: $CUSTOM_FEED_DIR"
 
 cd $OPENWRT_DIR
 
+# Get current commit hashes
+SCRIPT_COMMIT=$(get_latest_commit "$SCRIPT_DIR")
+CUSTOM_FEED_COMMIT=$(get_latest_commit "$CUSTOM_FEED_DIR")
+
+# Check if rebuild is necessary
+REBUILD_NEEDED=false
+if [ ! -f .last_build_info ] || \
+   [ "$SCRIPT_COMMIT" != "$(grep SCRIPT_COMMIT .last_build_info | cut -d= -f2)" ] || \
+   [ "$CUSTOM_FEED_COMMIT" != "$(grep CUSTOM_FEED_COMMIT .last_build_info | cut -d= -f2)" ]; then
+    REBUILD_NEEDED=true
+fi
+
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
-# After updating and installing feeds
-if [ ! -f .feeds_updated ]; then
-  ./scripts/feeds update -a
-  ./scripts/feeds install -a
-  touch .feeds_updated
+# Update and install feeds if needed
+if [ "$REBUILD_NEEDED" = true ] || [ ! -f .feeds_updated ]; then
+    ./scripts/feeds update -a
+    ./scripts/feeds install -a
+    touch .feeds_updated
 fi
 
 # Copy configuration files
@@ -48,29 +83,31 @@ cp $CONFIG_FILE $OPENWRT_DIR/.config
 
 make oldconfig
 
-# Check for feed install errors
-if [ $? -ne 0 ]; then
-    echo "Feeds install failed"
-    exit 1
+# Clean the build environment if rebuild is needed
+if [ "$REBUILD_NEEDED" = true ]; then
+    echo "Cleaning the build environment..."
+    make clean
 fi
 
-# Clean the build environment
-echo "Cleaning the build environment..."
-make clean
-
-# Before running make
-if [ ! -f .toolchain_installed ]; then
-  make -j$(nproc) toolchain/install
-  touch .toolchain_installed
+# Install toolchain if needed
+if [ "$REBUILD_NEEDED" = true ] || [ ! -f .toolchain_installed ]; then
+    make -j$(nproc) toolchain/install
+    touch .toolchain_installed
 fi
 
-# Run install_script.sh here
+# Run install_script.sh
 $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
-# Only run make if necessary
-if [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
-  make -j$(nproc) V=sc > make_logs.md 2>&1
-  touch .firmware_built
+# Build firmware if needed
+if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
+    make -j$(nproc) V=sc > make_logs.md 2>&1
+    touch .firmware_built
+    
+    # Update last build info
+    echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > .last_build_info
+    echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> .last_build_info
+else
+    echo "No rebuild needed. Using existing build."
 fi
 
 # Find and display the generated IPK files
