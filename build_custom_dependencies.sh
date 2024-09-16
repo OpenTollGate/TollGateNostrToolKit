@@ -27,13 +27,12 @@ cd $OPENWRT_DIR
 
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
-# Update the custom feed
-echo "Updating custom feed..."
-./scripts/feeds update -a
-
-# Install the dependencies from the custom feed
-echo "Installing dependencies from custom feed..."
-./scripts/feeds install -a
+# After updating and installing feeds
+if [ ! -f .feeds_updated ]; then
+  ./scripts/feeds update -a
+  ./scripts/feeds install -a
+  touch .feeds_updated
+fi
 
 # Copy configuration files
 CONFIG_FILE="$ROUTERS_DIR/${ROUTER_TYPE}_config"
@@ -59,29 +58,19 @@ fi
 echo "Cleaning the build environment..."
 make clean
 
-# Install the toolchain
-echo "Installing toolchain..."
-make -j$(nproc) toolchain/install
-if [ $? -ne 0 ]; then
-    echo "Toolchain install failed"
-    exit 1
+# Before running make
+if [ ! -f .toolchain_installed ]; then
+  make -j$(nproc) toolchain/install
+  touch .toolchain_installed
 fi
 
-echo "Building firmware..."
-make -j$(nproc) V=sc > make_logs.md 2>&1
-if [ $? -ne 0 ]; then
-   echo "Firmware build failed."
-   exit 1
-fi
-
+# Run install_script.sh here
 $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
-# Rebuild firmware to include manual changes
-echo "Rebuilding firmware..."
-make -j$(nproc) V=sc >> make_logs.md 2>&1
-if [ $? -ne 0 ]; then
-   echo "Firmware rebuild failed."
-   exit 1
+# Only run make if necessary
+if [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
+  make -j$(nproc) V=sc > make_logs.md 2>&1
+  touch .firmware_built
 fi
 
 # Find and display the generated IPK files
