@@ -106,7 +106,14 @@ $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
 # Build firmware if needed
 if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
-    make -j$(nproc) V=sc > make_logs.md 2>&1
+    # Estimate the total number of steps (you may need to adjust this)
+    total_steps=$(make -n | grep -c '^')
+    
+    # Use pv to create a progress bar
+    (
+        make -j$(nproc) V=sc 2>&1 | tee make_logs.md | pv -l -s $total_steps > /dev/null
+    )
+    
     touch .firmware_built
     
     # Update last build info
