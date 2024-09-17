@@ -1,0 +1,20 @@
+#!/bin/sh
+
+# Flush existing rules
+iptables -F
+iptables -t nat -F
+
+# Allow established and related traffic
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+iptables -A FORWARD -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# Redirect HTTP traffic to NoDogSplash
+iptables -t nat -A PREROUTING -i br-lan -p tcp --dport 80 -j DNAT --to 192.168.8.1:2050
+iptables -A FORWARD -i br-lan -o eth0 -j ACCEPT
+iptables -A FORWARD -i eth0 -o br-lan -j ACCEPT
+
+# Mark authenticated clients
+iptables -A FORWARD -m mark --mark 0x30000 -j ACCEPT
+
+# Block all other traffic from unauthenticated clients
+iptables -A FORWARD -i br-lan -j REJECT

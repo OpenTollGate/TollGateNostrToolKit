@@ -19,8 +19,10 @@ declare -a packages=(
   "xsltproc" "zlib1g-dev" "libexpat1-dev" "libpython3-dev" "libzstd-dev"
   "python3.12-dev" "javascript-common" "libapr1t64" "libaprutil1t64"
   "libhiredis1.1.0" "libjs-jquery" "libjs-sphinxdoc" "libjs-underscore"
-  "libserf-1-1" "libsvn1" "libutf8proc3"
+  "libserf-1-1" "libsvn1" "libutf8proc3" "jq"
 )
+
+sudo apt install -y file
 
 # Install necessary dependencies only if they are not already installed
 for pkg in "${packages[@]}"; do
@@ -30,3 +32,4 @@ for pkg in "${packages[@]}"; do
     echo "$pkg is already installed"
   fi
 done
+

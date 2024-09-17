@@ -1,0 +1,2 @@
+#!/bin/sh
+[ ! -f /etc/first_login_done ] && /usr/local/bin/first-login-setup

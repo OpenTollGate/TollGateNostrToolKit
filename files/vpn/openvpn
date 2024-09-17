@@ -1,0 +1,5 @@
+
+config openvpn 'pia_latvia'
+	option config '/etc/openvpn/pia_latvia.ovpn'
+	option enabled '1'
+
