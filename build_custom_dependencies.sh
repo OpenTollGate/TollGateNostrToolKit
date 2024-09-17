@@ -171,12 +171,18 @@ if [ -z "$SYSUPGRADE_FILE" ]; then
     exit 1
 fi
 
-# Copy the file to the destination directory
-cp "$SYSUPGRADE_FILE" ~/TollGateNostrToolKit/binaries/.
+# Extract the base filename without extension
+BASE_FILENAME=$(basename "$SYSUPGRADE_FILE" .bin)
+
+# Create the new filename with commit hash
+NEW_FILENAME="${BASE_FILENAME}_${SCRIPT_COMMIT}.bin"
+
+# Copy the file to the destination directory with the new filename
+cp "$SYSUPGRADE_FILE" "$HOME/TollGateNostrToolKit/binaries/$NEW_FILENAME"
 
 # Check if copy was successful
 if [ $? -eq 0 ]; then
-    echo "Successfully copied $(basename "$SYSUPGRADE_FILE") to ~/TollGateNostrToolKit/binaries/."
+    echo "Successfully copied $NEW_FILENAME to ~/TollGateNostrToolKit/binaries/."
 else
     echo "Failed to copy file."
     exit 1
