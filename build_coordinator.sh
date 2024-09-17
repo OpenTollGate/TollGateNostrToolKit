@@ -38,13 +38,12 @@ rm -f /tmp/my_script_*.timestamp
 
 execute_if_new_day "setup_dependencies.sh"
 execute_if_new_day "clone_openwrt_sdk.sh"
-# execute_if_new_day "build_toolchain.sh"
 execute_if_new_day "build_all_dependencies.sh"
-# execute_if_new_day "compile_relay_link.sh"
-# execute_if_new_day "compile_sign_event.sh"
 
 ##### Generate checksum  #####
 
+# execute_if_new_day "build_all_images.sh"
+# execute_if_new_day "extract_ipks.sh"
 execute_if_new_day "generate_checksums.sh"
 
 echo "All tasks completed successfully."

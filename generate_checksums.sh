@@ -4,12 +4,12 @@
 BINARY_DIR="./binaries"
 CHECKSUM_FILE="${BINARY_DIR}/checksums.json"
 
-# Function to find binaries (files without extensions) and .tar.gz files in the binaries directory
-function find_binaries_and_archives() {
-    echo "Finding binaries and .tar.gz files in the binaries directory..."
-    binaries_and_archives=$(ls -p "$BINARY_DIR" | grep -v / | grep -E '(^[^.]+$|\.tar\.gz$)')
-    if [ -z "$binaries_and_archives" ]; then
-        echo "No binaries or .tar.gz files found in the binaries directory."
+# Function to find all files in the binaries directory except checksums.json
+function find_files() {
+    echo "Finding files in the binaries directory..."
+    files=$(find "$BINARY_DIR" -type f -not -name "checksums.json")
+    if [ -z "$files" ]; then
+        echo "No files found in the binaries directory."
         exit 1
     fi
 }
@@ -18,15 +18,13 @@ function find_binaries_and_archives() {
 function generate_checksums() {
     echo "Generating checksums and file sizes..."
     checksums="{"
-    for file in $binaries_and_archives; do
-        file_path="$BINARY_DIR/$file"
-        if [ -f "$file_path" ]; then
-            checksum=$(sha256sum "$file_path" | awk '{print $1}')
-            size=$(stat --format="%s" "$file_path")
-            checksums+="\"${file}_checksum\": \"$checksum\","
-            checksums+="\"${file}_size\": \"$size\","
-        fi
-    done
+    while IFS= read -r file_path; do
+        file=$(basename "$file_path")
+        checksum=$(sha256sum "$file_path" | awk '{print $1}')
+        size=$(stat --format="%s" "$file_path")
+        checksums+="\"${file}_checksum\": \"$checksum\","
+        checksums+="\"${file}_size\": \"$size\","
+    done <<< "$files"
     # Remove the last comma and add the closing brace
     checksums=$(echo "$checksums" | sed 's/,$//')
     checksums="${checksums}}"
@@ -37,5 +35,5 @@ function generate_checksums() {
 }
 
 # Main execution flow
-find_binaries_and_archives
+find_files
 generate_checksums

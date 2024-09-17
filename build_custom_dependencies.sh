@@ -2,8 +2,14 @@
 
 set -e
 
+# Define necessary variables
 SCRIPT_DIR="$HOME/TollGateNostrToolKit"
+OPENWRT_DIR="$HOME/openwrt"
 ROUTERS_DIR="$SCRIPT_DIR/routers"
+
+# Debug: Print current paths and variables
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+echo "OPENWRT_DIR: $OPENWRT_DIR"
 
 if [ "$#" -ne 1 ]; then
     echo "Usage: $0 <router_type>"
@@ -16,19 +22,58 @@ fi
 
 ROUTER_TYPE=$1
 
-OPENWRT_DIR="$HOME/openwrt"
+# Function to get the latest commit hash
+get_latest_commit() {
+    git -C "$1" rev-parse HEAD
+}
+
+# Function to extract custom feed URL and branch from feeds.conf
+get_custom_feed_info() {
+    local feed_line=$(grep "src-git-full custom" "$1")
+    local url=$(echo "$feed_line" | cut -d' ' -f3 | cut -d';' -f1)
+    local branch=$(echo "$feed_line" | cut -d';' -f2)
+    echo "$url $branch"
+}
+
+# Get custom feed URL and branch
+read CUSTOM_FEED_URL CUSTOM_FEED_BRANCH <<< $(get_custom_feed_info "$SCRIPT_DIR/feeds.conf")
+CUSTOM_FEED_NAME=$(basename "$CUSTOM_FEED_URL" .git)
+CUSTOM_FEED_DIR="$HOME/$CUSTOM_FEED_NAME"
+
+# Clone or update custom feed repository
+if [ ! -d "$CUSTOM_FEED_DIR" ]; then
+    git clone -b "$CUSTOM_FEED_BRANCH" "$CUSTOM_FEED_URL" "$CUSTOM_FEED_DIR"
+else
+    git -C "$CUSTOM_FEED_DIR" fetch
+    git -C "$CUSTOM_FEED_DIR" checkout "$CUSTOM_FEED_BRANCH"
+    git -C "$CUSTOM_FEED_DIR" pull origin "$CUSTOM_FEED_BRANCH"
+fi
+
+echo "CUSTOM_FEED_DIR: $CUSTOM_FEED_DIR"
+echo "CUSTOM_FEED_BRANCH: $CUSTOM_FEED_BRANCH"
+
 cd $OPENWRT_DIR
 
+# Get current commit hashes
+SCRIPT_COMMIT=$(get_latest_commit "$SCRIPT_DIR")
+CUSTOM_FEED_COMMIT=$(get_latest_commit "$CUSTOM_FEED_DIR")
+
+# Check if rebuild is necessary
+REBUILD_NEEDED=false
+if [ ! -f .last_build_info ] || \
+   [ "$SCRIPT_COMMIT" != "$(grep SCRIPT_COMMIT .last_build_info | cut -d= -f2)" ] || \
+   [ "$CUSTOM_FEED_COMMIT" != "$(grep CUSTOM_FEED_COMMIT .last_build_info | cut -d= -f2)" ]; then
+    REBUILD_NEEDED=true
+fi
 
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
 
-# Update the custom feed
-echo "Updating custom feed..."
-./scripts/feeds update -a
-
-# Install the dependencies from the custom feed
-echo "Installing dependencies from custom feed..."
-./scripts/feeds install -a
+# Update and install feeds if needed
+if [ "$REBUILD_NEEDED" = true ] || [ ! -f .feeds_updated ]; then
+    ./scripts/feeds update -a
+    ./scripts/feeds install -a
+    touch .feeds_updated
+fi
 
 # Copy configuration files
 CONFIG_FILE="$ROUTERS_DIR/${ROUTER_TYPE}_config"
@@ -42,58 +87,92 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 cp $CONFIG_FILE $OPENWRT_DIR/.config
 
-
-# Ensure toolchain directory exists
-TOOLCHAIN_DIR="$OPENWRT_DIR/staging_dir/toolchain-mips_24kc_gcc-12.3.0_musl/host"
-if [ ! -d "$TOOLCHAIN_DIR" ]; then
-    echo "Creating missing toolchain directory: $TOOLCHAIN_DIR"
-    mkdir -p "$TOOLCHAIN_DIR"
-fi
-
 make oldconfig
 
-# Check for feed install errors
-if [ $? -ne 0 ]; then
-    echo "Feeds install failed"
-    exit 1
+# Clean the build environment if rebuild is needed
+if [ "$REBUILD_NEEDED" = true ]; then
+    echo "Cleaning the build environment..."
+    make clean
 fi
 
-# Clean the build environment
-echo "Cleaning the build environment..."
-make clean
-
-# Install the toolchain
-echo "Installing toolchain..."
-make -j$(nproc) toolchain/install
-if [ $? -ne 0 ]; then
-    echo "Toolchain install failed"
-    exit 1
+# Install toolchain if needed
+if [ "$REBUILD_NEEDED" = true ] || [ ! -f .toolchain_installed ]; then
+    make -j$(nproc) toolchain/install
+    touch .toolchain_installed
 fi
 
-echo "Build with dependencies before using them..."
-make -j$(nproc) V=sc > make_logs.md 2>&1
-if [ $? -ne 0 ]; then
-   echo "Firmware build failed."
-   exit 1
+# Run install_script.sh
+$SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
+
+# Build firmware if needed
+if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
+    make -j$(nproc) V=sc > make_logs.md 2>&1
+    touch .firmware_built
+    
+    # Update last build info
+    echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > .last_build_info
+    echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> .last_build_info
+else
+    echo "No rebuild needed. Using existing build."
 fi
 
-# Find and display the generated IPK file
+# Find and display the generated IPK files
 echo "Finding the generated IPK files..."
-TARGET_DIR="bin/packages/*/*"
-find $TARGET_DIR -name "*secp256k1*.ipk"
-find $TARGET_DIR -name "*libwebsockets*.ipk"
-find $TARGET_DIR -name "*libwally*.ipk"
-find $TARGET_DIR -name "*nodogsplash*.ipk"
-find $TARGET_DIR -name "*gltollgate*.ipk"
+TARGET_DIR="$OPENWRT_DIR/bin/packages"
 
-BINARY_DIR="$HOME/TollGateNostrToolKit/binaries"
-OUTPUT_BINARY="$BINARY_DIR/generate_npub_optimized_${ROUTER_TYPE}"
+# Array of file patterns to search for
+file_patterns=(
+    "libwebsockets*.ipk"
+    "libwally*.ipk"
+    "nodogsplash*.ipk"
+    "gltollgate*.ipk"
+    "relaylink*.ipk"
+    "signevent*.ipk"
+)
 
-cp "$HOME/openwrt/build_dir/target-mips_24kc_musl/gltollgate-1.0/ipkg-mips_24kc/gltollgate/usr/bin/generate_npub" "$OUTPUT_BINARY" || {
-   echo "Error: Failed to copy generate_npub to the TollGateNostrToolKit directory." >&2
-   exit 1
-}
+# Flag to track if all files are found
+all_files_found=true
 
-tar -czvf "$BINARY_DIR/mips_24kc_packages_${ROUTER_TYPE}.tar.gz" -C "$HOME/openwrt/bin/packages" mips_24kc
+# Loop through each file pattern
+for pattern in "${file_patterns[@]}"; do
+    # Find the file
+    found_file=$(find "$TARGET_DIR" -type f -name "$pattern")
+    
+    # Check if the file was found
+    if [ -z "$found_file" ]; then
+        echo "Error: $pattern not found"
+        all_files_found=false
+    else
+        echo "Found: $found_file"
+    fi
+done
+
+# Exit with status 1 if any file wasn't found
+if [ "$all_files_found" = false ]; then
+    echo "One or more required IPK files were not found."
+    exit 1
+fi
+
+echo "All required IPK files were found successfully."
+
+# Find the sysupgrade.bin file
+SYSUPGRADE_FILE=$(find "$OPENWRT_DIR/bin" -type f -name "*sysupgrade.bin")
+
+# Check if file was found
+if [ -z "$SYSUPGRADE_FILE" ]; then
+    echo "No sysupgrade.bin file found."
+    exit 1
+fi
+
+# Copy the file to the destination directory
+cp "$SYSUPGRADE_FILE" ~/TollGateNostrToolKit/binaries/.
+
+# Check if copy was successful
+if [ $? -eq 0 ]; then
+    echo "Successfully copied $(basename "$SYSUPGRADE_FILE") to ~/TollGateNostrToolKit/binaries/."
+else
+    echo "Failed to copy file."
+    exit 1
+fi
 
 echo "OpenWrt build completed successfully!"
