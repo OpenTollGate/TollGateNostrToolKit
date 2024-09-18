@@ -3,9 +3,6 @@
 # #!/bin/sh -e
 # set -x
 
-LOGFILE="/tmp/log/nodogsplash_data_purchases.json"
-USAGE_LOGFILE="/tmp/log/nodogsplash_data_usage.json"
-
 # Function to get the total data paid for each token
 get_paid_data() {
   data=$(jq -r '.[] | "\(.mac) \(.data_amount) \(.sessiontime) \(.token)"' "$LOGFILE")

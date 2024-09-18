@@ -3,9 +3,6 @@
 ##!/bin/sh -e
 # set -x
 
-LOGFILE="/tmp/log/nodogsplash_data_purchases.json"
-USAGE_LOGFILE="/tmp/log/nodogsplash_data_usage.json"
-
 METHOD="$1"
 MAC="$2"
 USERNAME="$3"  # Here, USERNAME represents either the e-cash value or LNURLW

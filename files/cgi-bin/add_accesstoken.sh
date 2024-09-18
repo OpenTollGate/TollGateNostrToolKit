@@ -3,9 +3,6 @@
 # #!/bin/sh -e
 # set -x
 
-LOGFILE="/tmp/log/nodogsplash_data_purchases.json"
-USAGE_LOGFILE="/tmp/log/nodogsplash_data_usage.json"
-
 # Function to update purchase log with token if missing
 update_purchase_log_with_token() {
   client_usage=$(ndsctl json | jq -r '.clients | to_entries[] | "\(.value.mac) \(.value.token)"')

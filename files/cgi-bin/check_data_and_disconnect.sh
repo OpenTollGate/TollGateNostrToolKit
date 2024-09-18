@@ -4,12 +4,6 @@
 set -x
 
 
-# Path to the nodogsplash data purchases log
-LOGFILE="/tmp/log/nodogsplash_data_purchases.json"
-
-# Path to the nodogsplash data usage log
-USAGE_LOGFILE="/tmp/log/nodogsplash_data_usage.json"
-
 # Function to get the total data paid for each MAC address
 get_paid_data() {
   jq -r '.[] | "\(.mac) \(.data_amount) \(.token // empty)"' "$LOGFILE" | awk '

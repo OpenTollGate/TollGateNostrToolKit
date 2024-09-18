@@ -132,7 +132,3 @@ config rule
 	option proto 'udp'
 	option target 'ACCEPT'
 
-config include 'nodogsplash'
-	option type 'script'
-	option path '/usr/lib/nodogsplash/restart.sh'
-
