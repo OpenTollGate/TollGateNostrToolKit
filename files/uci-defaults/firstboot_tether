@@ -1,0 +1,63 @@
+#https://openwrt.org/docs/guide-user/network/wan/smartphone.usb.tethering
+
+#android
+if opkg list-installed | grep -q kmod-usb-net-rndis; then
+  cat << 'EOF' > /root/enable_android.sh
+  #  RNDIS is the most common protocol for Android-based devices for tethering via USB. The following commands should be all you need to add protocol support to the router:
+  #opkg update
+  #opkg install kmod-usb-net-rndis
+
+  #opkg install kmod-usb-net-cdc-ncm
+
+  # Huawei may need its own implementation!
+  #opkg install kmod-usb-net-huawei-cdc-ncm
+
+  # More protocols:
+  #kmod-usb-net-cdc-eem
+  #kmod-usb-net-cdc-ether
+  #kmod-usb-net-cdc-subset
+
+  # Extra steps depending on USB type and drivers for your router:
+  #opkg install kmod-nls-base kmod-usb-core kmod-usb-net kmod-usb-net-cdc-ether kmod-usb2
+
+# Add interfaces to the WAN firewall zone
+uci add_list firewall.@zone[1].network='TetherWAN'
+uci add_list firewall.@zone[1].network='TetherWAN6'
+
+# Network configuration
+uci set network.TetherWAN=interface
+uci set network.TetherWAN.proto='dhcp'
+uci set network.TetherWAN.device='usb0'
+uci set network.TetherWAN6=interface
+uci set network.TetherWAN6.proto='dhcpv6'
+uci set network.TetherWAN6.device='usb0'
+uci set network.TetherWAN6.reqaddress='try'
+uci set network.TetherWAN6.reqprefix='auto'
+
+# Commit the changes
+uci commit firewall
+uci commit network
+
+
+
+EOF
+chmod +x /root/enable_android.sh
+fi # end android
+
+
+#ios
+if opkg list-installed | grep -q kmod-usb-net-ipheth; then
+  cat << 'EOF' > /root/enable_ios.sh
+  #Additional steps for iOS devices:
+  #opkg update
+  #opkg install kmod-usb-net-ipheth usbmuxd libimobiledevice usbutils
+ 
+  # Call usbmuxd
+  usbmuxd -v
+ 
+  # Add usbmuxd to autostart
+  #sed -i -e "\$i usbmuxd" /etc/rc.local
+  grep -q "usbmuxd" /etc/rc.local || sed -i -e "\$i usbmuxd" /etc/rc.local
+EOF
+chmod +x /root/enable_ios.sh
+fi # end ios
