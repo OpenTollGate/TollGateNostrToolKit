@@ -31,6 +31,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
     mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
     mkdir -p "$OPENWRT_DIR/files/etc"
+    mkdir -p "$OPENWRT_DIR/files/root"
 
     # Copy firewall and opennds config files to the correct location
     cp "$SCRIPT_DIR/files/etc/config/firewall" "$OPENWRT_DIR/files/etc/config/"
@@ -49,6 +50,9 @@ if [ -d "$SCRIPT_DIR/files" ]; then
 
     cp "$SCRIPT_DIR/files/uci-defaults/"* "$OPENWRT_DIR/files/etc/uci-defaults/"
     chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
+
+    cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
+    chmod +x "$OPENWRT_DIR/files/root/"*
 
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
