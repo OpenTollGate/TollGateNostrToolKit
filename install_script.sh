@@ -44,9 +44,6 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     chmod +x "$OPENWRT_DIR/files/etc/setup_vpn.sh"
     chmod +x "$OPENWRT_DIR/files/etc/startup_vpn.sh"
 
-    cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
-    chmod +x "$OPENWRT_DIR/files/root/"*
-
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
