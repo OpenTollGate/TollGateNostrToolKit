@@ -182,13 +182,8 @@ fi
 # Use make if needed, else use image builder
 if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
     echo "Building OpenWrt..."
-    # Estimate the total number of steps (you may need to adjust this)
-    total_steps=$(make -n | grep -c '^')
-    
-    # Use pv to create a progress bar
-    (
-        make -j$(nproc) V=sc 2>&1 | tee make_logs.md | pv -l -s $total_steps > /dev/null
-    )
+    make -j$(nproc) V=sc > make_logs.md 2> >(tee -a make_logs.md >&2)
+
     touch .firmware_built
     
     # Update the last build commit and build info
