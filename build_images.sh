@@ -28,10 +28,9 @@ echo "Debug: HOME directory: $HOME"
 
 # Add this function near the top of the script
 download_image_builder() {
-    local openwrt_version="23.05.4"
-    local builder_dir="openwrt-imagebuilder-${openwrt_version}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
+    local builder_dir="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
     local builder_archive="${builder_dir}.tar.xz"
-    local download_url="https://downloads.openwrt.org/releases/${openwrt_version}/targets/${TARGET_MAIN}/${SUBTARGET}/${builder_archive}"
+    local download_url="https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET_MAIN}/${SUBTARGET}/${builder_archive}"
 
     echo "Downloading OpenWrt Image Builder for ${TARGET_MAIN}/${SUBTARGET}..."
     wget "$download_url"
@@ -52,12 +51,11 @@ download_image_builder() {
     echo "Cleaning up..."
     rm "$builder_archive"
 
-    BUILDER_DIR="$HOME/openwrt/$builder_dir"
     mv "$builder_dir" "$HOME/openwrt/"
 }
 
-
-BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
+OPENWRT_VERSION="23.05.4"
+BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 
 echo "Using Image Builder at: $BUILDER_DIR"
 
@@ -65,6 +63,8 @@ echo "Using Image Builder at: $BUILDER_DIR"
 if [ ! -d "$BUILDER_DIR" ]; then
     echo "Image Builder not found. Attempting to download..."
     download_image_builder
+else
+    echo "Image Builder found at: $BUILDER_DIR"
 fi
 
 if [ ! -d "$BUILDER_DIR" ]; then
