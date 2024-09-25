@@ -25,8 +25,6 @@ echo "Debug: Current working directory: $(pwd)"
 echo "Debug: Script location: $0"
 echo "Debug: HOME directory: $HOME"
 
-# Determine the Image Builder directory
-BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 
 # Add this function near the top of the script
 download_image_builder() {
@@ -58,25 +56,10 @@ download_image_builder() {
     mv "$builder_dir" "$HOME/openwrt/"
 }
 
-# Use globbing to find the directory
-BUILDER_DIR=$(echo $BUILDER_DIR)
 
-if [ ! -d "$BUILDER_DIR" ]; then
-    echo "Error: Image Builder not found at $BUILDER_DIR"
-    echo "Available Image Builders:"
-    find $HOME/openwrt -maxdepth 1 -type d -name "openwrt-imagebuilder-*" -print
-    echo "Debug: TARGET=$TARGET"
-    echo "Debug: TARGET_MAIN=$TARGET_MAIN"
-    echo "Debug: SUBTARGET=$SUBTARGET"
-    echo "Debug: BUILDER_DIR=$BUILDER_DIR"
-    exit 1
-fi
+BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 
 echo "Using Image Builder at: $BUILDER_DIR"
-
-# Replace the existing BUILDER_DIR assignment and check with this:
-BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
-BUILDER_DIR=$(echo $BUILDER_DIR)
 
 # Check if Image Builder directory exists
 if [ ! -d "$BUILDER_DIR" ]; then
