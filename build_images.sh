@@ -17,7 +17,21 @@ OPENWRT_VERSION="23.05.4"
 TARGET="$1"
 PROFILE="$2"
 PACKAGES="$3"
-BUILDER_DIR="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET/\//-}.Linux-x86_64"
+
+# Determine the Image Builder directory
+BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET}-${SUBTARGET}-*" | head -n 1)
+
+if [ -z "$BUILDER_DIR" ]; then
+    echo "Error: Image Builder not found for ${TARGET}-${SUBTARGET}"
+    echo "Searching for: openwrt-imagebuilder-*-${TARGET}*${SUBTARGET}*"
+    echo "Available Image Builders:"
+    find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*" -print
+    echo "Debug: TARGET=$TARGET, SUBTARGET=$SUBTARGET"
+    echo "Debug: BUILDER_DIR=$BUILDER_DIR"
+    exit 1
+fi
+
+
 BINARIES_DIR="~/TollGateNostrToolKit/binaries"
 OPENWRT_DIR="~/openwrt"
 
