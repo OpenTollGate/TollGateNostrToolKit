@@ -46,22 +46,42 @@ get_latest_commit() {
 
 # Function to check if router configs have changed
 check_router_changes() {
+    echo "Checking for router config changes..."
     if [ ! -f "$OPENWRT_DIR/.last_build_commit" ]; then
-        return 0  # Changes detected if no previous build commit
+        echo "Change detected: No previous build commit file found."
+        return 0
     fi
     local last_commit=$(cat "$OPENWRT_DIR/.last_build_commit")
-    git -C "$SCRIPT_DIR" diff --quiet "$last_commit" HEAD -- routers/
-    return $?
+    echo "Last build commit: $last_commit"
+    echo "Current commit: $(git -C "$SCRIPT_DIR" rev-parse HEAD)"
+    echo "Checking for changes in routers/ directory since last build..."
+    if git -C "$SCRIPT_DIR" diff --quiet "$last_commit" HEAD -- routers/; then
+        echo "No changes detected in routers/ directory."
+        return 1
+    else
+        echo "Changes detected in routers/ directory."
+        git -C "$SCRIPT_DIR" diff --name-only "$last_commit" HEAD -- routers/
+        return 0
+    fi
 }
 
 # Function to check if custom feeds have changed
 check_custom_feed_changes() {
+    echo "Checking for custom feed changes..."
     if [ ! -f "$OPENWRT_DIR/.last_build_info" ]; then
-        return 0  # Changes detected if no previous build info
+        echo "Change detected: No previous build info file found."
+        return 0
     fi
     local last_custom_feed_commit=$(grep CUSTOM_FEED_COMMIT "$OPENWRT_DIR/.last_build_info" | cut -d= -f2)
-    [ "$CUSTOM_FEED_COMMIT" != "$last_custom_feed_commit" ]
-    return $?
+    echo "Last custom feed commit: $last_custom_feed_commit"
+    echo "Current custom feed commit: $CUSTOM_FEED_COMMIT"
+    if [ "$CUSTOM_FEED_COMMIT" != "$last_custom_feed_commit" ]; then
+        echo "Custom feed commit has changed."
+        return 0
+    else
+        echo "No changes in custom feed commit."
+        return 1
+    fi
 }
 
 # Function to extract custom feed info from feeds.conf
@@ -146,6 +166,18 @@ fi
 
 # Run install_script.sh
 $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
+
+echo "Checking if rebuild is needed..."
+if check_router_changes; then
+    REBUILD_NEEDED=true
+    echo "Rebuild needed due to router config changes."
+elif check_custom_feed_changes; then
+    REBUILD_NEEDED=true
+    echo "Rebuild needed due to custom feed changes."
+else
+    REBUILD_NEEDED=false
+    echo "No changes detected. Using existing build."
+fi
 
 # Use make if needed, else use image builder
 if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
