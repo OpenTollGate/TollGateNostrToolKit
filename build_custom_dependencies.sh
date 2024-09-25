@@ -7,6 +7,23 @@ SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 OPENWRT_DIR="$HOME/openwrt"
 ROUTERS_DIR="$SCRIPT_DIR/routers"
 
+# Define a function to map router types to target and subtarget
+get_target_subtarget() {
+    local router_type=$1
+    case $router_type in
+        "ath79_gl-ar300m-nor")
+            echo "ath79 nand"
+            ;;
+        "ramips_mt7621")
+            echo "ramips mt7621"
+            ;;
+        # Add more mappings here as needed
+        *)
+            echo "unknown unknown"
+            ;;
+    esac
+}
+
 # Debug: Print current paths and variables
 echo "SCRIPT_DIR: $SCRIPT_DIR"
 echo "OPENWRT_DIR: $OPENWRT_DIR"
@@ -124,15 +141,19 @@ elif [ "$CONFIG_CHANGED" = true ]; then
     # Run install_script.sh to prepare custom files
     $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
-    # Extract target and subtarget from the router type
-    TARGET=$(echo $ROUTER_TYPE | cut -d'_' -f1)
-    SUBTARGET=$(echo $ROUTER_TYPE | cut -d'_' -f2)
+    # Get target and subtarget based on router type
+    read TARGET SUBTARGET <<< $(get_target_subtarget "$ROUTER_TYPE")
+
+    if [ "$TARGET" = "unknown" ] || [ "$SUBTARGET" = "unknown" ]; then
+        echo "Error: Unknown router type $ROUTER_TYPE"
+        exit 1
+    fi
 
     # Determine the Image Builder directory
-    BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET}_${SUBTARGET}-*" | head -n 1)
+    BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET}-${SUBTARGET}-*" | head -n 1)
 
     if [ -z "$BUILDER_DIR" ]; then
-        echo "Error: Image Builder not found for ${TARGET}_${SUBTARGET}"
+        echo "Error: Image Builder not found for ${TARGET}-${SUBTARGET}"
         exit 1
     fi
 
