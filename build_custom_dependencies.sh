@@ -44,18 +44,24 @@ get_latest_commit() {
     git -C "$1" rev-parse HEAD
 }
 
+# Function to check if router configs have changed
 check_router_changes() {
-    local last_commit=$(cat "$OPENWRT_DIR/.last_build_commit" 2>/dev/null || echo "HEAD^")
+    if [ ! -f "$OPENWRT_DIR/.last_build_commit" ]; then
+        return 0  # Changes detected if no previous build commit
+    fi
+    local last_commit=$(cat "$OPENWRT_DIR/.last_build_commit")
     git -C "$SCRIPT_DIR" diff --quiet "$last_commit" HEAD -- routers/
     return $?
 }
 
-# Function to extract custom feed URL and branch from feeds.conf
-get_custom_feed_info() {
-    local feed_line=$(grep "src-git-full custom" "$1")
-    local url=$(echo "$feed_line" | cut -d' ' -f3 | cut -d';' -f1)
-    local branch=$(echo "$feed_line" | cut -d';' -f2)
-    echo "$url $branch"
+# Function to check if custom feeds have changed
+check_custom_feed_changes() {
+    if [ ! -f "$OPENWRT_DIR/.last_build_info" ]; then
+        return 0  # Changes detected if no previous build info
+    fi
+    local last_custom_feed_commit=$(grep CUSTOM_FEED_COMMIT "$OPENWRT_DIR/.last_build_info" | cut -d= -f2)
+    [ "$CUSTOM_FEED_COMMIT" != "$last_custom_feed_commit" ]
+    return $?
 }
 
 # Get custom feed URL and branch
@@ -83,10 +89,12 @@ CUSTOM_FEED_COMMIT=$(get_latest_commit "$CUSTOM_FEED_DIR")
 
 # Check if rebuild is necessary
 REBUILD_NEEDED=false
-if [ ! -f .last_build_info ] || \
-   [ "$CUSTOM_FEED_COMMIT" != "$(grep CUSTOM_FEED_COMMIT .last_build_info | cut -d= -f2)" ] || \
-   check_router_changes; then
+if check_router_changes || check_custom_feed_changes; then
     REBUILD_NEEDED=true
+    echo "Changes detected. Rebuild needed."
+else
+    REBUILD_NEEDED=false
+    echo "No changes detected. Using existing build."
 fi
 
 # Check if only configuration has changed
@@ -135,6 +143,7 @@ $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
 # Use make if needed, else use image builder
 if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
+    echo "Building OpenWrt..."
     # Estimate the total number of steps (you may need to adjust this)
     total_steps=$(make -n | grep -c '^')
     
@@ -144,8 +153,10 @@ if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated 
     )
     touch .firmware_built
     
-    # Update the last build commit
+    # Update the last build commit and build info
     git -C "$SCRIPT_DIR" rev-parse HEAD > "$OPENWRT_DIR/.last_build_commit"
+    echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > "$OPENWRT_DIR/.last_build_info"
+    echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> "$OPENWRT_DIR/.last_build_info"
 elif [ "$CONFIG_CHANGED" = true ]; then
     echo "Configuration changed. Generating new sysupgrade.bin from existing binaries."
     # Run install_script.sh to prepare custom files
@@ -170,12 +181,6 @@ elif [ "$CONFIG_CHANGED" = true ]; then
 else
     echo "No changes detected. Using existing build."
 fi
-
-# Update last build info
-echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > .last_build_info
-echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> .last_build_info
-git -C "$SCRIPT_DIR" rev-parse HEAD >> .last_build_info
-
 
 # Find and display the generated IPK files
 echo "Finding the generated IPK files..."
