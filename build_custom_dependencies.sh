@@ -61,9 +61,14 @@ CUSTOM_FEED_COMMIT=$(get_latest_commit "$CUSTOM_FEED_DIR")
 # Check if rebuild is necessary
 REBUILD_NEEDED=false
 if [ ! -f .last_build_info ] || \
-   [ "$SCRIPT_COMMIT" != "$(grep SCRIPT_COMMIT .last_build_info | cut -d= -f2)" ] || \
    [ "$CUSTOM_FEED_COMMIT" != "$(grep CUSTOM_FEED_COMMIT .last_build_info | cut -d= -f2)" ]; then
     REBUILD_NEEDED=true
+fi
+
+# Check if only configuration has changed
+CONFIG_CHANGED=false
+if [ "$SCRIPT_COMMIT" != "$(grep SCRIPT_COMMIT .last_build_info | cut -d= -f2)" ]; then
+    CONFIG_CHANGED=true
 fi
 
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
@@ -104,8 +109,7 @@ fi
 # Run install_script.sh
 $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
-
-# Instead of running make, use the Image Builder
+# Use make if needed, else use image builder
 if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
     # Estimate the total number of steps (you may need to adjust this)
     total_steps=$(make -n | grep -c '^')
@@ -114,14 +118,9 @@ if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated 
     (
         make -j$(nproc) V=sc 2>&1 | tee make_logs.md | pv -l -s $total_steps > /dev/null
     )
-    
     touch .firmware_built
-    
-    # Update last build info
-    echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > .last_build_info
-    echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> .last_build_info
-else
-    echo "No make needed. Generating new sysupgrade.bin from existing binaries."
+elif [ "$CONFIG_CHANGED" = true ]; then
+    echo "Configuration changed. Generating new sysupgrade.bin from existing binaries."
     # Run install_script.sh to prepare custom files
     $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
@@ -145,8 +144,13 @@ else
 
     # Use build_images.sh to create the firmware
     $SCRIPT_DIR/build_images.sh "${TARGET}/${SUBTARGET}" "$PROFILE" "$PACKAGES"
-
+else
+    echo "No changes detected. Using existing build."
 fi
+
+# Update last build info
+echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > .last_build_info
+echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> .last_build_info
 
 # Find and display the generated IPK files
 echo "Finding the generated IPK files..."
