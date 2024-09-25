@@ -18,7 +18,8 @@ TARGET="$1"
 PROFILE="$2"
 PACKAGES="$3"
 BUILDER_DIR="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET/\//-}.Linux-x86_64"
-BINARIES_DIR="./binaries"
+BINARIES_DIR="~/TollGateNostrToolKit/binaries"
+OPENWRT_DIR="~/openwrt"
 
 # Check if Image Builder directory exists
 if [ ! -d "$BUILDER_DIR" ]; then
@@ -33,18 +34,8 @@ mkdir -p "$BINARIES_DIR"
 # Change to the Image Builder directory
 cd "$BUILDER_DIR" || exit 1
 
-# Create a temporary file for UCI defaults
-UCI_DEFAULTS_FILE="files/etc/uci-defaults/99-custom-settings"
-mkdir -p "files/etc/uci-defaults"
-cat > "$UCI_DEFAULTS_FILE" << EOF
-#!/bin/sh
-
-$(cat ../uci_commands.sh)
-
-exit 0
-EOF
-
-chmod +x "$UCI_DEFAULTS_FILE"
+# Copy custom files from OpenWrt directory to Image Builder files directory
+cp -R "$OPENWRT_DIR/files/" "$BUILDER_DIR/files/"
 
 # Build the image
 echo "Building OpenWrt image..."
@@ -57,6 +48,8 @@ make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files"
 # Check if the build was successful
 if [ $? -eq 0 ]; then
     echo "Build successful!"
+    # Copy the generated sysupgrade.bin to the binaries directory
+    find bin/targets -name "*-sysupgrade.bin" -exec cp {} "$BINARIES_DIR" \;
 else
     echo "Build failed. Please check the output for errors."
 fi
