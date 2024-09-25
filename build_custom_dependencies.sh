@@ -149,14 +149,6 @@ elif [ "$CONFIG_CHANGED" = true ]; then
         exit 1
     fi
 
-    # Determine the Image Builder directory
-    BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET}-${SUBTARGET}-*" | head -n 1)
-
-    if [ -z "$BUILDER_DIR" ]; then
-        echo "Error: Image Builder not found for ${TARGET}-${SUBTARGET}"
-        exit 1
-    fi
-
     # Get the profile name from the config file
     PROFILE=$(grep 'CONFIG_TARGET_PROFILE' $CONFIG_FILE | cut -d'"' -f2)
 

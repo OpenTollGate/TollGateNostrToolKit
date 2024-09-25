@@ -22,7 +22,8 @@ PACKAGES="$3"
 TARGET_MAIN=$(echo $TARGET | cut -d'/' -f1)
 SUBTARGET=$(echo $TARGET | cut -d'/' -f2)
 
-./setup_dependencies_for_image_builder.sh $TARGET
+echo $TARGET
+$HOME/TollGateNostrToolKit/./setup_dependencies_for_image_builder.sh $TARGET
 
 # Determine the Image Builder directory
 BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}*" | head -n 1)
