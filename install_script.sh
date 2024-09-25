@@ -58,9 +58,6 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
     cp "$SCRIPT_DIR/files/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
 
-    # Append the profile addon to /etc/profile
-    cat "$SCRIPT_DIR/files/profile.addon" >> "$OPENWRT_DIR/files/etc/profile"
-
     echo "Custom files copied to OpenWrt files directory"
 else
     echo "Custom files directory not found. Skipping manual installation."
