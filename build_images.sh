@@ -18,24 +18,27 @@ TARGET="$1"
 PROFILE="$2"
 PACKAGES="$3"
 
+# Split TARGET into TARGET and SUBTARGET
+TARGET_MAIN=$(echo $TARGET | cut -d'/' -f1)
+SUBTARGET=$(echo $TARGET | cut -d'/' -f2)
+
 ./setup_dependencies_for_image_builder.sh $TARGET
 
 # Determine the Image Builder directory
-BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET}-${SUBTARGET}-*" | head -n 1)
+BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}*" | head -n 1)
 
 if [ -z "$BUILDER_DIR" ]; then
-    echo "Error: Image Builder not found for ${TARGET}-${SUBTARGET}"
-    echo "Searching for: openwrt-imagebuilder-*-${TARGET}*${SUBTARGET}*"
+    echo "Error: Image Builder not found for ${TARGET_MAIN}-${SUBTARGET}"
+    echo "Searching for: openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}*"
     echo "Available Image Builders:"
     find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*" -print
-    echo "Debug: TARGET=$TARGET, SUBTARGET=$SUBTARGET"
+    echo "Debug: TARGET_MAIN=$TARGET_MAIN, SUBTARGET=$SUBTARGET"
     echo "Debug: BUILDER_DIR=$BUILDER_DIR"
     exit 1
 fi
 
-
-BINARIES_DIR="~/TollGateNostrToolKit/binaries"
-OPENWRT_DIR="~/openwrt"
+BINARIES_DIR="$HOME/TollGateNostrToolKit/binaries"
+OPENWRT_DIR="$HOME/openwrt"
 
 # Check if Image Builder directory exists
 if [ ! -d "$BUILDER_DIR" ]; then
