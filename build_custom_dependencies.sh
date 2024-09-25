@@ -104,7 +104,8 @@ fi
 # Run install_script.sh
 $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
-# Build firmware if needed
+
+# Instead of running make, use the Image Builder
 if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
     # Estimate the total number of steps (you may need to adjust this)
     total_steps=$(make -n | grep -c '^')
@@ -120,7 +121,31 @@ if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated 
     echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > .last_build_info
     echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> .last_build_info
 else
-    echo "No rebuild needed. Using existing build."
+    echo "No make needed. Generating new sysupgrade.bin from existing binaries."
+    # Run install_script.sh to prepare custom files
+    $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
+
+    # Extract target and subtarget from the router type
+    TARGET=$(echo $ROUTER_TYPE | cut -d'_' -f1)
+    SUBTARGET=$(echo $ROUTER_TYPE | cut -d'_' -f2)
+
+    # Determine the Image Builder directory
+    BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET}_${SUBTARGET}-*" | head -n 1)
+
+    if [ -z "$BUILDER_DIR" ]; then
+        echo "Error: Image Builder not found for ${TARGET}_${SUBTARGET}"
+        exit 1
+    fi
+
+    # Get the profile name from the config file
+    PROFILE=$(grep 'CONFIG_TARGET_PROFILE' $CONFIG_FILE | cut -d'"' -f2)
+
+    # Get the list of packages from the config file
+    PACKAGES=$(grep 'CONFIG_PACKAGE_' $CONFIG_FILE | grep '=y' | sed 's/CONFIG_PACKAGE_//g' | sed 's/=y//g' | tr '\n' ' ')
+
+    # Use build_images.sh to create the firmware
+    $SCRIPT_DIR/build_images.sh "${TARGET}/${SUBTARGET}" "$PROFILE" "$PACKAGES"
+
 fi
 
 # Find and display the generated IPK files
