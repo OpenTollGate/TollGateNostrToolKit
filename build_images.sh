@@ -18,6 +18,8 @@ TARGET="$1"
 PROFILE="$2"
 PACKAGES="$3"
 
+./setup_dependencies_for_image_builder.sh $TARGET
+
 # Determine the Image Builder directory
 BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET}-${SUBTARGET}-*" | head -n 1)
 

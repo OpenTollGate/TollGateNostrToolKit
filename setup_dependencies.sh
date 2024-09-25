@@ -23,7 +23,6 @@ declare -a packages=(
 )
 
 sudo apt install -y file
-./setup_dependencies_for_image_builder.sh
 
 # Install necessary dependencies only if they are not already installed
 for pkg in "${packages[@]}"; do
