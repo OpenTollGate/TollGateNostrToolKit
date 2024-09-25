@@ -64,6 +64,12 @@ check_custom_feed_changes() {
     return $?
 }
 
+# Function to extract custom feed info from feeds.conf
+get_custom_feed_info() {
+    local feeds_conf="$1"
+    grep "^src-git-full custom" "$feeds_conf" | awk '{print $3}' | sed 's/;/ /'
+}
+
 # Get custom feed URL and branch
 read CUSTOM_FEED_URL CUSTOM_FEED_BRANCH <<< $(get_custom_feed_info "$SCRIPT_DIR/feeds.conf")
 CUSTOM_FEED_NAME=$(basename "$CUSTOM_FEED_URL" .git)
