@@ -28,6 +28,36 @@ echo "Debug: HOME directory: $HOME"
 # Determine the Image Builder directory
 BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 
+# Add this function near the top of the script
+download_image_builder() {
+    local openwrt_version="23.05.4"
+    local builder_dir="openwrt-imagebuilder-${openwrt_version}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
+    local builder_archive="${builder_dir}.tar.xz"
+    local download_url="https://downloads.openwrt.org/releases/${openwrt_version}/targets/${TARGET_MAIN}/${SUBTARGET}/${builder_archive}"
+
+    echo "Downloading OpenWrt Image Builder for ${TARGET_MAIN}/${SUBTARGET}..."
+    wget "$download_url"
+
+    if [ $? -ne 0 ]; then
+        echo "Failed to download Image Builder. Please check if the target is correct."
+        exit 1
+    fi
+
+    echo "Extracting OpenWrt Image Builder..."
+    tar xJf "$builder_archive"
+
+    if [ $? -ne 0 ]; then
+        echo "Failed to extract Image Builder archive."
+        exit 1
+    fi
+
+    echo "Cleaning up..."
+    rm "$builder_archive"
+
+    BUILDER_DIR="$HOME/openwrt/$builder_dir"
+    mv "$builder_dir" "$HOME/openwrt/"
+}
+
 # Use globbing to find the directory
 BUILDER_DIR=$(echo $BUILDER_DIR)
 
@@ -44,13 +74,24 @@ fi
 
 echo "Using Image Builder at: $BUILDER_DIR"
 
-BINARIES_DIR="$HOME/TollGateNostrToolKit/binaries"
-OPENWRT_DIR="$HOME/openwrt"
+# Replace the existing BUILDER_DIR assignment and check with this:
+BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
+BUILDER_DIR=$(echo $BUILDER_DIR)
 
 # Check if Image Builder directory exists
 if [ ! -d "$BUILDER_DIR" ]; then
-    echo "Error: OpenWrt Image Builder directory not found for target $TARGET."
-    echo "Please run setup_dependencies.sh with the correct target first."
+    echo "Image Builder not found. Attempting to download..."
+    download_image_builder
+fi
+
+if [ ! -d "$BUILDER_DIR" ]; then
+    echo "Error: Image Builder still not found after download attempt."
+    echo "Available Image Builders:"
+    find $HOME/openwrt -maxdepth 1 -type d -name "openwrt-imagebuilder-*" -print
+    echo "Debug: TARGET=$TARGET"
+    echo "Debug: TARGET_MAIN=$TARGET_MAIN"
+    echo "Debug: SUBTARGET=$SUBTARGET"
+    echo "Debug: BUILDER_DIR=$BUILDER_DIR"
     exit 1
 fi
 
