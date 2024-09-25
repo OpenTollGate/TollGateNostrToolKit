@@ -7,6 +7,23 @@ SCRIPT_DIR="$HOME/TollGateNostrToolKit"
 OPENWRT_DIR="$HOME/openwrt"
 ROUTERS_DIR="$SCRIPT_DIR/routers"
 
+# Define a function to map router types to target and subtarget
+get_target_subtarget() {
+    local router_type=$1
+    case $router_type in
+        "ath79_gl-ar300m-nor")
+            echo "ath79 nand"
+            ;;
+        "ramips_mt7621")
+            echo "ramips mt7621"
+            ;;
+        # Add more mappings here as needed
+        *)
+            echo "unknown unknown"
+            ;;
+    esac
+}
+
 # Debug: Print current paths and variables
 echo "SCRIPT_DIR: $SCRIPT_DIR"
 echo "OPENWRT_DIR: $OPENWRT_DIR"
@@ -27,12 +44,50 @@ get_latest_commit() {
     git -C "$1" rev-parse HEAD
 }
 
-# Function to extract custom feed URL and branch from feeds.conf
+# Function to check if router configs have changed
+check_router_changes() {
+    echo "Checking for router config changes..."
+    if [ ! -f "$OPENWRT_DIR/.last_build_commit" ]; then
+        echo "Change detected: No previous build commit file found."
+        return 0
+    fi
+    local last_commit=$(cat "$OPENWRT_DIR/.last_build_commit")
+    echo "Last build commit: $last_commit"
+    echo "Current commit: $(git -C "$SCRIPT_DIR" rev-parse HEAD)"
+    echo "Checking for changes in routers/ directory since last build..."
+    if git -C "$SCRIPT_DIR" diff --quiet "$last_commit" HEAD -- routers/; then
+        echo "No changes detected in routers/ directory."
+        return 1
+    else
+        echo "Changes detected in routers/ directory."
+        git -C "$SCRIPT_DIR" diff --name-only "$last_commit" HEAD -- routers/
+        return 0
+    fi
+}
+
+# Function to check if custom feeds have changed
+check_custom_feed_changes() {
+    echo "Checking for custom feed changes..."
+    if [ ! -f "$OPENWRT_DIR/.last_build_info" ]; then
+        echo "Change detected: No previous build info file found."
+        return 0
+    fi
+    local last_custom_feed_commit=$(grep CUSTOM_FEED_COMMIT "$OPENWRT_DIR/.last_build_info" | cut -d= -f2)
+    echo "Last custom feed commit: $last_custom_feed_commit"
+    echo "Current custom feed commit: $CUSTOM_FEED_COMMIT"
+    if [ "$CUSTOM_FEED_COMMIT" != "$last_custom_feed_commit" ]; then
+        echo "Custom feed commit has changed."
+        return 0
+    else
+        echo "No changes in custom feed commit."
+        return 1
+    fi
+}
+
+# Function to extract custom feed info from feeds.conf
 get_custom_feed_info() {
-    local feed_line=$(grep "src-git-full custom" "$1")
-    local url=$(echo "$feed_line" | cut -d' ' -f3 | cut -d';' -f1)
-    local branch=$(echo "$feed_line" | cut -d';' -f2)
-    echo "$url $branch"
+    local feeds_conf="$1"
+    grep "^src-git-full custom" "$feeds_conf" | awk '{print $3}' | sed 's/;/ /'
 }
 
 # Get custom feed URL and branch
@@ -60,10 +115,18 @@ CUSTOM_FEED_COMMIT=$(get_latest_commit "$CUSTOM_FEED_DIR")
 
 # Check if rebuild is necessary
 REBUILD_NEEDED=false
-if [ ! -f .last_build_info ] || \
-   [ "$SCRIPT_COMMIT" != "$(grep SCRIPT_COMMIT .last_build_info | cut -d= -f2)" ] || \
-   [ "$CUSTOM_FEED_COMMIT" != "$(grep CUSTOM_FEED_COMMIT .last_build_info | cut -d= -f2)" ]; then
+if check_router_changes || check_custom_feed_changes; then
     REBUILD_NEEDED=true
+    echo "Changes detected. Rebuild needed."
+else
+    REBUILD_NEEDED=false
+    echo "No changes detected. Using existing build."
+fi
+
+# Check if only configuration has changed
+CONFIG_CHANGED=false
+if [ "$SCRIPT_COMMIT" != "$(grep SCRIPT_COMMIT .last_build_info | cut -d= -f2)" ]; then
+    CONFIG_CHANGED=true
 fi
 
 cp $SCRIPT_DIR/feeds.conf $OPENWRT_DIR/feeds.conf
@@ -104,16 +167,52 @@ fi
 # Run install_script.sh
 $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
-# Build firmware if needed
+echo "Checking if rebuild is needed..."
+if check_router_changes; then
+    REBUILD_NEEDED=true
+    echo "Rebuild needed due to router config changes."
+elif check_custom_feed_changes; then
+    REBUILD_NEEDED=true
+    echo "Rebuild needed due to custom feed changes."
+else
+    REBUILD_NEEDED=false
+    echo "No changes detected. Using existing build."
+fi
+
+# Use make if needed, else use image builder
 if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated -nt .firmware_built ]; then
-    make -j$(nproc) V=sc > make_logs.md 2>&1
+    echo "Building OpenWrt..."
+    make -j$(nproc) V=sc > make_logs.md 2> >(tee -a make_logs.md >&2)
+
     touch .firmware_built
     
-    # Update last build info
-    echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > .last_build_info
-    echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> .last_build_info
+    # Update the last build commit and build info
+    git -C "$SCRIPT_DIR" rev-parse HEAD > "$OPENWRT_DIR/.last_build_commit"
+    echo "SCRIPT_COMMIT=$SCRIPT_COMMIT" > "$OPENWRT_DIR/.last_build_info"
+    echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> "$OPENWRT_DIR/.last_build_info"
+elif [ "$CONFIG_CHANGED" = true ]; then
+    echo "Configuration changed. Generating new sysupgrade.bin from existing binaries."
+    # Run install_script.sh to prepare custom files
+    $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
+
+    # Get target and subtarget based on router type
+    read TARGET SUBTARGET <<< $(get_target_subtarget "$ROUTER_TYPE")
+
+    if [ "$TARGET" = "unknown" ] || [ "$SUBTARGET" = "unknown" ]; then
+        echo "Error: Unknown router type $ROUTER_TYPE"
+        exit 1
+    fi
+
+    # Get the profile name from the config file
+    PROFILE=$(grep 'CONFIG_TARGET_PROFILE' $CONFIG_FILE | cut -d'"' -f2)
+
+    # Get the list of packages from the config file
+    PACKAGES=$(grep 'CONFIG_PACKAGE_' $CONFIG_FILE | grep '=y' | sed 's/CONFIG_PACKAGE_//g' | sed 's/=y//g' | tr '\n' ' ')
+
+    # Use build_images.sh to create the firmware
+    $SCRIPT_DIR/build_images.sh "${TARGET}/${SUBTARGET}" "$PROFILE" "$PACKAGES"
 else
-    echo "No rebuild needed. Using existing build."
+    echo "No changes detected. Using existing build."
 fi
 
 # Find and display the generated IPK files
@@ -124,7 +223,7 @@ TARGET_DIR="$OPENWRT_DIR/bin/packages"
 file_patterns=(
     "libwebsockets*.ipk"
     "libwally*.ipk"
-    "nodogsplash*.ipk"
+    "opennds*.ipk"
     "gltollgate*.ipk"
     "relaylink*.ipk"
     "signevent*.ipk"
@@ -164,12 +263,18 @@ if [ -z "$SYSUPGRADE_FILE" ]; then
     exit 1
 fi
 
-# Copy the file to the destination directory
-cp "$SYSUPGRADE_FILE" ~/TollGateNostrToolKit/binaries/.
+# Extract the base filename without extension
+BASE_FILENAME=$(basename "$SYSUPGRADE_FILE" .bin)
+
+# Create the new filename with commit hash
+NEW_FILENAME="${BASE_FILENAME}_${SCRIPT_COMMIT}.bin"
+
+# Copy the file to the destination directory with the new filename
+cp "$SYSUPGRADE_FILE" "$HOME/TollGateNostrToolKit/binaries/$NEW_FILENAME"
 
 # Check if copy was successful
 if [ $? -eq 0 ]; then
-    echo "Successfully copied $(basename "$SYSUPGRADE_FILE") to ~/TollGateNostrToolKit/binaries/."
+    echo "Successfully copied $NEW_FILENAME to ~/TollGateNostrToolKit/binaries/."
 else
     echo "Failed to copy file."
     exit 1
