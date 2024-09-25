@@ -44,9 +44,6 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     chmod +x "$OPENWRT_DIR/files/etc/setup_vpn.sh"
     chmod +x "$OPENWRT_DIR/files/etc/startup_vpn.sh"
 
-    cp "$SCRIPT_DIR/files/uci-defaults/"* "$OPENWRT_DIR/files/etc/uci-defaults/"
-    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
-
     cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
     chmod +x "$OPENWRT_DIR/files/root/"*
 
