@@ -22,21 +22,32 @@ PACKAGES="$3"
 TARGET_MAIN=$(echo $TARGET | cut -d'/' -f1)
 SUBTARGET=$(echo $TARGET | cut -d'/' -f2)
 
-echo $TARGET
-$HOME/TollGateNostrToolKit/./setup_dependencies_for_image_builder.sh $TARGET
+echo "Debug: Current working directory: $(pwd)"
+echo "Debug: Script location: $0"
+echo "Debug: HOME directory: $HOME"
+
+echo "Running setup_dependencies_for_image_builder.sh..."
+$HOME/TollGateNostrToolKit/setup_dependencies_for_image_builder.sh "$TARGET"
+echo "Setup dependencies script completed."
+
+echo "Debug: Image Builder directory after setup:"
+ls -l "$HOME/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 
 # Determine the Image Builder directory
-BUILDER_DIR=$(find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}*" | head -n 1)
+BUILDER_DIR="$HOME/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 
-if [ -z "$BUILDER_DIR" ]; then
-    echo "Error: Image Builder not found for ${TARGET_MAIN}-${SUBTARGET}"
-    echo "Searching for: openwrt-imagebuilder-*-${TARGET_MAIN}-${SUBTARGET}*"
+if [ ! -d "$BUILDER_DIR" ]; then
+    echo "Error: Image Builder not found at $BUILDER_DIR"
     echo "Available Image Builders:"
     find $HOME -maxdepth 1 -type d -name "openwrt-imagebuilder-*" -print
-    echo "Debug: TARGET_MAIN=$TARGET_MAIN, SUBTARGET=$SUBTARGET"
+    echo "Debug: TARGET=$TARGET"
+    echo "Debug: TARGET_MAIN=$TARGET_MAIN"
+    echo "Debug: SUBTARGET=$SUBTARGET"
     echo "Debug: BUILDER_DIR=$BUILDER_DIR"
     exit 1
 fi
+
+echo "Using Image Builder at: $BUILDER_DIR"
 
 BINARIES_DIR="$HOME/TollGateNostrToolKit/binaries"
 OPENWRT_DIR="$HOME/openwrt"
