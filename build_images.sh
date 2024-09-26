@@ -100,6 +100,7 @@ cd "$BUILDER_DIR" || exit 1
 
 # Copy custom files from OpenWrt directory to Image Builder files directory
 echo "Copying custom files..."
+rm -rf "$BUILDER_DIR/files"
 mkdir -p "$BUILDER_DIR/files"
 cp -R "$OPENWRT_DIR/files/"* "$BUILDER_DIR/files/"
 
@@ -123,8 +124,7 @@ else
     echo "Build failed. Please check the output for errors."
 fi
 
-# Do not clean up the files directory
-rm -rf "files"
+rm -rf "$BUILDER_DIR/files"
 
 # Return to the original directory
 cd - > /dev/null
