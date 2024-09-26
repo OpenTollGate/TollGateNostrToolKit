@@ -124,7 +124,7 @@ else
     echo "Build failed. Please check the output for errors."
 fi
 
-rm -rf "$BUILDER_DIR/files"
+# rm -rf "$BUILDER_DIR/files"
 
 # Return to the original directory
 cd - > /dev/null
