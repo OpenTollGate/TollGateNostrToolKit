@@ -1,99 +1,79 @@
-#!/bin/sh
+#!/bin/bash
 
-. /lib/functions/network.sh
+set -e
 
-# Function to wait for network
-wait_for_network() {
-    local max_attempts=60
-    local attempt=0
-
-    while [ $attempt -lt $max_attempts ]; do
-        network_is_up && return 0
-        sleep 1
-        attempt=$((attempt + 1))
-    done
-
-    return 1
-}
-
-# Check if script is running interactively
-is_interactive() {
-    [ -t 0 ] && [ -t 1 ]
-}
-
-setup_vpn() {
-    echo "Setting up VPN."
-    /etc/./setup_vpn.sh
-    echo "VPN setup complete. Starting VPN."
-    /etc/./startup_vpn.sh
-}
-
-setup_opennds() {
-    echo "Disabling ipv6."
-    /root/./disable_ipv6.sh
-    echo "Setting up opennds."
-    /root/./enable_opennds.sh
-}
-
-setup_wifi() {
-    # WiFi setup loop
-    while true; do
-        # Prompt for WiFi credentials
-        echo "Enter WiFi gateway SSID:"
-        read ssid
-        echo "Enter WiFi gateway Password:"
-        read -s password
-
-        # Update WiFi configuration
-        /etc/./create_gateway.sh "$ssid" "$password"
-
-        # Restart network
-        /etc/init.d/network restart
-
-        # Wait for network to be ready
-        echo "Waiting for network to be ready..."
-        wait_for_network
-
-        # Check connectivity
-        if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
-            echo "WiFi setup successful!"
-
-	    if ! base64 --version &>/dev/null; then
-                opkg update && opkg install coreutils-base64 &
-            fi
-
-	    /www/cgi-bin/./generate_keys.sh
-
-	    setup_vpn
-	    setup_opennds
-
-            break
-        else
-            echo "Failed to connect. Please try again."
-        fi
-    done
-}
-
-if [ ! -f /etc/first_login_done ]; then
-    if is_interactive; then
-        echo "First login setup script started" > /tmp/first_login_debug.log
-        echo "Interactive: $(is_interactive)" >> /tmp/first_login_debug.log
-        echo "first_login_done exists: $([ -f /etc/first_login_done ] && echo 'yes' || echo 'no')" >> /tmp/first_login_debug.log
-
-        # Prompt user to set a password
-        echo "Please set a password for the router:"
-        passwd
-
-        # Setup WiFi
-        setup_wifi
-
-        # Mark as done
-        touch /etc/first_login_done
-    else
-        # Non-interactive mode: Set default password and skip WiFi setup
-        # echo "root:tollgate" | chpasswd
-        echo "Password not set. Please set it upon first login."
-    fi
-
+# Check if the correct number of arguments are passed
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <SCRIPT_DIR> <OPENWRT_DIR>"
+    exit 1
 fi
 
+# Get the arguments
+SCRIPT_DIR="$1"
+OPENWRT_DIR="$2"
+
+# Debug: Print current paths and variables
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+echo "OPENWRT_DIR: $OPENWRT_DIR"
+
+cd $OPENWRT_DIR
+
+# Manually install custom files
+echo "Manually installing custom files..."
+
+if [ -d "$SCRIPT_DIR/files" ]; then
+    # Create necessary directories
+    mkdir -p "$OPENWRT_DIR/files/www/cgi-bin"
+    mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
+    mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
+    mkdir -p "$OPENWRT_DIR/files/etc/config/"
+    mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
+    mkdir -p "$OPENWRT_DIR/files/etc/init.d"
+    mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
+    mkdir -p "$OPENWRT_DIR/files/etc"
+    mkdir -p "$OPENWRT_DIR/files/root"
+
+    # Copy firewall and opennds config files to the correct location
+    cp "$SCRIPT_DIR/files/etc/config/firewall" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/etc/config/opennds" "$OPENWRT_DIR/files/etc/config/"
+
+    cp "$SCRIPT_DIR/files/vpn/network" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/vpn/openvpn" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/vpn/pia_latvia.ovpn" "$OPENWRT_DIR/files/etc/openvpn/"
+    cp "$SCRIPT_DIR/files/vpn/firewall.user" "$OPENWRT_DIR/files/etc/"
+
+    # Copy VPN setup and startup scripts
+    cp "$SCRIPT_DIR/files/setup_vpn.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/startup_vpn.sh" "$OPENWRT_DIR/files/etc/"
+    chmod +x "$OPENWRT_DIR/files/etc/setup_vpn.sh"
+    chmod +x "$OPENWRT_DIR/files/etc/startup_vpn.sh"
+
+    cp "$SCRIPT_DIR/files/uci-defaults/"* "$OPENWRT_DIR/files/etc/uci-defaults/"
+    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
+
+    cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
+    chmod +x "$OPENWRT_DIR/files/root/"*
+
+    cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
+    chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
+    cp "$SCRIPT_DIR/files/uci-defaults/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
+    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/80_mount_root"
+    cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
+
+    # Set execute permissions
+    chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
+
+    # Copy uci_commands.sh and make it run on first boot
+    mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
+    cp "$SCRIPT_DIR/files/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
+
+    # Append the profile addon to /etc/profile
+    cat "$SCRIPT_DIR/files/profile.addon" >> "$OPENWRT_DIR/files/etc/profile"
+
+    echo "Custom files copied to OpenWrt files directory"
+else
+    echo "Custom files directory not found. Skipping manual installation."
+fi
