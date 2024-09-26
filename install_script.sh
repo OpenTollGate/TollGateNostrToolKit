@@ -30,7 +30,6 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
     mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
-    mkdir -p "$OPENWRT_DIR/files/etc/profile.d"
     mkdir -p "$OPENWRT_DIR/files/etc"
     mkdir -p "$OPENWRT_DIR/files/root"
 
@@ -58,8 +57,8 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
 
-    cp "$SCRIPT_DIR/files/etc/profile.d/first_login_setup.sh" "$OPENWRT_DIR/files/etc/profile.d/"
-    chmod +x "$OPENWRT_DIR/files/etc/profile.d/first_login_setup.sh"
+    cp "$SCRIPT_DIR/files/etc/profile" "$OPENWRT_DIR/files/etc/profile"
+    chmod +x "$OPENWRT_DIR/files/etc/profile"
 
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
