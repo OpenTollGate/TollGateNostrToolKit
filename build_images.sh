@@ -54,6 +54,7 @@ download_image_builder() {
     mv "$builder_dir" "$HOME/openwrt/"
 }
 
+# Determine the Image Builder directory
 OPENWRT_VERSION="23.05.4"
 BUILDER_DIR="$HOME/openwrt/openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 
@@ -67,6 +68,7 @@ else
     echo "Image Builder found at: $BUILDER_DIR"
 fi
 
+# Check if Image Builder directory exists now
 if [ ! -d "$BUILDER_DIR" ]; then
     echo "Error: Image Builder still not found after download attempt."
     echo "Available Image Builders:"
@@ -75,6 +77,18 @@ if [ ! -d "$BUILDER_DIR" ]; then
     echo "Debug: TARGET_MAIN=$TARGET_MAIN"
     echo "Debug: SUBTARGET=$SUBTARGET"
     echo "Debug: BUILDER_DIR=$BUILDER_DIR"
+    exit 1
+fi
+
+echo "Using Image Builder at: $BUILDER_DIR"
+
+BINARIES_DIR="$HOME/TollGateNostrToolKit/binaries"
+OPENWRT_DIR="$HOME/openwrt"
+
+# Check if Image Builder directory exists
+if [ ! -d "$BUILDER_DIR" ]; then
+    echo "Error: OpenWrt Image Builder directory not found for target $TARGET."
+    echo "Please run setup_dependencies.sh with the correct target first."
     exit 1
 fi
 

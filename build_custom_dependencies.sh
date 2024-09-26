@@ -223,6 +223,7 @@ TARGET_DIR="$OPENWRT_DIR/bin/packages"
 file_patterns=(
     "libwebsockets*.ipk"
     "libwally*.ipk"
+    "opennds*.ipk"
     "gltollgate*.ipk"
     "relaylink*.ipk"
     "signevent*.ipk"
