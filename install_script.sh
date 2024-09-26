@@ -61,8 +61,6 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/etc/profile.d/first_login_setup.sh" "$OPENWRT_DIR/files/etc/profile.d/"
     chmod +x "$OPENWRT_DIR/files/etc/profile.d/first_login_setup.sh"
 
-    cp "$SCRIPT_DIR/files/uci-defaults/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
-    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/80_mount_root"
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
