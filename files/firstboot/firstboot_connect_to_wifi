@@ -1,0 +1,45 @@
+cat << 'EOF' > /root/connect_to_upstream_wifi.sh
+#!/bin/sh
+# /etc/config/firewall
+uci del firewall.@zone[0].network
+uci add_list firewall.@zone[0].network='lan'
+uci del firewall.@zone[1].network
+uci add_list firewall.@zone[1].network='wan'
+uci add_list firewall.@zone[1].network='wan6'
+uci add_list firewall.@zone[1].network='wifiwan'
+
+
+#uci del firewall.cfg02dc81.network
+#uci add_list firewall.cfg02dc81.network='lan'
+#uci del firewall.cfg03dc81.network
+#uci add_list firewall.cfg03dc81.network='wan'
+#uci add_list firewall.cfg03dc81.network='wan6'
+#uci add_list firewall.cfg03dc81.network='wifiwan'
+
+# /etc/config/network
+uci set network.wwan=interface
+uci set network.wwan.proto='dhcp'
+
+
+
+# Prompt the user for the SSID of the upstream WiFi network
+read -p "Enter the SSID of the upstream WiFi: " UPSTREAM_SSID
+# Prompt the user for the password of the upstream WiFi network
+read -sp "Enter the password for the upstream WiFi: " UPSTREAM_PASSWORD
+echo # For formatting, adds a new line after password input
+
+# /etc/config/wireless
+uci set wireless.wifinet1=wifi-iface
+uci set wireless.wifinet1.device='radio0'
+uci set wireless.wifinet1.mode='sta'
+uci set wireless.wifinet1.network='wifiwan'
+uci set wireless.wifinet1.ssid="$UPSTREAM_SSID"
+uci set wireless.wifinet1.key="$UPSTREAM_PASSWORD"
+
+
+#uci set wireless.wifinet1.encryption='sae'
+#uci set wireless.radio0.cell_density='0'
+uci commit wireless
+wifi reload
+EOF
+chmod +x /root/connect_to_upstream_wifi.sh
