@@ -1,0 +1,3 @@
+#!/bin/sh
+[ ! -f /etc/first_login_done ] && touch /etc/first_login_pending
+exit 0
