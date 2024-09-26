@@ -99,7 +99,12 @@ mkdir -p "$BINARIES_DIR"
 cd "$BUILDER_DIR" || exit 1
 
 # Copy custom files from OpenWrt directory to Image Builder files directory
-cp -R "$OPENWRT_DIR/files/" "$BUILDER_DIR/files/"
+echo "Copying custom files..."
+mkdir -p "$BUILDER_DIR/files"
+cp -R "$OPENWRT_DIR/files/"* "$BUILDER_DIR/files/"
+
+echo "Custom files in Image Builder:"
+ls -R "$BUILDER_DIR/files"
 
 # Build the image
 echo "Building OpenWrt image..."
@@ -107,7 +112,7 @@ echo "Target: $TARGET"
 echo "Profile: $PROFILE"
 echo "Packages: $PACKAGES"
 
-make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files"
+make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files" V=sc
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then
@@ -118,7 +123,7 @@ else
     echo "Build failed. Please check the output for errors."
 fi
 
-# Clean up
+# Do not clean up the files directory
 # rm -rf "files"
 
 # Return to the original directory
