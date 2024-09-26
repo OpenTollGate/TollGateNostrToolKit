@@ -39,12 +39,3 @@ in order to prevent unauthorized SSH logins.
 EOF
 fi
 
-# Check if it's the first login
-if [ ! -f /etc/first_login_complete ]; then
-    # Run the first login setup script
-    if [ -x /usr/local/bin/first_login_setup.sh ]; then
-        /usr/local/bin/first_login_setup.sh
-        # Create a file to indicate that first login setup is complete
-        touch /etc/first_login_complete
-    fi
-fi
