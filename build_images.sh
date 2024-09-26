@@ -124,7 +124,7 @@ else
 fi
 
 # Do not clean up the files directory
-# rm -rf "files"
+rm -rf "files"
 
 # Return to the original directory
 cd - > /dev/null
