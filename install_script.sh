@@ -58,7 +58,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
 
-    cp "$SCRIPT_DIR/files/first_login_setup.sh" "$OPENWRT_DIR/files/etc/profile.d/"
+    cp "$SCRIPT_DIR/files/etc/profile.d/first_login_setup.sh" "$OPENWRT_DIR/files/etc/profile.d/"
     chmod +x "$OPENWRT_DIR/files/etc/profile.d/first_login_setup.sh"
 
     cp "$SCRIPT_DIR/files/uci-defaults/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
