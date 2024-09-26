@@ -1,4 +1,5 @@
 # TollGateNostr first login setup
-if [ ! -f /etc/first_login_done ] && [ -t 0 ] && [ -t 1 ]; then
+if [ -f /etc/first_login_pending ] && [ -t 0 ] && [ -t 1 ]; then
     /usr/local/bin/first-login-setup
+    rm -f /etc/first_login_pending
 fi

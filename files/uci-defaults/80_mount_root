@@ -1,2 +1,3 @@
 #!/bin/sh
-[ ! -f /etc/first_login_done ] && /usr/local/bin/first-login-setup
+[ ! -f /etc/first_login_done ] && touch /etc/first_login_pending && /usr/local/bin/first-login-setup
+exit 0

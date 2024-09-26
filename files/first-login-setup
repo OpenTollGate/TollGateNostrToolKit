@@ -76,6 +76,10 @@ setup_wifi() {
 
 if [ ! -f /etc/first_login_done ]; then
     if is_interactive; then
+        echo "First login setup script started" > /tmp/first_login_debug.log
+        echo "Interactive: $(is_interactive)" >> /tmp/first_login_debug.log
+        echo "first_login_done exists: $([ -f /etc/first_login_done ] && echo 'yes' || echo 'no')" >> /tmp/first_login_debug.log
+
         # Prompt user to set a password
         echo "Please set a password for the router:"
         passwd
