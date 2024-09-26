@@ -16,7 +16,6 @@ OPENWRT_DIR="$2"
 echo "SCRIPT_DIR: $SCRIPT_DIR"
 echo "OPENWRT_DIR: $OPENWRT_DIR"
 
-
 cd $OPENWRT_DIR
 
 # Manually install custom files
@@ -26,15 +25,14 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # Create necessary directories
     mkdir -p "$OPENWRT_DIR/files/www/cgi-bin"
     mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
-    mkdir -p "$OPENWRT_DIR/files/etc/nodogsplash/htdocs"
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
     mkdir -p "$OPENWRT_DIR/files/etc/config/"
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
     mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
     mkdir -p "$OPENWRT_DIR/files/etc"
+    mkdir -p "$OPENWRT_DIR/files/root"
 
-    cp "$SCRIPT_DIR/files/vpn/firewall" "$OPENWRT_DIR/files/etc/config/"
     cp "$SCRIPT_DIR/files/vpn/network" "$OPENWRT_DIR/files/etc/config/"
     cp "$SCRIPT_DIR/files/vpn/openvpn" "$OPENWRT_DIR/files/etc/config/"
     cp "$SCRIPT_DIR/files/vpn/pia_latvia.ovpn" "$OPENWRT_DIR/files/etc/openvpn/"
@@ -46,18 +44,11 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     chmod +x "$OPENWRT_DIR/files/etc/setup_vpn.sh"
     chmod +x "$OPENWRT_DIR/files/etc/startup_vpn.sh"
 
-    cp "$SCRIPT_DIR/files/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
-
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
-    cp -r "$SCRIPT_DIR/files/nodogsplash" "$OPENWRT_DIR/files/etc/config/" # Config files for openwrt (with UCI)
-    # rm -f "$OPENWRT_DIR/files/etc/nodogsplash/nodogsplash.conf" # Config files for traditional linux distros without UCI are required
-    cp -r "$SCRIPT_DIR/files/etc/nodogsplash/htdocs/"* "$OPENWRT_DIR/files/etc/nodogsplash/htdocs/"
-    cp -r "$SCRIPT_DIR/files/firewall.nodogsplash" "$OPENWRT_DIR/files/etc/"
-    cp -r "$SCRIPT_DIR/files/etc/nodogsplash" "$OPENWRT_DIR/files/etc/"
 
     # Set execute permissions
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
@@ -66,19 +57,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # Copy uci_commands.sh and make it run on first boot
     mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
     cp "$SCRIPT_DIR/files/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
-    cp "$SCRIPT_DIR/files/uci_commands.sh" "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
-    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/99-custom-settings"
 
-    # Directly modify /etc/profile
-    cat << 'EOF' >> "$OPENWRT_DIR/files/etc/profile"
-
-# TollGateNostr first login setup
-if [ ! -f /etc/first_login_done ] && [ -t 0 ] && [ -t 1 ]; then
-    /usr/local/bin/first-login-setup
-fi
-EOF
-
-    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/80_mount_root"
     echo "Custom files copied to OpenWrt files directory"
 else
     echo "Custom files directory not found. Skipping manual installation."
