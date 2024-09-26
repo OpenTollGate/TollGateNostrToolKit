@@ -30,6 +30,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
     mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
+    mkdir -p "$OPENWRT_DIR/files/etc/profile.d"
     mkdir -p "$OPENWRT_DIR/files/etc"
     mkdir -p "$OPENWRT_DIR/files/root"
 
@@ -55,13 +56,19 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     chmod +x "$OPENWRT_DIR/files/root/"*
 
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
+    chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
+
+    cp "$SCRIPT_DIR/files/first_login_setup.sh" "$OPENWRT_DIR/files/etc/profile.d/"
+    chmod +x "$OPENWRT_DIR/files/etc/profile.d/first_login_setup.sh"
+
+    cp "$SCRIPT_DIR/files/uci-defaults/80_mount_root" "$OPENWRT_DIR/files/etc/uci-defaults/"
+    chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/80_mount_root"
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
 
     # Set execute permissions
-    chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
     chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
 
     # Copy uci_commands.sh and make it run on first boot
