@@ -34,7 +34,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/root"
 
     # Copy firewall and opennds config files to the correct location
-    # cp "$SCRIPT_DIR/files/etc/config/firewall" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/etc/config/firewall" "$OPENWRT_DIR/files/etc/config/"
     # cp "$SCRIPT_DIR/files/etc/config/opennds" "$OPENWRT_DIR/files/etc/config/"
 
     cp "$SCRIPT_DIR/files/vpn/network" "$OPENWRT_DIR/files/etc/config/"
@@ -69,7 +69,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
 
     # Append the profile addon to /etc/profile
-    cat "$SCRIPT_DIR/files/profile.addon" >> "$OPENWRT_DIR/files/etc/profile"
+    # cat "$SCRIPT_DIR/files/profile.addon" >> "$OPENWRT_DIR/files/etc/profile"
 
     echo "Custom files copied to OpenWrt files directory"
 else
