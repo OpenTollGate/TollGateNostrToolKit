@@ -1,0 +1,23 @@
+#model=$(cat /tmp/sysinfo/model |tr ' ' '_')
+#mac=$(iw dev | grep 'addr' | awk '{print $2}' | tr -d : | head -n 1)
+#mac=$(cat /sys/class/ieee80211/phy0/macaddress | tr -d :)
+model=$(cat /tmp/sysinfo/board_name | cut -f2 -d,)
+#cat /sys/class/net/eth0/address|tr -d :
+#mac=$(cat /sys/class/net/br-lan/address|tr -d :)
+mac_radio0=$(iw dev | grep -A5 'phy#0' | grep addr | awk '{print $2}' | tr -d :)
+mac_radio1=$(iw dev | grep -A5 'phy#1' | grep addr | awk '{print $2}' | tr -d :)
+
+uci set wireless.@wifi-iface[0].ssid=$model-${mac_radio0}
+uci set wireless.@wifi-iface[0].encryption=psk2
+uci set wireless.@wifi-iface[0].key=tollgate
+uci set wireless.@wifi-device[0].disabled=0
+
+if [ "$board_name" = "dlink,covr-x1860-a1" ] || [ "$board_name" = "asus,rt-ax59u" ]; then
+  uci set wireless.@wifi-iface[1].ssid=$model-${mac_radio1}
+  uci set wireless.@wifi-iface[1].encryption=psk2
+  uci set wireless.@wifi-iface[1].key=tollgate
+  uci set wireless.@wifi-device[1].disabled=0
+fi # end 2nd wifi interface
+
+uci commit wireless
+wifi reload

@@ -1,0 +1,56 @@
+if [ "$(cat /tmp/sysinfo/board_name)" = "dlink,covr-x1860-a1" ]; then
+  touch /root/x1860
+fi #end x1860
+
+if [ "$(cat /tmp/sysinfo/board_name)" = "zyxel,wsm20" ]; then
+  touch /root/wsm20
+fi # end wsm20
+
+#if [ "$(cat /tmp/sysinfo/board_name)" = "zyxel,nr7101" ]; then
+#  touch /root/wsm20
+#fi # end nr7101
+
+#https://openwrt.org/docs/guide-user/network/wan/wwan/ltedongle
+
+if opkg list-installed | grep -q umbim; then
+touch /root/mbim_configured
+#not tested
+#opkg update
+#opkg install kmod-usb-net-cdc-mbim umbim luci-proto-mbim kmod-usb-serial-option picocom
+#todo: never tested
+fi  # end umbim
+
+if opkg list-installed | grep -q uqmi; then
+  touch /rootuqmi_configured
+
+  #qmi related packages should already be installed
+  #opkg update
+  #opkg install kmod-usb-net-qmi-wwan uqmi luci-proto-qmi kmod-usb-serial-option picocom
+
+  #todo: add qmi interface to firewall to enable routing
+  # /etc/config/firewall
+  #uci del firewall.cfg03dc81.network
+  #uci add_list firewall.cfg03dc81.network='wan'
+  #uci add_list firewall.cfg03dc81.network='wan6'
+  #uci add_list firewall.cfg03dc81.network='5g_wan'
+
+  # /etc/config/network
+  uci set network.5g_wan=interface
+  uci set network.5g_wan.proto='qmi'
+  uci set network.5g_wan.device='/dev/cdc-wdm0'
+  #uci set network.5g_wan.apn='telia'
+  #uci set network.5g_wan.pincode='1234'
+  uci set network.5g_wan.auth='none'
+  uci set network.5g_wan.pdptype='ipv4v6'
+  uci commit
+
+  service network restart
+
+#uci set network.qmiwan=interface
+#uci set network.qmiwan.proto='qmi'
+#uci set network.qmiwan.device='/dev/cdc-wdm0'
+#uci set network.qmiwan.auth='none'
+#uci set network.qmiwan.pdptype='ipv4v6'
+fi # end uqmi
+
+

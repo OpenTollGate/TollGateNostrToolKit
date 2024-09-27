@@ -1,0 +1,20 @@
+if opkg list-installed | grep -q mesh11sd; then
+
+  cat << 'EOF' > /root/enable_mesh.sh
+  uci set mesh11sd.setup.auto_config='1'
+  uci set mesh11sd.setup.auto_mesh_id='MyMeshID'
+  uci set mesh11sd.setup.mesh_gate_encryption='3'
+  uci set mesh11sd.setup.mesh_gate_key='mywificode'
+  uci commit mesh11sd
+  uci set network.lan.ipaddr='192.168.9.1'
+  uci commit network
+  service network restart
+
+EOF
+
+service mesh11sd stop
+service mesh11sd disable
+touch /root/mesh11sd_should_now_be_stopped_and_disabled
+
+fi # end mesh11sd
+

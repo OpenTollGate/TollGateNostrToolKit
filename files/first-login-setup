@@ -1,5 +1,15 @@
 #!/bin/sh
 
+# Exit if not running interactively
+[ -t 0 ] || exit 0
+
+# Exit if setup is already done
+[ -f /etc/first_login_done ] && exit 0
+
+# Create debug log
+echo "First login setup script started" > /tmp/first_login_debug.log
+
+
 . /lib/functions/network.sh
 
 # Function to wait for network
@@ -22,10 +32,17 @@ is_interactive() {
 }
 
 setup_vpn() {
-    echo "Setting up VPN..."
+    echo "Setting up VPN."
     /etc/./setup_vpn.sh
-    echo "VPN setup complete. Starting VPN..."
+    echo "VPN setup complete. Starting VPN."
     /etc/./startup_vpn.sh
+}
+
+setup_opennds() {
+    echo "Disabling ipv6."
+    /root/./disable_ipv6.sh
+    echo "Setting up opennds."
+    /root/./enable_opennds.sh
 }
 
 setup_wifi() {
@@ -58,6 +75,7 @@ setup_wifi() {
 	    /www/cgi-bin/./generate_keys.sh
 
 	    setup_vpn
+	    setup_opennds
 
             break
         else
@@ -68,6 +86,10 @@ setup_wifi() {
 
 if [ ! -f /etc/first_login_done ]; then
     if is_interactive; then
+        echo "First login setup script started" > /tmp/first_login_debug.log
+        echo "Interactive: $(is_interactive)" >> /tmp/first_login_debug.log
+        echo "first_login_done exists: $([ -f /etc/first_login_done ] && echo 'yes' || echo 'no')" >> /tmp/first_login_debug.log
+
         # Prompt user to set a password
         echo "Please set a password for the router:"
         passwd
@@ -85,3 +107,4 @@ if [ ! -f /etc/first_login_done ]; then
 
 fi
 
+echo "First login setup completed" >> /tmp/first_login_debug.log
