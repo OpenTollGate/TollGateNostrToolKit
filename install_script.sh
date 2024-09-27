@@ -44,6 +44,13 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     chmod +x "$OPENWRT_DIR/files/etc/setup_vpn.sh"
     chmod +x "$OPENWRT_DIR/files/etc/startup_vpn.sh"
 
+    # /uci-defaults and /root below broke the startup scripts and the
+    # DHCP server on startup. Reintroduce with care!
+    # cp "$SCRIPT_DIR/files/uci-defaults/"* "$OPENWRT_DIR/files/etc/uci-defaults/"
+    # chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
+    # cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
+    # chmod +x "$OPENWRT_DIR/files/root/"*
+
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
@@ -57,6 +64,11 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # Copy uci_commands.sh and make it run on first boot
     mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
     cp "$SCRIPT_DIR/files/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
+
+    # Uncomenting any of the following three files leads to the router showing up without an IP address
+    cat "$SCRIPT_DIR/files/profile.addon" >> "$OPENWRT_DIR/files/etc/profile"
+    cp "$SCRIPT_DIR/files/etc/config/firewall" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/etc/config/opennds" "$OPENWRT_DIR/files/etc/config/"
 
     echo "Custom files copied to OpenWrt files directory"
 else
