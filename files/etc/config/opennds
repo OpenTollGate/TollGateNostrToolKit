@@ -1,22 +1,8 @@
 
 config opennds
-	option enabled 1
-	option debuglevel '3'
-	option fwhook_enabled '1' # It is required for OpenWrt Firewall 4 NFT (OpenWrt 22.03.0 and later)
-	option gatewayinterface 'br-lan'
-	option gatewayname 'TollGate'
-	option fasport '80'
-	option faspath '/cgi-bin/bitcoin-fas.cgi'
-	option fasremotefqdn 'helsinki.orangesync.tech'
-	option fasremoteip '37.27.205.50'
-	option fas_secure_enabled '1'
-	option faskey 'b37a6672d84622b262b8336fd283e670e2b80b75a520c1e711204b881e4c466a'
-	option fasremotessl 'yes'
+	option login_option_enabled '3'
+	option themespec_path '/usr/lib/opennds/theme_voucher.sh'
+	option allow_preemptive_authentication '0'
+	option enabled '1'
 
-	# Walled Garden configuration
-	list preauthenticated_users 'allow tcp port 80 to helsinki.orangesync.tech'
-	list preauthenticated_users 'allow tcp port 443 to helsinki.orangesync.tech'
-	
-	# Ensure DNS resolution works before authentication
-	option preauth_dns_enable '1'
-	option preauthdns '1'
+	option faskey 'e7289a279c13f60a43339c7a1abd0ca534f7d225e06316f8273cce7ecb98898a'

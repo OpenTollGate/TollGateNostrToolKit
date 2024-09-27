@@ -19,10 +19,12 @@ config interface 'lan'
 	option ipaddr '192.168.8.1'
 	option netmask '255.255.255.0'
 	option ip6assign '60'
+	option ipv6 '0'
 
 config interface 'wan'
 	option device 'eth1'
 	option proto 'dhcp'
+	option ipv6 '0'
 
 config interface 'wan6'
 	option device 'eth1'
@@ -32,6 +34,7 @@ config interface 'wwan'
 	option proto 'dhcp'
 
 config interface 'vpn'
-    option ifname 'tun0'
-    option proto 'none'
-    option auto '1'
+	option ifname 'tun0'
+	option proto 'none'
+	option auto '1'
+
