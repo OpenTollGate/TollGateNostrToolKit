@@ -47,8 +47,8 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # DHCP server on startup. Reintroduce with care!
     # cp "$SCRIPT_DIR/files/uci-defaults/"* "$OPENWRT_DIR/files/etc/uci-defaults/"
     # chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
-    # cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
-    # chmod +x "$OPENWRT_DIR/files/root/"*
+    cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
+    chmod +x "$OPENWRT_DIR/files/root/"*
 
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
