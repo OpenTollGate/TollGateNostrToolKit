@@ -209,8 +209,10 @@ elif [ "$CONFIG_CHANGED" = true ]; then
 	# Use the make command approach
 	# make target/linux/install target/install rootfs/clean rootfs/install  -j$(nproc) V=sc CONFIG_TARGET_ROOTFS_TARGZ=
 	# make target/clean -j$(nproc)
-	make target/linux/clean_root
-	make target/install -j$(nproc)
+	# make target/linux/clean_root V=sc
+	rm -rf build_dir/target-*/root-*
+	rm -rf build_dir/target-*/linux-*/linux-*
+	make target/install -j$(nproc) V=sc
     else
 	# Use the conventional build_images.sh approach
 	# Get the profile name from the config file
