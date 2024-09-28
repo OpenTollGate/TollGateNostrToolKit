@@ -211,16 +211,17 @@ elif [ "$CONFIG_CHANGED" = true ]; then
 	# make target/clean -j$(nproc)
 	# make target/linux/clean_root V=sc
 
-	rm -rf build_dir/target-*/root-*
+	# rm -rf build_dir/target-*/root-*
+	cp -Ru files/* build_dir/target-mips_24kc_musl/root-ath79/
 
-	mkdir -p build_dir/target-mips_24kc_musl/root-ath79
-	mkdir -p build_dir/target-mips_24kc_musl/linux-ath79_nand/linux-5.15.150
+	# mkdir -p build_dir/target-mips_24kc_musl/root-ath79
+	# mkdir -p build_dir/target-mips_24kc_musl/linux-ath79_nand/linux-5.15.150
 
 	make target/linux/compile -j$(nproc) V=sc
 	make target/linux/install -j$(nproc) V=sc
 
 	# Copy your custom files
-	cp -a files/* build_dir/target-mips_24kc_musl/root-ath79/
+	# cp -a files/* build_dir/target-mips_24kc_musl/root-ath79/
 
 	# Create the final image
 	make target/install -j$(nproc) V=sc
