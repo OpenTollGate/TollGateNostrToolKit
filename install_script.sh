@@ -33,8 +33,6 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc"
     mkdir -p "$OPENWRT_DIR/files/root"
 
-    cp "$SCRIPT_DIR/files/vpn/network" "$OPENWRT_DIR/files/etc/config/"
-    cp "$SCRIPT_DIR/files/vpn/openvpn" "$OPENWRT_DIR/files/etc/config/"
     cp "$SCRIPT_DIR/files/vpn/pia_latvia.ovpn" "$OPENWRT_DIR/files/etc/openvpn/"
     cp "$SCRIPT_DIR/files/vpn/firewall.user" "$OPENWRT_DIR/files/etc/"
 
@@ -52,23 +50,25 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # chmod +x "$OPENWRT_DIR/files/root/"*
 
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
+    chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
+
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
 
     # Set execute permissions
-    chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
     chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
 
     # Copy uci_commands.sh and make it run on first boot
     mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
     cp "$SCRIPT_DIR/files/distfeeds.conf" "$OPENWRT_DIR/files/etc/opkg/distfeeds.conf"
 
-    # Uncomenting any of the following three files leads to the router showing up without an IP address
+    # Append the profile addon to /etc/profile
+    cp "$SCRIPT_DIR/files/etc/profile" "$OPENWRT_DIR/files/etc/profile"
+    chmod +x "$OPENWRT_DIR/files/etc/profile"
     cat "$SCRIPT_DIR/files/profile.addon" >> "$OPENWRT_DIR/files/etc/profile"
-    cp "$SCRIPT_DIR/files/etc/config/firewall" "$OPENWRT_DIR/files/etc/config/"
-    cp "$SCRIPT_DIR/files/etc/config/opennds" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/etc/config/"* "$OPENWRT_DIR/files/etc/config/"
 
     echo "Custom files copied to OpenWrt files directory"
 else

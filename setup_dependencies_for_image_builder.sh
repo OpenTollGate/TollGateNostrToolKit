@@ -9,6 +9,10 @@ fi
 
 TARGET="$1"
 
+# Split TARGET into TARGET and SUBTARGET
+TARGET_MAIN=$(echo $TARGET | cut -d'/' -f1)
+SUBTARGET=$(echo $TARGET | cut -d'/' -f2)
+
 # Check if the script has been run today
 LAST_UPDATE_FILE="/tmp/last_update_check"
 
@@ -42,12 +46,12 @@ done
 
 # Setup OpenWrt Image Builder
 OPENWRT_VERSION="23.05.4"
-BUILDER_DIR="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET/\//-}.Linux-x86_64"
+BUILDER_DIR="openwrt-imagebuilder-${OPENWRT_VERSION}-${TARGET_MAIN}-${SUBTARGET}.Linux-x86_64"
 BUILDER_ARCHIVE="${BUILDER_DIR}.tar.xz"
 
 if [ ! -d "$BUILDER_DIR" ]; then
   echo "Downloading OpenWrt Image Builder for $TARGET..."
-  wget "https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET}/${BUILDER_ARCHIVE}"
+  wget "https://downloads.openwrt.org/releases/${OPENWRT_VERSION}/targets/${TARGET_MAIN}/${SUBTARGET}/${BUILDER_ARCHIVE}"
   
   if [ $? -ne 0 ]; then
     echo "Failed to download Image Builder for $TARGET. Please check if the target is correct."

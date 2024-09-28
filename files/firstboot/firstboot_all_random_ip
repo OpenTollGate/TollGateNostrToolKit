@@ -1,0 +1,26 @@
+# Generate a random IP address in the form 10.x.x.1, where x are random
+min=0
+max=255
+
+# Generate two random numbers for the x values using a single srand call
+random_values=$(awk -v min="$min" -v max="$max" 'BEGIN {
+    srand();  # Seed the random number generator once
+    x1 = int(min + rand() * (max - min + 1));  # Generate the first random number
+    x2 = int(min + rand() * (max - min + 1));  # Generate the second random number
+    print x1, x2;  # Output both random numbers
+}')
+
+# Extract the random numbers into variables
+x1=$(echo $random_values | awk '{print $1}')
+x2=$(echo $random_values | awk '{print $2}')
+
+# Construct the IP address
+ip_address="10.$x1.$x2.1"
+
+# Output the random IP address
+echo "Random IP: $ip_address"
+
+uci set network.lan.ipaddr=$ip_address
+uci commit network
+
+service network restart

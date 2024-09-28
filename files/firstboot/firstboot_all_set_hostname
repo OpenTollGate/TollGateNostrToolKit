@@ -1,0 +1,7 @@
+#model=$(cat /tmp/sysinfo/model |tr ' ' '_')
+model=$(cat /tmp/sysinfo/board_name | cut -f2 -d,)
+
+mac=$(cat /sys/class/ieee80211/phy0/macaddress | tr -d :)
+uci set system.@system[0].hostname="${model}_${mac}"
+uci commit system
+/etc/init.d/system reload

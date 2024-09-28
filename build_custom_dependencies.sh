@@ -192,8 +192,6 @@ if [ "$REBUILD_NEEDED" = true ] || [ ! -f .firmware_built ] || [ .feeds_updated 
     echo "CUSTOM_FEED_COMMIT=$CUSTOM_FEED_COMMIT" >> "$OPENWRT_DIR/.last_build_info"
 elif [ "$CONFIG_CHANGED" = true ]; then
     echo "Configuration changed. Generating new sysupgrade.bin from existing binaries."
-    # Run install_script.sh to prepare custom files
-    $SCRIPT_DIR/install_script.sh "$SCRIPT_DIR" "$OPENWRT_DIR"
 
     # Get target and subtarget based on router type
     read TARGET SUBTARGET <<< $(get_target_subtarget "$ROUTER_TYPE")
@@ -203,6 +201,10 @@ elif [ "$CONFIG_CHANGED" = true ]; then
         exit 1
     fi
 
+
+    # build_images.sh doesn't seem to retain all the content of ~/openwrt/files. Perhaps this make command would work better...
+    # make target/linux/install target/install rootfs/clean rootfs/install -j1 V=s CONFIG_TARGET_ROOTFS_TARGZ=
+    
     # Get the profile name from the config file
     PROFILE=$(grep 'CONFIG_TARGET_PROFILE' $CONFIG_FILE | cut -d'"' -f2)
 

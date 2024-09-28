@@ -1,0 +1,31 @@
+if opkg list-installed | grep -q gpgv; then
+
+
+# Create a directory for the keyring (adjust path as needed)
+mkdir -p /etc/keys/
+
+# Echo the public key into a file
+cat << 'EOF' > /etc/keys/publickey.asc
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+<Insert your actual ASCII-armored public key here>
+-----END PGP PUBLIC KEY BLOCK-----
+EOF
+
+  cat << 'EOF' > /root/gpg_test.sh
+
+#!/bin/sh
+
+
+# Import the public key into the keyring
+gpg --no-default-keyring --keyring /etc/keys/pubring.kbx --import /etc/keys/publickey.asc
+
+# Now use gpgv to verify a file with the imported public key
+# gpgv --keyring /etc/keys/pubring.kbx file.sig file
+
+echo "Public key imported and ready for use with gpgv."
+
+
+
+EOF
+
+fi # end gpgv
