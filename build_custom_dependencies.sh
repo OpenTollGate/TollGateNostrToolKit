@@ -203,7 +203,7 @@ elif [ "$CONFIG_CHANGED" = true ]; then
 
 
     # Define a boolean variable to toggle between approaches
-    USE_MAKE_APPROACH=false
+    USE_MAKE_APPROACH=true
 
     if [ "$USE_MAKE_APPROACH" = true ]; then
 	# Use the make command approach
