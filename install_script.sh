@@ -25,6 +25,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # Create necessary directories
     mkdir -p "$OPENWRT_DIR/files/www/cgi-bin"
     mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
+    mkdir -p "$OPENWRT_DIR/files/usr/lib/opennds"
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
     mkdir -p "$OPENWRT_DIR/files/etc/config/"
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
@@ -52,6 +53,9 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
 
+    cp "$SCRIPT_DIR/files/usr/lib/opennds/theme_voucher.sh" "$OPENWRT_DIR/files/usr/lib/opennds/."
+    chmod +x "$OPENWRT_DIR/files/usr/lib/opennds/theme_voucher.sh"
+    
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"

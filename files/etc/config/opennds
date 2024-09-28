@@ -5,4 +5,4 @@ config opennds
 	option allow_preemptive_authentication '0'
 	option enabled '1'
 
-	option faskey 'e7289a279c13f60a43339c7a1abd0ca534f7d225e06316f8273cce7ecb98898a'
+	option faskey '55a63ea290a811d9041e15bde2bf80b356f3fb0e449fbf61f5206339428c856a'
