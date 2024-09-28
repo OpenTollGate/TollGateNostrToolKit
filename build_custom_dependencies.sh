@@ -207,7 +207,8 @@ elif [ "$CONFIG_CHANGED" = true ]; then
 
     if [ "$USE_MAKE_APPROACH" = true ]; then
 	# Use the make command approach
-	make target/linux/install target/install rootfs/clean rootfs/install -j1 V=s CONFIG_TARGET_ROOTFS_TARGZ=
+	# make target/linux/install target/install rootfs/clean rootfs/install  -j$(nproc) V=sc CONFIG_TARGET_ROOTFS_TARGZ=
+	make target/install -j$(nproc)
     else
 	# Use the conventional build_images.sh approach
 	# Get the profile name from the config file
