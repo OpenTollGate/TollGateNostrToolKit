@@ -70,8 +70,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/etc/profile" "$OPENWRT_DIR/files/etc/profile"
     chmod +x "$OPENWRT_DIR/files/etc/profile"
     cat "$SCRIPT_DIR/files/profile.addon" >> "$OPENWRT_DIR/files/etc/profile"
-    cp "$SCRIPT_DIR/files/etc/config/firewall" "$OPENWRT_DIR/files/etc/config/"
-    cp "$SCRIPT_DIR/files/etc/config/opennds" "$OPENWRT_DIR/files/etc/config/"
+    cp "$SCRIPT_DIR/files/etc/config/"* "$OPENWRT_DIR/files/etc/config/"
 
     echo "Custom files copied to OpenWrt files directory"
 else
