@@ -74,8 +74,8 @@ setup_wifi() {
 
 	    /www/cgi-bin/./generate_keys.sh
 
-	    # New version 28.09.2024, 20:20
-	    # setup_vpn
+	    # New version 28.09.2024, 21:58
+	    setup_vpn
 	    # setup_opennds
 
             break

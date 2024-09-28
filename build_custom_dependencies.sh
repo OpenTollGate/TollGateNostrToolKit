@@ -222,6 +222,7 @@ elif [ "$CONFIG_CHANGED" = true ]; then
 
 	# Copy your custom files
 	# cp -a files/* build_dir/target-mips_24kc_musl/root-ath79/
+	cp -Ru files/* build_dir/target-mips_24kc_musl/root-ath79/
 
 	# Create the final image
 	make target/install -j$(nproc) V=sc
