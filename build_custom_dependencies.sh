@@ -212,6 +212,12 @@ elif [ "$CONFIG_CHANGED" = true ]; then
 	# make target/linux/clean_root V=sc
 	rm -rf build_dir/target-*/root-*
 	rm -rf build_dir/target-*/linux-*/linux-*
+
+	mkdir -p build_dir/target-mips_24kc_musl/root-ath79
+	mkdir -p build_dir/target-mips_24kc_musl/linux-ath79_nand/linux-5.15.150
+
+	make target/linux/compile -j$(nproc) V=sc
+	make target/linux/install -j$(nproc) V=sc
 	make target/install -j$(nproc) V=sc
     else
 	# Use the conventional build_images.sh approach
