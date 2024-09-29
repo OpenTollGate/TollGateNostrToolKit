@@ -45,6 +45,8 @@ service opennds enable
 
 # Restart services using &&
 /etc/init.d/network restart && \
+/etc/init.d/odhcpd restart && \
+fw3 flush && \
 /etc/init.d/firewall restart && \
 /etc/init.d/dnsmasq restart && \
 # Restart uhttpd if it exists
