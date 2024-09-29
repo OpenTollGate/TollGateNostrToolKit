@@ -1,8 +1,5 @@
 #!/bin/sh
 
-mkdir -p /tmp/ndslog
-cd /tmp/ndslog
-wget https://raw.githubusercontent.com/openNDS/openNDS/master/community/themespec/theme_voucher/vouchers.txt
 chmod 744 /usr/lib/opennds/theme_voucher.sh
 
 touch /etc/config/opennds
