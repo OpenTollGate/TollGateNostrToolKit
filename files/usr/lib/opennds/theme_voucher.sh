@@ -14,7 +14,7 @@ title="theme_voucher"
 # functions:
 
 generate_splash_sequence() {
-	login_with_voucher
+	voucher_form
 }
 
 header() {
@@ -61,18 +61,8 @@ footer() {
 }
 
 login_with_voucher() {
-	# This is the simple click to continue splash page with no client validation.
-	# The client is however required to accept the terms of service.
-
-	if [ "$tos" = "accepted" ]; then
-		#echo "$tos <br>"
-		#echo "$voucher <br>"
-		voucher_validation
-		footer
-	fi
-
-	voucher_form
-	footer
+    voucher_validation
+    footer
 }
 
 check_voucher() {
@@ -159,46 +149,36 @@ check_voucher() {
 			fi
 		fi
 
-elif [ $(echo -n "$voucher" | grep -ic "cashu") -ge 1 ]; then
-    echo "Voucher entered was ${voucher}. This looks like a cashu note that can be redeemed. <br>"
-    current_time=$(date +%s)
-    upload_rate=1024
-    download_rate=1024
-    upload_quota=0
-    download_quota=0
-    session_length=5
-
-    voucher_time_limit=$session_length
-
-    # Log the voucher
-    voucher_expiration=$(($current_time + $voucher_time_limit * 60))
-    session_length=$voucher_time_limit
-    echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
-
-    return 0
-
-elif [ $(echo -n "$voucher" | grep -ic "lnurlw") -ge 1 ]; then
-    echo "Voucher entered was ${voucher}. This looks like an lnurlw note that can be redeemed. <br>"
-    current_time=$(date +%s)
-    upload_rate=512    # Different rates for lnurlw, if needed
-    download_rate=512  # Different rates for lnurlw, if needed
-    upload_quota=10240
-    download_quota=10240
-    session_length=10  # Different session length for lnurlw
-
-    voucher_time_limit=$session_length
-
-    # Log the voucher
-    voucher_expiration=$(($current_time + $voucher_time_limit * 60))
-    session_length=$voucher_time_limit
-    echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
-
-    return 0
+	elif [ $(echo -n "$voucher" | grep -ic "cashu") -ge 1 ]; then
+		# Cashu handling
+		echo "Voucher entered was ${voucher}. This looks like a cashu note that can be redeemed. <br>"
+		current_time=$(date +%s)
+		upload_rate=1024
+		download_rate=1024
+		upload_quota=0
+		download_quota=0
+		session_length=$voucher_time_limit
+		voucher_time_limit=$session_length
+		voucher_expiration=$(($current_time + $voucher_time_limit * 60))
+		echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
+		return 0
+	elif [ $(echo -n "$voucher" | grep -ic "lnurlw") -ge 1 ]; then
+		# LNURL-w handling
+		echo "Voucher entered was ${voucher}. This looks like an lnurlw note that can be redeemed. <br>"
+		current_time=$(date +%s)
+		upload_rate=512
+		download_rate=512
+		upload_quota=10240
+		download_quota=10240
+		session_length=$voucher_time_limit
+		voucher_time_limit=$session_length
+		voucher_expiration=$(($current_time + $voucher_time_limit * 60))
+		echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
+		return 0
 	else
 		echo "No Voucher Found - Retry <br>"
 		return 1
 	fi
-	
 	# Should not get here
 	return 1
 }
@@ -208,8 +188,6 @@ voucher_validation() {
 
 	check_voucher
 	if [ $? -eq 0 ]; then
-		#echo "Voucher is Valid, click Continue to finish login<br>"
-
 		# Refresh quotas with ones imported from the voucher roll.
 		quotas="$session_length $upload_rate $download_rate $upload_quota $download_quota"
 		# Set voucher used (useful if for accounting reasons you track who received which voucher)
@@ -218,71 +196,17 @@ voucher_validation() {
 		# Authenticate and write to the log - returns with $ndsstatus set
 		auth_log
 
-		# output the landing page - note many CPD implementations will close as soon as Internet access is detected
-		# The client may not see this page, or only see it briefly
-		auth_success="
-			<p>
-				<big-red>
-					You are now logged in and have been granted access to the Internet.
-				</big-red>
-				<hr>
-			</p>
-			This voucher is valid for $session_length minutes.
-			<hr>
-			<p>
-				<italic-black>
-					You can use your Browser, Email and other network Apps as you normally would.
-				</italic-black>
-			</p>
-			<p>
-				Your device originally requested <b>$originurl</b>
-				<br>
-				Click or tap Continue to go to there.
-			</p>
-			<form>
-				<input type=\"button\" VALUE=\"Continue\" onClick=\"location.href='$originurl'\" >
-			</form>
-			<hr>
-		"
-		auth_fail="
-			<p>
-				<big-red>
-					Something went wrong and you have failed to log in.
-				</big-red>
-				<hr>
-			</p>
-			<hr>
-			<p>
-				<italic-black>
-					Your login attempt probably timed out.
-				</italic-black>
-			</p>
-			<p>
-				<br>
-				Click or tap Continue to try again.
-			</p>
-			<form>
-				<input type=\"button\" VALUE=\"Continue\" onClick=\"location.href='$originurl'\" >
-			</form>
-			<hr>
-		"
-
 		if [ "$ndsstatus" = "authenticated" ]; then
-			echo "$auth_success"
+			echo "<script>window.location.href='$originurl';</script>"
 		else
-			echo "$auth_fail"
-		fi
+		echo "<big-red>Authentication failed. Please try again.</big-red>"
+		echo "<script>setTimeout(function(){ window.location.href='$originurl'; }, 3000);</script>"
+	fi
 	else
-		echo "<big-red>Voucher is not Valid, click Continue to restart login<br></big-red>"
-		echo "
-			<form>
-				<input type=\"button\" VALUE=\"Continue\" onClick=\"location.href='$originurl'\" >
-			</form>
-		"
+		echo "<big-red>Voucher is not Valid. Redirecting to login...</big-red>"
+		echo "<script>setTimeout(function(){ window.location.href='$originurl'; }, 3000);</script>"
 	fi
 
-	# Serve the rest of the page:
-	read_terms
 	footer
 }
 
@@ -302,24 +226,35 @@ voucher_form() {
 
 	voucher_code=$(echo "$cpi_query" | awk -F "voucher%3d" '{printf "%s", $2}' | awk -F "%26" '{printf "%s", $1}')
 
-	echo "
-		<med-blue>
-			Welcome!
-		</med-blue><br>
-		<hr>
-		Your IP: $clientip <br>
-		Your MAC: $clientmac <br>
-		<hr>
-		<form action=\"/opennds_preauth/\" method=\"get\">
-			<input type=\"hidden\" name=\"fas\" value=\"$fas\"> 
-			<input type=\"checkbox\" name=\"tos\" value=\"accepted\" required checked> I accept the Terms of Service<br>
-			Voucher #: <input type=\"text\" name=\"voucher\" value=\"$voucher_code\" required><br>
-			<input type=\"submit\" value=\"Connect\" >
-		</form>
-		<br>
-	"
+	if [ -n "$voucher_code" ]; then
+		# Process the voucher
+		check_voucher
+		if [ $? -eq 0 ]; then
+			# Voucher is valid
+			quotas="$session_length $upload_rate $download_rate $upload_quota $download_quota"
+			userinfo="$title - $voucher"
+			auth_log
+			if [ "$ndsstatus" = "authenticated" ]; then
+				echo "<script>window.location.href='$originurl';</script>"
+				footer
+			fi
+		fi
+		# If we're here, authentication failed
+		error_message="<p style='color: red;'>Invalid voucher or authentication failed. Please try again.</p>"
+	fi
 
-	read_terms
+	# Display the form (with error message if applicable)
+	echo "
+	<h2>Welcome!</h2>
+	<p>Your IP: $clientip<br>Your MAC: $clientmac</p>
+	$error_message
+	<form action='/opennds_preauth/' method='get'>
+		<input type='hidden' name='fas' value='$fas'>
+		<input type='checkbox' name='tos' value='accepted' required checked> I accept the Terms of Service<br>
+		Voucher #: <input type='text' name='voucher' value='' required><br>
+		<input type='submit' value='Connect'>
+	</form>
+	"
 	footer
 }
 
