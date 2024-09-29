@@ -12,10 +12,24 @@ uci set opennds.@opennds[0].enabled=1
 
 uci commit opennds
 
-/etc/init.d/network restart
-/etc/init.d/firewall restart
-/etc/init.d/dnsmasq restart
-/etc/init.d/opennds restart
+# Enable OpenNDS before restarting
 service opennds enable
+
+# Restart services with delays
+/etc/init.d/network restart
+sleep 2
+/etc/init.d/firewall restart
+sleep 2
+/etc/init.d/dnsmasq restart
+sleep 2
+
+# Restart uhttpd if you're using it
+if [ -f /etc/init.d/uhttpd ]; then
+    /etc/init.d/uhttpd restart
+    sleep 2
+fi
+
+# Restart OpenNDS last
+/etc/init.d/opennds restart
 
 echo "Services restarted. Captive portal should now be functional."
