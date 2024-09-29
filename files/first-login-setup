@@ -45,6 +45,40 @@ setup_opennds() {
     /root/./enable_opennds.sh
 }
 
+reset_lan_interface() {
+    echo "Resetting LAN interface..."
+    
+    # Identify the LAN interface
+    LAN_INTERFACE=$(uci get network.lan.device)
+    
+    echo "Bringing down $LAN_INTERFACE..."
+    ifconfig $LAN_INTERFACE down
+    
+    # Wait a moment
+    sleep 5
+    
+    echo "Bringing up $LAN_INTERFACE..."
+    ifconfig $LAN_INTERFACE up
+    
+    # Wait for network to be ready
+    echo "Waiting for network to stabilize..."
+    sleep 10
+    
+    # Restart DHCP server
+    echo "Restarting DHCP server..."
+    /etc/init.d/dnsmasq restart
+    
+    # Restart network
+    echo "Restarting network..."
+    /etc/init.d/network restart
+    
+    # Restart firewall
+    echo "Restarting firewall..."
+    /etc/init.d/firewall restart
+    
+    echo "LAN interface reset complete."
+}
+
 setup_wifi() {
     # WiFi setup loop
     while true; do
@@ -70,16 +104,19 @@ setup_wifi() {
 
 	    if ! base64 --version &>/dev/null; then
                 opkg update && opkg install coreutils-base64 &
-            fi
+	    fi
 
 	    /www/cgi-bin/./generate_keys.sh
 
 	    # setup_vpn
 	    setup_opennds
+        
+	    # Add this line to reset the LAN interface
+	    reset_lan_interface
 
-            break
+	    break
         else
-            echo "Failed to connect. Please try again."
+	    echo "Failed to connect. Please try again."
         fi
     done
 }
