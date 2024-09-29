@@ -61,6 +61,11 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
 
+    # Select DHCP server
+    cp "$SCRIPT_DIR/files/etc/rc.local" "$OPENWRT_DIR/files/etc/"
+    cp "$SCRIPT_DIR/files/etc/init.d/"* "$OPENWRT_DIR/files/etc/init.d/"
+    
+
     # Set execute permissions
     chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
 
