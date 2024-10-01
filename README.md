@@ -8,7 +8,7 @@ configurations from `./files/` into the filesystem of the
 
 # Setup build environment from scratch
 ```
-curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/quickstart/setup_from_scratch.sh | bash && passwd username && ssh username@localhost
+curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/refs/heads/main/setup_from_scratch.sh | bash && passwd username && ssh username@localhost
 ```
 
 Set password for user called `username`:
