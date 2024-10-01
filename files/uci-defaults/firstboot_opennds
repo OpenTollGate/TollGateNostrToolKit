@@ -1,0 +1,15 @@
+
+if opkg list-installed | grep -q opennds; then
+
+# wget enable_opennds.sh from blossom in future
+# Found in: ~/TollGateNostrToolKit/files/root
+
+chmod +x /root/enable_opennds.sh
+
+uci set opennds.@opennds[0].enabled=0
+uci commit opennds
+service opennds disable
+service opennds stop
+touch /root/opennds_should_now_be_disabled
+
+fi # end opennds

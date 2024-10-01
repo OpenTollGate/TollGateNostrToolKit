@@ -1,0 +1,5 @@
+
+# wget disable_ipv6.sh from blossom in future
+# Found in: ~/TollGateNostrToolKit/files/root
+
+chmod +x /root/disable_ipv6.sh

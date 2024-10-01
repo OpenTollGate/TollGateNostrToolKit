@@ -1,0 +1,17 @@
+#!/bin/sh
+
+# Append the first login check to /etc/profile
+cat << 'EOF' >> /etc/profile
+
+# Check if it's the first login
+if [ ! -f /etc/first_login_complete ]; then
+    # Run the first login setup script
+    if [ -x /usr/local/bin/first_login_setup.sh ]; then
+        /usr/local/bin/first_login_setup.sh
+        # Create a file to indicate that first login setup is complete
+        touch /etc/first_login_complete
+    fi
+fi
+EOF
+
+exit 0

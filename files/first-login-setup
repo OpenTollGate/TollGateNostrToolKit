@@ -1,0 +1,178 @@
+#!/bin/sh
+
+# Exit if not running interactively
+[ -t 0 ] || exit 0
+
+# Exit if setup is already done
+[ -f /etc/first_login_done ] && exit 0
+
+# Create debug log
+echo "First login setup script started" > /tmp/first_login_debug.log
+
+
+. /lib/functions/network.sh
+
+# Function to wait for network
+wait_for_network() {
+    local max_attempts=60
+    local attempt=0
+
+    while [ $attempt -lt $max_attempts ]; do
+        network_is_up && return 0
+        sleep 1
+        attempt=$((attempt + 1))
+    done
+
+    return 1
+}
+
+# Check if script is running interactively
+is_interactive() {
+    [ -t 0 ] && [ -t 1 ]
+}
+
+setup_vpn() {
+    echo "Setting up VPN."
+    /etc/./setup_vpn.sh
+    echo "VPN setup complete. Starting VPN."
+    /etc/./startup_vpn.sh
+}
+
+setup_opennds() {
+    echo "Disabling ipv6."
+    /root/./disable_ipv6.sh
+    echo "Setting up opennds."
+    /root/./enable_opennds.sh
+}
+
+reset_lan_interface() {
+    echo "Resetting LAN interface..."
+    
+    # Identify the LAN interface
+    LAN_INTERFACE=$(uci get network.lan.device)
+    
+    echo "Bringing down $LAN_INTERFACE..."
+    ifconfig $LAN_INTERFACE down
+    
+    # Wait a moment
+    sleep 5
+    
+    echo "Bringing up $LAN_INTERFACE..."
+    ifconfig $LAN_INTERFACE up
+    
+    # Wait for network to be ready
+    echo "Waiting for network to stabilize..."
+    sleep 10
+    
+    # Restart DHCP server
+    echo "Restarting DHCP server..."
+    /etc/init.d/dnsmasq restart
+    
+    # Restart network
+    echo "Restarting network..."
+    /etc/init.d/network restart
+    
+    # Restart firewall
+    echo "Restarting firewall..."
+    /etc/init.d/firewall restart
+    
+    echo "LAN interface reset complete."
+}
+
+prompt_user_and_wait_for_dhcp() {
+    echo "Please follow these steps:"
+    echo "1. Unplug the Ethernet cable from your router"
+    echo "2. Wait for 5 seconds"
+    echo "3. Plug the Ethernet cable back into your router"
+    echo "Waiting for DHCP lease..."
+    
+    # Wait for DHCP lease
+    for i in $(seq 1 30); do
+        if [ -s /tmp/dhcp.leases ]; then
+            echo "DHCP lease detected!"
+            return 0
+        fi
+        sleep 1
+        echo -n "."
+    done
+
+    echo "Failed to detect DHCP lease. Please try again."
+    return 1
+}
+
+setup_wifi() {
+    # WiFi setup loop
+    while true; do
+        # Prompt for WiFi credentials
+        echo "Enter WiFi gateway SSID:"
+        read ssid
+        echo "Enter WiFi gateway Password:"
+        read -s password
+
+        # Update WiFi configuration
+        /etc/./create_gateway.sh "$ssid" "$password"
+
+        # Restart network
+        /etc/init.d/network restart
+
+        # Wait for network to be ready
+        echo "Waiting for network to be ready..."
+        wait_for_network
+
+        # Check connectivity
+        if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
+            echo "WiFi setup successful!"
+
+	    if ! base64 --version &>/dev/null; then
+                opkg update && opkg install coreutils-base64 &
+	    fi
+
+	    /www/cgi-bin/./generate_keys.sh
+
+	    # setup_vpn
+	    setup_opennds
+        
+	    # Add this line to reset the LAN interface
+	    # This is not required if the user is being prompted to 
+	    # replug the LAN cable or if the router is being rebooted
+	    # reset_lan_interface
+
+	    while true; do
+	        if prompt_user_and_wait_for_dhcp; then
+        	    break
+    	    fi
+	    done
+
+	    # Continue with the rest of your setup script
+	    echo "DHCP lease obtained."
+	    break
+        else
+	    echo "Failed to connect. Please try again."
+        fi
+    done
+}
+
+if [ ! -f /etc/first_login_done ]; then
+    if is_interactive; then
+        echo "First login setup script started" > /tmp/first_login_debug.log
+        echo "Interactive: $(is_interactive)" >> /tmp/first_login_debug.log
+        echo "first_login_done exists: $([ -f /etc/first_login_done ] && echo 'yes' || echo 'no')" >> /tmp/first_login_debug.log
+
+        # Prompt user to set a password
+        echo "Please set a password for the router:"
+        passwd
+
+        # Setup WiFi
+        setup_wifi
+
+        # Mark as done
+        touch /etc/first_login_done
+    else
+        # Non-interactive mode: Set default password and skip WiFi setup
+        # echo "root:tollgate" | chpasswd
+        echo "Password not set. Please set it upon first login."
+    fi
+
+fi
+
+echo "First login setup completed" >> /tmp/first_login_debug.log
