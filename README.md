@@ -19,11 +19,12 @@ git clone https://github.com/OpenTollGate/TollGateNostrToolKit.git
 cd TollGateNostrToolKit/
 ```
 
-Run build script as `username` or any other non root user in the
-sudoers list. You will be prompted for the sudo password to install
-dependencies. Consider using `screen` if your on a VPS, because the
-initial build will take long and it would be a pity if it gets
-interrupted.
+Run the `build_coordinator` as `username` or any other non root user
+in the sudoers list. You will be prompted for the sudo password to
+install dependencies. Consider using `screen` if your on a VPS,
+because the initial build will take long and it would be a pity if it
+gets interrupted.
+
 ```
 ./build_coordinator.sh 
 ```
