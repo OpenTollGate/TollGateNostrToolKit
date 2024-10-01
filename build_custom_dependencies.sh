@@ -202,17 +202,23 @@ elif [ "$CONFIG_CHANGED" = true ]; then
     fi
 
 
-    # build_images.sh doesn't seem to retain all the content of ~/openwrt/files. Perhaps this make command would work better...
-    # make target/linux/install target/install rootfs/clean rootfs/install -j1 V=s CONFIG_TARGET_ROOTFS_TARGZ=
-    
-    # Get the profile name from the config file
-    PROFILE=$(grep 'CONFIG_TARGET_PROFILE' $CONFIG_FILE | cut -d'"' -f2)
+    # Define a boolean variable to toggle between approaches
+    USE_MAKE_APPROACH=true
 
-    # Get the list of packages from the config file
-    PACKAGES=$(grep 'CONFIG_PACKAGE_' $CONFIG_FILE | grep '=y' | sed 's/CONFIG_PACKAGE_//g' | sed 's/=y//g' | tr '\n' ' ')
+    if [ "$USE_MAKE_APPROACH" = true ]; then
+	cp -Ru files/* build_dir/target-mips_24kc_musl/root-ath79/
+	make target/install -j$(nproc) V=sc
+    else
+	# Use the conventional build_images.sh approach
+	# Get the profile name from the config file
+	PROFILE=$(grep 'CONFIG_TARGET_PROFILE' $CONFIG_FILE | cut -d'"' -f2)
+	
+	# Get the list of packages from the config file
+	PACKAGES=$(grep 'CONFIG_PACKAGE_' $CONFIG_FILE | grep '=y' | sed 's/CONFIG_PACKAGE_//g' | sed 's/=y//g' | tr '\n' ' ')
 
-    # Use build_images.sh to create the firmware
-    $SCRIPT_DIR/build_images.sh "${TARGET}/${SUBTARGET}" "$PROFILE" "$PACKAGES"
+	# Use build_images.sh to create the firmware
+	$SCRIPT_DIR/build_images.sh "${TARGET}/${SUBTARGET}" "$PROFILE" "$PACKAGES"
+    fi
 else
     echo "No changes detected. Using existing build."
 fi

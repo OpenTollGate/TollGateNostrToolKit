@@ -25,6 +25,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # Create necessary directories
     mkdir -p "$OPENWRT_DIR/files/www/cgi-bin"
     mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
+    mkdir -p "$OPENWRT_DIR/files/usr/lib/opennds"
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
     mkdir -p "$OPENWRT_DIR/files/etc/config/"
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
@@ -46,16 +47,24 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # DHCP server on startup. Reintroduce with care!
     # cp "$SCRIPT_DIR/files/uci-defaults/"* "$OPENWRT_DIR/files/etc/uci-defaults/"
     # chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
-    # cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
-    # chmod +x "$OPENWRT_DIR/files/root/"*
+    cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
+    chmod +x "$OPENWRT_DIR/files/root/"*
 
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
 
+    cp "$SCRIPT_DIR/files/usr/lib/opennds/theme_voucher.sh" "$OPENWRT_DIR/files/usr/lib/opennds/."
+    chmod +x "$OPENWRT_DIR/files/usr/lib/opennds/theme_voucher.sh"
+    
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
+
+    # Select DHCP server
+    # cp "$SCRIPT_DIR/files/etc/rc.local" "$OPENWRT_DIR/files/etc/"
+    # cp "$SCRIPT_DIR/files/etc/init.d/"* "$OPENWRT_DIR/files/etc/init.d/"
+    
 
     # Set execute permissions
     chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
