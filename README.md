@@ -14,26 +14,29 @@ ssh username@localhost
 
 Make sure your on the branch that needs testing. If you want to try a branch that "just works", you should probably go for `main`.
 
-Run build script:
+Run build script as `username` or any other non root user in the
+sudoers list. You will be prompted for the sudo password to install
+dependencies.
 ```
-username@ubuntu-32gb-nbg1-1:~/TollGateNostrToolKit$ ./build_coordinator.sh 
-Running setup_dependencies.sh
-[sudo] password for username:
+./build_coordinator.sh 
 ```
 
-`./build_coordinator.sh` will build TollGate for all routers listed
-under `./routers/*_config` using `./install_script.sh` to place
-configurations from `./files/` into the filesystem of the
-`sysupgrade.bin` file.
+
+`./build_coordinator.sh` builds TollGate for all routers that have a
+make config file under `./routers/*_config` using
+`./install_script.sh` to place configurations from `./files/` into the
+filesystem of the `sysupgrade.bin` file.
 
 You can find your newly created sysupgrade file in
 `./binaries/openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_[commit_hash].bin`.
 
-This can take over an hour if its your first time building TollGate,
-but `build_coordinator.sh` only takes minutes if you run it again
-after having changed something in `files` without changing any of
-source code that affects openwrt's binaries and without having changed
-the configuration files in `routers`.
+It can take over an hour to build its your first time building
+TollGate, but `build_coordinator.sh` only takes minutes if you run it
+again after having changed something in `files` without changing any
+of source code that affects openwrt's binaries and without having
+changed the configuration files in `routers`. You can force
+`build_coordinator.sh` to rebuild from scratch by deleting
+`~/openwrt`.
 
 You can modify the contents of `./files` and/or `install_script.sh` to
 change the initial content of the filesystem in `sysupgrade.bin`.
@@ -43,6 +46,26 @@ inspect `~/openwrt/make_logs.md` in case of build failure.
 ```
 make -j$(nproc) V=sc > make_logs.md 2>&1
 ```
+
+## Flashing the router
+
+You can use `ifconfig` to find the IP address of your openwrt router when its connected to your computer.
+
+Use the following command to copy your sysupgrade file to the router:
+```
+scp openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_[commit_hash].bin root@[router_ip]:/tmp/.
+```
+
+Now log in to the router, navigate to `/tmp` and use the following command to flash it with the sysupgrade file:
+```
+sysupgrade -n openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_[commit_hash].bin
+```
+
+The router will take a few minutes to install the sysupgrade file and
+it should show up with a new IP address that you can find with
+`ifconfig`. Now login with ssh again and follow the instructions to
+set your password and LNURL.
+
 
 ## Some basic documentation
 
