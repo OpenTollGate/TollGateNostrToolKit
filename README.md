@@ -12,11 +12,18 @@ passwd username
 ssh username@localhost
 ```
 
-Make sure your on the branch that needs testing. If you want to try a branch that "just works", you should probably go for `main`.
+
+Clone this repo and make sure your on the branch that needs testing. If you want to try a branch that "just works", you should probably go for `main`.
+```
+git clone https://github.com/OpenTollGate/TollGateNostrToolKit.git
+cd TollGateNostrToolKit/
+```
 
 Run build script as `username` or any other non root user in the
 sudoers list. You will be prompted for the sudo password to install
-dependencies.
+dependencies. Consider using `screen` if your on a VPS, because the
+initial build will take long and it would be a pity if it gets
+interrupted.
 ```
 ./build_coordinator.sh 
 ```
