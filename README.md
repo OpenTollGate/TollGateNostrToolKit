@@ -1,28 +1,18 @@
-# TollGateNostrToolKit
-
-Run `./build_coordinator.sh` to build for all routers listed under
-`./routers/*_config` using `./install_script.sh` to place
-configurations from `./files/` into the filesystem of the
-`sysupgrade.bin` file.
-
 
 # Setup build environment from scratch
+
+Install dependencies and create user called `username`
 ```
-curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/refs/heads/main/setup_from_scratch.sh | bash && passwd username && ssh username@localhost
+curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/refs/heads/main/setup_from_scratch.sh | bash
 ```
 
-Set password for user called `username`:
+Set password and log in as `username`
 ```
-root@ubuntu-32gb-nbg1-1:~# passwd username
-New password: 
-Retype new password: 
-passwd: password updated successfully
+passwd username
+ssh username@localhost
 ```
 
-Login as non root user:
-```
-root@ubuntu-32gb-nbg1-1:~# ssh username@localhost
-```
+Make sure your on the branch that needs testing. If you want to try a branch that "just works", you should probably go for `main`.
 
 Run build script:
 ```
@@ -31,15 +21,28 @@ Running setup_dependencies.sh
 [sudo] password for username:
 ```
 
-# Collecting logs
+`./build_coordinator.sh` will build TollGate for all routers listed
+under `./routers/*_config` using `./install_script.sh` to place
+configurations from `./files/` into the filesystem of the
+`sysupgrade.bin` file.
+
+You can find your newly created sysupgrade file in
+`./binaries/openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_[commit_hash].bin`.
+
+This can take over an hour if its your first time building TollGate,
+but `build_coordinator.sh` only takes minutes if you run it again
+after having changed something in `files` without changing any of
+source code that affects openwrt's binaries and without having changed
+the configuration files in `routers`.
+
+You can modify the contents of `./files` and/or `install_script.sh` to
+change the initial content of the filesystem in `sysupgrade.bin`.
+
+The following make command was used to collect logs, so you can
+inspect `~/openwrt/make_logs.md` in case of build failure.
 ```
 make -j$(nproc) V=sc > make_logs.md 2>&1
 ```
-
-
-
-Usage: `./sign_event_local <message_hash> <private_key_hex>`
-
 
 ## Some basic documentation
 
