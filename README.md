@@ -63,24 +63,15 @@ sysupgrade -n openwrt-ath79-nand-glinet_gl-ar300m-nor-squashfs-sysupgrade_[commi
 
 The router will take a few minutes to install the sysupgrade file and
 it should show up with a new IP address that you can find with
-`ifconfig`. Now login with ssh again and follow the instructions to
+`ifconfig`. Now log in with ssh again and follow the instructions to
 set your password and LNURL.
-
 
 ## Some basic documentation
 
-- [Setup from Scratch](setup_from_scratch.md): Detailed instructions for setting up the build environment in a new VPS.
-
-- [Updating Feeds Configuration in OpenWrt](updating_feeds_conf_in_openwrt.md): Guide on how to update the feeds configuration in OpenWrt.
-
-- [Uploading Binaries to GitHub Releases](upload_binaries_to_github.md): Instructions for uploading binaries to GitHub releases without adding them to the git repository.
-
-- [Setting DNS Server](setting_dns_server.md): Instructions for setting DNS server.
-
-- [Find error in logs](find_error_in_logs.md): Commands for parsing through `build_logs.md` to find relevant lines.
-
-- [Syncronize nodogsplash.conf with UCI](nodogsplash_configuration.md): nodogsplash gets its commands from `/etc/nodogsplash/nodogsplash.conf`, but the UCI commands modify `/etc/config/nodogsplash`. Logic is required to transfer the UCI settings to `nodogsplash.conf` on startup.
-
-- [Squashing a diverged branch](squash_commits_since_main.md): squash all commits on current branch since the point where it diverged from main. This makes the branch easier to rebase onto main.
-
-- [Updating Feeds Configuration in OpenWRT](updating_feeds_conf_in_openwrt.md): the feeds are used to specify which repos should be cloned and built when building openwrt.
+- [Setup from Scratch](docs/setup_from_scratch.md): Detailed instructions for setting up the build environment in a new VPS.
+- [Updating Feeds Configuration in OpenWrt](docs/updating_feeds_conf_in_openwrt.md): Guide on how to update the feeds configuration in OpenWrt.
+- [Uploading Binaries to GitHub Releases](docs/upload_binaries_to_github.md): Instructions for uploading binaries to GitHub releases without adding them to the git repository.
+- [Setting DNS Server](docs/setting_dns_server.md): Instructions for setting DNS server.
+- [Find error in logs](docs/find_error_in_logs.md): Commands for parsing through `build_logs.md` to find relevant lines.
+- [Synchronize nodogsplash.conf with UCI](docs/nodogsplash_configuration.md): nodogsplash gets its commands from `/etc/nodogsplash/nodogsplash.conf`, but the UCI commands modify `/etc/config/nodogsplash`. Logic is required to transfer the UCI settings to `nodogsplash.conf` on startup.
+- [Squashing a diverged branch](docs/squash_commits_since_main.md): squash all commits on the current branch since the point where it diverged from main. This makes the branch easier to rebase onto main.
