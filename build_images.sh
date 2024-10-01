@@ -113,7 +113,8 @@ echo "Target: $TARGET"
 echo "Profile: $PROFILE"
 echo "Packages: $PACKAGES"
 
-make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files" V=sc
+# make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files" V=sc
+make image PROFILE="$PROFILE" PACKAGES="$PACKAGES" FILES="files" V=sc CUSTOM_SCRIPT='cp -R "$OPENWRT_DIR/files/"* "$BUILDER_DIR/files/" && echo "Files copied successfully"'
 
 # Check if the build was successful
 if [ $? -eq 0 ]; then

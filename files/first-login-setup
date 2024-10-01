@@ -45,6 +45,61 @@ setup_opennds() {
     /root/./enable_opennds.sh
 }
 
+reset_lan_interface() {
+    echo "Resetting LAN interface..."
+    
+    # Identify the LAN interface
+    LAN_INTERFACE=$(uci get network.lan.device)
+    
+    echo "Bringing down $LAN_INTERFACE..."
+    ifconfig $LAN_INTERFACE down
+    
+    # Wait a moment
+    sleep 5
+    
+    echo "Bringing up $LAN_INTERFACE..."
+    ifconfig $LAN_INTERFACE up
+    
+    # Wait for network to be ready
+    echo "Waiting for network to stabilize..."
+    sleep 10
+    
+    # Restart DHCP server
+    echo "Restarting DHCP server..."
+    /etc/init.d/dnsmasq restart
+    
+    # Restart network
+    echo "Restarting network..."
+    /etc/init.d/network restart
+    
+    # Restart firewall
+    echo "Restarting firewall..."
+    /etc/init.d/firewall restart
+    
+    echo "LAN interface reset complete."
+}
+
+prompt_user_and_wait_for_dhcp() {
+    echo "Please follow these steps:"
+    echo "1. Unplug the Ethernet cable from your router"
+    echo "2. Wait for 5 seconds"
+    echo "3. Plug the Ethernet cable back into your router"
+    echo "Waiting for DHCP lease..."
+    
+    # Wait for DHCP lease
+    for i in $(seq 1 30); do
+        if [ -s /tmp/dhcp.leases ]; then
+            echo "DHCP lease detected!"
+            return 0
+        fi
+        sleep 1
+        echo -n "."
+    done
+
+    echo "Failed to detect DHCP lease. Please try again."
+    return 1
+}
+
 setup_wifi() {
     # WiFi setup loop
     while true; do
@@ -70,16 +125,29 @@ setup_wifi() {
 
 	    if ! base64 --version &>/dev/null; then
                 opkg update && opkg install coreutils-base64 &
-            fi
+	    fi
 
 	    /www/cgi-bin/./generate_keys.sh
 
-	    setup_vpn
+	    # setup_vpn
 	    setup_opennds
+        
+	    # Add this line to reset the LAN interface
+	    # This is not required if the user is being prompted to 
+	    # replug the LAN cable or if the router is being rebooted
+	    # reset_lan_interface
 
-            break
+	    while true; do
+	        if prompt_user_and_wait_for_dhcp; then
+        	    break
+    	    fi
+	    done
+
+	    # Continue with the rest of your setup script
+	    echo "DHCP lease obtained."
+	    break
         else
-            echo "Failed to connect. Please try again."
+	    echo "Failed to connect. Please try again."
         fi
     done
 }
