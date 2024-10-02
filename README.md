@@ -1,10 +1,14 @@
-
 # Setup build environment from scratch
 
 Install dependencies and create user called `username`
 ```
 curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/refs/heads/main/setup_from_scratch.sh | bash
 ```
+
+Note: you can use any non root user. The user doesn't need to be
+called `username`, but keep in mind that the new subdirectories will
+be created in your home folder if you use an existing user.
+
 
 Set password and log in as `username`
 ```

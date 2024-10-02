@@ -1,0 +1,106 @@
+body {
+    background-color: #E67E22; /* Darker shade of Bitcoin orange */
+    color: #140f07;
+    margin: 0;
+    padding: 10px;
+    font-family: sans-serif;
+}
+
+hr {
+    display: block;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: inset;
+    border-width: 5px;
+    border-color: #8E24AA; /* Nostr purple */
+}
+
+.offset {
+    background: rgba(230, 126, 34, 0.6); /* Darker Bitcoin orange with opacity */
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 600px;
+    min-width: 200px;
+    padding: 5px;
+}
+
+.insert {
+    background: rgba(142, 36, 170, 0.7); /* Nostr purple with opacity */
+    border: 2px solid #F7931A; /* Bitcoin orange */
+    border-radius: 10px;
+    min-width: 200px;
+    max-width: 100%;
+    padding: 5px;
+    color: #ffffff; /* White text for better contrast */
+}
+
+.insert > h1 {
+    font-size: medium;
+    margin: 0 0 15px;
+    color: #F7931A; /* Bitcoin orange */
+}
+
+img {
+    width: 40%;
+    max-width: 180px;
+    margin-left: 0%;
+    margin-right: 10px;
+    border-radius: 3px;
+    border: 2px solid #8E24AA; /* Nostr purple */
+}
+
+input[type=text], input[type=email], input[type=password], input[type=number], input[type=tel] {
+    font-size: 1em;
+    line-height: 2em;
+    height: 2em;
+    color: #0c232a;
+    background: #FFF5E6; /* Light Bitcoin orange */
+}
+
+input[type=submit], input[type=button] {
+    font-size: 1em;
+    line-height: 2em;
+    height: 2em;
+    font-weight: bold;
+    border: 0;
+    border-radius: 10px;
+    background-color: #8E24AA; /* Nostr purple */
+    padding: 0 10px;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: rgba(247, 147, 26, 0.3) 0 0 0 1px inset,
+                rgba(247, 147, 26, 0.3) 0 2px 5px 0,
+                rgba(0, 0, 0, 0.07) 0 1px 1px 0;
+}
+
+med-blue {
+    font-size: 1.2em;
+    color: #FFFFFF; /* White for better contrast */
+    font-weight: bold;
+    font-style: normal;
+}
+
+big-red {
+    font-size: 1.5em;
+    color: #9C27B0; /* A slightly lighter shade of Nostr purple for better contrast */
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3); /* Subtle shadow for readability */
+}
+
+italic-black {
+    font-size: 1em;
+    color: #F7931A; /* Bitcoin orange */
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+copy-right {
+    font-size: 0.7em;
+    color: #8E24AA; /* Nostr purple */
+    font-weight: bold;
+    font-style: italic;
+}
