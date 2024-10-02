@@ -1,34 +1,18 @@
 # Setup build environment from scratch
 
-Install dependencies and create user called `username`
-```
-curl -sSL https://raw.githubusercontent.com/OpenTollGate/TollGateNostrToolKit/refs/heads/main/setup_from_scratch.sh | bash
-```
-
-Note: you can use any non root user. The user doesn't need to be
-called `username`, but keep in mind that the new subdirectories will
-be created in your home folder if you use an existing user.
-
-
-Set password and log in as `username`
-```
-passwd username
-ssh username@localhost
-```
-
-
-Clone this repo and make sure your on the branch that needs testing. If you want to try a branch that "just works", you should probably go for `main`.
+Clone this repo and make sure your on the branch that needs
+testing. If you want to try a branch that "just works", you should
+probably go for `main`.
 ```
 git clone https://github.com/OpenTollGate/TollGateNostrToolKit.git
 cd TollGateNostrToolKit/
 ```
 
-Run the `build_coordinator` as `username` or any other non root user
-in the sudoers list. You will be prompted for the sudo password to
-install dependencies. Consider using `screen` if your on a VPS,
-because the initial build will take long and it would be a pity if it
-gets interrupted.
-
+Run the `build_coordinator` as a non root user in the sudoers
+list. You will be prompted for the sudo password to install
+dependencies. Consider using `screen` if your on a VPS, because the
+initial build will take long and it would be a pity if it gets
+interrupted.
 ```
 ./build_coordinator.sh 
 ```
