@@ -27,6 +27,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/usr/local/bin"
     mkdir -p "$OPENWRT_DIR/files/usr/lib/opennds"
     mkdir -p "$OPENWRT_DIR/files/etc/uci-defaults"
+    mkdir -p "$OPENWRT_DIR/files/etc/opennds/htdocs/images"
     mkdir -p "$OPENWRT_DIR/files/etc/config/"
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
@@ -49,12 +50,14 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     # chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
     cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
     chmod +x "$OPENWRT_DIR/files/root/"*
-
+    
     cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
 
-    cp "$SCRIPT_DIR/files/usr/lib/opennds/theme_voucher.sh" "$OPENWRT_DIR/files/usr/lib/opennds/."
-    chmod +x "$OPENWRT_DIR/files/usr/lib/opennds/theme_voucher.sh"
+    cp "$SCRIPT_DIR/files/etc/opennds/htdocs/images/splash.jpg" "$OPENWRT_DIR/files/etc/opennds/htdocs/images/splash.jpg"
+    cp "$SCRIPT_DIR/files/etc/opennds/htdocs/splash.css" "$OPENWRT_DIR/files/etc/opennds/htdocs/splash.css"
+    cp "$SCRIPT_DIR/files/usr/lib/opennds/"* "$OPENWRT_DIR/files/usr/lib/opennds/."
+    chmod +x "$OPENWRT_DIR/files/usr/lib/opennds/"*
     
     cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"

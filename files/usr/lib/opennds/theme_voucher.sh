@@ -14,13 +14,13 @@ title="theme_voucher"
 # functions:
 
 generate_splash_sequence() {
-	login_with_voucher
+    login_with_voucher
 }
 
 header() {
-# Define a common header html for every page served
-	gatewayurl=$(printf "${gatewayurl//%/\\x}")
-	echo "<!DOCTYPE html>
+    # Define a common header html for every page served
+    gatewayurl=$(printf "${gatewayurl//%/\\x}")
+    echo "<!DOCTYPE html>
 		<html>
 		<head>
 		<meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\">
@@ -38,196 +38,169 @@ header() {
 	"
 }
 
+
 footer() {
-	# Define a common footer html for every page served
-	year=$(date +'%Y')
-	echo "
-		<hr>
-		<div style=\"font-size:0.5em;\">
-			<br>
-			<img style=\"height:60px; width:60px; float:left;\" src=\"$gatewayurl""$imagepath\" alt=\"Splash Page: For access to the Internet.\">
-			&copy; Portal: BlueWave Projects and Services 2015 - $year<br>
-			<br>
-			Portal Version: $version
-			<br><br><br><br>
+    # Define a common footer html for every page served
+    year=$(date +'%Y')
+    echo "
+                       <div style=\"display: flex; align-items: center; margin-top: 20px;\">
+                         <img style=\"height:80px; width:80px;\" src=\"$gatewayurl$imagepath\" alt=\"Splash Page: For access to the Internet.\">
+                         <div style=\"margin-left: 20px;\">
+                           Free as in freedom, not as in beer
+			   <br>
+			   Using OpenNDS, credit to BlueWave Projects and Services
+                         </div>
+                       </div>
+                       <br><br><br>
+
 		</div>
 		</div>
 		</div>
 		</body>
 		</html>
+
 	"
 
-	exit 0
+    exit 0
 }
 
 login_with_voucher() {
-	# This is the simple click to continue splash page with no client validation.
-	# The client is however required to accept the terms of service.
+    # This is the simple click to continue splash page with no client validation.
+    # The client is however required to accept the terms of service.
 
-	if [ "$tos" = "accepted" ]; then
-		#echo "$tos <br>"
-		#echo "$voucher <br>"
-		voucher_validation
-		footer
-	fi
-
-	voucher_form
+    if [ "$tos" = "accepted" ]; then
+	#echo "$tos <br>"
+	#echo "$voucher <br>"
+	voucher_validation
 	footer
+    fi
+
+    voucher_form
+    footer
 }
 
 check_voucher() {
-	
-	# Strict Voucher Validation for shell escape prevention - Only alphanumeric (and dash character) allowed.
-        if echo "${voucher}" | grep -qE "^[a-zA-Z0-9-]+$"; then
-            len=$(echo -n "${voucher}" | wc -c)
-            if [ "$len" -le 640 ]; then
-		echo "Voucher Validation successful, proceeding"
-		: #no-op
-            else
-                echo "Voucher is too long"
-                return 1
-            fi
+    # Strict Voucher Validation for shell escape prevention - Only alphanumeric (and dash character) allowed.
+    if echo "${voucher}" | grep -qE '^[[:print:]]+$'; then
+        len=$(echo -n "${voucher}" | wc -c)
+        if [ "$len" -le 4096 ]; then
+	    : #no-op
         else
-		echo "Invalid Voucher - Voucher must be alphanumeric (and dash) of up to 640 chars."
-		return 1
-	fi
-
-	##############################################################################################################################
-	# WARNING
-	# The voucher roll is written to on every login
-	# If its location is on router flash, this **WILL** result in non-repairable failure of the flash memory
-	# and therefore the router itself. This will happen, most likely within several months depending on the number of logins.
-	#
-	# The location is set here to be the same location as the openNDS log (logdir)
-	# By default this will be on the tmpfs (ramdisk) of the operating system.
-	# Files stored here will not survive a reboot.
-
-	voucher_roll="$logdir""vouchers.txt"
-
-	#
-	# In a production system, the mountpoint for logdir should be changed to the mount point of some external storage
-	# eg a usb stick, an external drive, a network shared drive etc.
-	#
-	# See "Customise the Logfile location" at the end of this file
-	#
-	##############################################################################################################################
-
-	output=$(grep $voucher $voucher_roll | head -n 1) # Store first occurence of voucher as variable
-	#echo "$output <br>" #Matched line
- 	if [ $(echo -n $output | wc -w) -ge 1 ]; then 
-		#echo "Voucher Found - Checking Validity <br>"
-		current_time=$(date +%s)
-		voucher_token=$(echo -n $output | sed -r "s#([a-zA-Z0-9-]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)#\1#")
-		voucher_rate_down=$(echo -n $output | sed -r "s#([a-zA-Z0-9-]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)#\2#")
-		voucher_rate_up=$(echo -n $output | sed -r "s#([a-zA-Z0-9-]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)#\3#")
-		voucher_quota_down=$(echo -n $output | sed -r "s#([a-zA-Z0-9-]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)#\4#")
-		voucher_quota_up=$(echo -n $output | sed -r "s#([a-zA-Z0-9-]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)#\5#")
-		voucher_time_limit=$(echo -n $output | sed -r "s#([a-zA-Z0-9-]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)#\6#")
-		voucher_first_punched=$(echo -n $output | sed -r "s#([a-zA-Z0-9-]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)#\7#")
-		
-		# Set limits according to voucher
-		upload_rate=$voucher_rate_up
-		download_rate=$voucher_rate_down
-		upload_quota=$voucher_quota_up
-		download_quota=$voucher_quota_down
-
-		if [ $voucher_first_punched -eq 0 ]; then
-			#echo "First Voucher Use"
-			# "Punch" the voucher by setting the timestamp to now
-			voucher_expiration=$(($current_time + $voucher_time_limit * 60))
-			# Override session length according to voucher
-			session_length=$voucher_time_limit
-			sed -i -r "s/($voucher.*,)(0)/\1$current_time/" $voucher_roll
-			return 0
-		else
-			#echo "Voucher Already Used, Checking validity <br>"
-			# Current timestamp <= than Punch Timestamp + Validity (minutes) * 60 secs/minute
-			voucher_expiration=$(($voucher_first_punched + $voucher_time_limit * 60))
-
-			if [ $current_time -le $voucher_expiration ]; then
-				time_remaining=$(( ($voucher_expiration - $current_time) / 60 ))
-				#echo "Voucher is still valid - You have $time_remaining minutes left <br>"
-				# Override session length according to voucher
-				session_length=$time_remaining
-				# Nothing to change in the roll
-				return 0
-			else
-				#echo "Voucher has expired, please try another one <br>"
-				# Delete expired voucher from roll
-				sed -i "/$voucher/"d $voucher_roll
-				return 1
-			fi
-		fi
-
-elif [ $(echo -n "$voucher" | grep -ic "cashu") -ge 1 ]; then
-    echo "Voucher entered was ${voucher}. This looks like a cashu note that can be redeemed. <br>"
-    current_time=$(date +%s)
-    upload_rate=1024
-    download_rate=1024
-    upload_quota=0
-    download_quota=0
-    session_length=5
-
-    voucher_time_limit=$session_length
-
-    # Log the voucher
-    voucher_expiration=$(($current_time + $voucher_time_limit * 60))
-    session_length=$voucher_time_limit
-    echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
-
-    return 0
-
-elif [ $(echo -n "$voucher" | grep -ic "lnurlw") -ge 1 ]; then
-    echo "Voucher entered was ${voucher}. This looks like an lnurlw note that can be redeemed. <br>"
-    current_time=$(date +%s)
-    upload_rate=512    # Different rates for lnurlw, if needed
-    download_rate=512  # Different rates for lnurlw, if needed
-    upload_quota=10240
-    download_quota=10240
-    session_length=10  # Different session length for lnurlw
-
-    voucher_time_limit=$session_length
-
-    # Log the voucher
-    voucher_expiration=$(($current_time + $voucher_time_limit * 60))
-    session_length=$voucher_time_limit
-    echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
-
-    return 0
-	else
-		echo "No Voucher Found - Retry <br>"
-		return 1
-	fi
-	
-	# Should not get here
+            echo "Warning: input has a length of $len characters. <br>"
+	    : #no-op
+        fi
+    else
+	echo "Invalid input - please report this to TollGate developers. <br>"
+	echo "Your input: ${voucher} <br>"
 	return 1
+    fi
+
+    ##############################################################################################################################
+    # WARNING
+    # The voucher roll is written to on every login
+    # If its location is on router flash, this **WILL** result in non-repairable failure of the flash memory
+    # and therefore the router itself. This will happen, most likely within several months depending on the number of logins.
+    #
+    # The location is set here to be the same location as the openNDS log (logdir)
+    # By default this will be on the tmpfs (ramdisk) of the operating system.
+    # Files stored here will not survive a reboot.
+
+    voucher_roll="$logdir""vouchers.txt"
+
+    #
+    # In a production system, the mountpoint for logdir should be changed to the mount point of some external storage
+    # eg a usb stick, an external drive, a network shared drive etc.
+    #
+    # See "Customise the Logfile location" at the end of this file
+    #
+    ##############################################################################################################################
+    echo "Voucher: $voucher" >> /tmp/theme_voucher_log.md
+    echo "Voucher_roll: $voucher_roll" >> /tmp/theme_voucher_log.md
+    output=$(grep $voucher $voucher_roll | head -n 1) # Store first occurence of voucher as variable
+    #echo "$output <br>" #Matched line
+    if [ $(echo -n "$voucher" | grep -ic "cashu") -ge 1 ]; then
+	echo "$voucher" > /tmp/ecash.md
+	response=$(/www/cgi-bin/./curl_request.sh /tmp/ecash.md chandran@minibits.cash)
+
+	# Parse the JSON response and check if "paid" is true
+	paid=$(echo "$response" | jq -r '.paid')
+	if [ "$paid" = "true" ]; then
+            total_amount=$(echo "$response" | jq -r '.total_amount // 0')
+            echo "Melted $total_amount SATs over lightning successfully! <br>"
+            if [ "$total_amount" -gt 0 ]; then
+                current_time=$(date +%s)
+		upload_rate=0
+		download_rate=0
+		upload_quota=0
+		download_quota=0
+                session_length=$total_amount
+		voucher_time_limit=$session_length * 60
+                voucher_expiration=$((current_time + voucher_time_limit))
+
+                # Log the new temporary voucher
+		echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
+                return 0
+	    else
+		echo "Failed to melt e-cash note over lightning ${voucher}. <br>"
+		echo "Response from melting service: ${response} <br>"
+		echo "Please report this issue to the TollGate developers. <br>"
+		return 1
+	    fi
+	else
+	    echo "Failed to melt e-cash note over lightning ${voucher}. <br>"
+	    echo "Response from melting service ${response}. <br>"
+	    echo "Please report this issue to the TollGate developers. <br>"
+	    return 1
+	fi
+
+    elif [ $(echo -n "$voucher" | grep -ic "lnurlw") -ge 1 ]; then
+	echo "Voucher entered was ${voucher}. This looks like an lnurlw note that can be redeemed. <br>"
+	current_time=$(date +%s)
+	upload_rate=512    # Different rates for lnurlw, if needed
+	download_rate=512  # Different rates for lnurlw, if needed
+	upload_quota=10240
+	download_quota=10240
+	session_length=10  # Different session length for lnurlw
+
+	voucher_time_limit=$session_length
+
+	# Log the voucher
+	voucher_expiration=$(($current_time + $voucher_time_limit * 60))
+	session_length=$voucher_time_limit
+	echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
+
+	return 0
+    else
+	echo "No Voucher Found - Retry <br>"
+	return 1
+    fi
+    
+    # Should not get here
+    return 1
 }
 
 voucher_validation() {
-	originurl=$(printf "${originurl//%/\\x}")
+    originurl=$(printf "${originurl//%/\\x}")
 
-	check_voucher
-	if [ $? -eq 0 ]; then
-		#echo "Voucher is Valid, click Continue to finish login<br>"
+    check_voucher
+    if [ $? -eq 0 ]; then
+	#echo "Voucher is Valid, click Continue to finish login<br>"
 
-		# Refresh quotas with ones imported from the voucher roll.
-		quotas="$session_length $upload_rate $download_rate $upload_quota $download_quota"
-		# Set voucher used (useful if for accounting reasons you track who received which voucher)
-		userinfo="$title - $voucher"
+	# Refresh quotas with ones imported from the voucher roll.
+	quotas="$session_length $upload_rate $download_rate $upload_quota $download_quota"
+	# Set voucher used (useful if for accounting reasons you track who received which voucher)
+	userinfo="$title - $voucher"
 
-		# Authenticate and write to the log - returns with $ndsstatus set
-		auth_log
+	# Authenticate and write to the log - returns with $ndsstatus set
+	auth_log
 
-		# output the landing page - note many CPD implementations will close as soon as Internet access is detected
-		# The client may not see this page, or only see it briefly
-		auth_success="
+	# output the landing page - note many CPD implementations will close as soon as Internet access is detected
+	# The client may not see this page, or only see it briefly
+	auth_success="
 			<p>
-				<big-red>
-					You are now logged in and have been granted access to the Internet.
-				</big-red>
 				<hr>
 			</p>
-			This voucher is valid for $session_length minutes.
+			Granted $session_length minutes of internet access.
 			<hr>
 			<p>
 				<italic-black>
@@ -244,17 +217,14 @@ voucher_validation() {
 			</form>
 			<hr>
 		"
-		auth_fail="
+	auth_fail="
 			<p>
-				<big-red>
-					Something went wrong and you have failed to log in.
-				</big-red>
 				<hr>
 			</p>
 			<hr>
 			<p>
 				<italic-black>
-					Your login attempt probably timed out.
+					You need to make a successful payment to connect with the internet.
 				</italic-black>
 			</p>
 			<p>
@@ -267,215 +237,62 @@ voucher_validation() {
 			<hr>
 		"
 
-		if [ "$ndsstatus" = "authenticated" ]; then
-			echo "$auth_success"
-		else
-			echo "$auth_fail"
-		fi
+	if [ "$ndsstatus" = "authenticated" ]; then
+	    echo "$auth_success"
 	else
-		echo "<big-red>Voucher is not Valid, click Continue to restart login<br></big-red>"
-		echo "
+	    echo "$auth_fail"
+	fi
+    else
+	echo "<big-red>Payment failed, click Continue to restart login<br></big-red>"
+	echo "
 			<form>
 				<input type=\"button\" VALUE=\"Continue\" onClick=\"location.href='$originurl'\" >
 			</form>
 		"
-	fi
+    fi
 
-	# Serve the rest of the page:
-	read_terms
-	footer
+    # Serve the rest of the page:
+    footer
 }
 
 voucher_form() {
-	# Define a click to Continue form
+    # Define a click to Continue form
 
-	# From openNDS v10.2.0 onwards, QL code scanning is supported to pre-fill the "voucher" field in this voucher_form page.
-	#
-	# The QL code must be of the link type and be of the following form:
-	#
-	# http://[gatewayfqdn]/login?voucher=[voucher_code]
-	#
-	# where [gatewayfqdn] defaults to status.client (can be set in the config)
-	# and [voucher_code] is of course the unique voucher code for the current user
+    # From openNDS v10.2.0 onwards, QL code scanning is supported to pre-fill the "voucher" field in this voucher_form page.
+    #
+    # The QL code must be of the link type and be of the following form:
+    #
+    # http://[gatewayfqdn]/login?voucher=[voucher_code]
+    #
+    # where [gatewayfqdn] defaults to status.client (can be set in the config)
+    # and [voucher_code] is of course the unique voucher code for the current user
 
-	# Get the voucher code:
+    # Get the voucher code:
 
-	voucher_code=$(echo "$cpi_query" | awk -F "voucher%3d" '{printf "%s", $2}' | awk -F "%26" '{printf "%s", $1}')
+    voucher_code=$(echo "$cpi_query" | awk -F "voucher%3d" '{printf "%s", $2}' | awk -F "%26" '{printf "%s", $1}')
 
-	echo "
-		<med-blue>
-			Welcome!
-		</med-blue><br>
-		<hr>
-		Your IP: $clientip <br>
-		Your MAC: $clientmac <br>
-		<hr>
-		<form action=\"/opennds_preauth/\" method=\"get\">
-			<input type=\"hidden\" name=\"fas\" value=\"$fas\"> 
-			<input type=\"checkbox\" name=\"tos\" value=\"accepted\" required checked> I accept the Terms of Service<br>
-			Voucher #: <input type=\"text\" name=\"voucher\" value=\"$voucher_code\" required><br>
-			<input type=\"submit\" value=\"Connect\" >
-		</form>
-		<br>
-	"
+    echo "
+        <med-blue>
+            TollGate, users must pay for internet access!
+        </med-blue><br>
+        <hr>
+        Your IP: $clientip <br>
+        Your MAC: $clientmac <br>
+        <hr>
+        <form action=\"/opennds_preauth/\" method=\"get\">
+            <input type=\"hidden\" name=\"fas\" value=\"$fas\">
+            <input type=\"hidden\" name=\"tos\" value=\"accepted\">
+            You can pay with e-cash from minibits.cash <br>
+            Pay here: <input type=\"text\" name=\"voucher\" value=\"$voucher_code\" required> <input type=\"submit\" value=\"Connect\" >
+        </form>
+        <br>
 
-	read_terms
-	footer
+	<hr>
+    "
+
+    footer
 }
 
-read_terms() {
-	#terms of service button
-	echo "
-		<form action=\"/opennds_preauth/\" method=\"get\">
-			<input type=\"hidden\" name=\"fas\" value=\"$fas\">
-			<input type=\"hidden\" name=\"terms\" value=\"yes\">
-			<input type=\"submit\" value=\"Read Terms of Service   \" >
-		</form>
-	"
-}
-
-display_terms() {
-	# This is the all important "Terms of service"
-	# Edit this long winded generic version to suit your requirements.
-	####
-	# WARNING #
-	# It is your responsibility to ensure these "Terms of Service" are compliant with the REGULATIONS and LAWS of your Country or State.
-	# In most locations, a Privacy Statement is an essential part of the Terms of Service.
-	####
-
-	#Privacy
-	echo "
-		<b style=\"color:red;\">Privacy.</b><br>
-		<b>
-			By logging in to the system, you grant your permission for this system to store any data you provide for
-			the purposes of logging in, along with the networking parameters of your device that the system requires to function.<br>
-			All information is stored for your convenience and for the protection of both yourself and us.<br>
-			All information collected by this system is stored in a secure manner and is not accessible by third parties.<br>
-		</b><hr>
-	"
-
-	# Terms of Service
-	echo "
-		<b style=\"color:red;\">Terms of Service for this Hotspot.</b> <br>
-		<b>Access is granted on a basis of trust that you will NOT misuse or abuse that access in any way.</b><hr>
-		<b>Please scroll down to read the Terms of Service in full or click the Continue button to return to the Acceptance Page</b>
-		<form>
-			<input type=\"button\" VALUE=\"Continue\" onClick=\"history.go(-1);return true;\">
-		</form>
-	"
-
-	# Proper Use
-	echo "
-		<hr>
-		<b>Proper Use</b>
-		<p>
-			This Hotspot provides a wireless network that allows you to connect to the Internet. <br>
-			<b>Use of this Internet connection is provided in return for your FULL acceptance of these Terms Of Service.</b>
-		</p>
-		<p>
-			<b>You agree</b> that you are responsible for providing security measures that are suited for your intended use of the Service.
-			For example, you shall take full responsibility for taking adequate measures to safeguard your data from loss.
-		</p>
-		<p>
-			While the Hotspot uses commercially reasonable efforts to provide a secure service,
-			the effectiveness of those efforts cannot be guaranteed.
-		</p>
-		<p>
-			<b>You may</b> use the technology provided to you by this Hotspot for the sole purpose
-			of using the Service as described here.
-			You must immediately notify the Owner of any unauthorized use of the Service or any other security breach.<br><br>
-			We will give you an IP address each time you access the Hotspot, and it may change.
-			<br>
-			<b>You shall not</b> program any other IP or MAC address into your device that accesses the Hotspot.
-			You may not use the Service for any other reason, including reselling any aspect of the Service.
-			Other examples of improper activities include, without limitation:
-		</p>
-			<ol>
-				<li>
-					downloading or uploading such large volumes of data that the performance of the Service becomes
-					noticeably degraded for other users for a significant period;
-				</li>
-				<li>
-					attempting to break security, access, tamper with or use any unauthorized areas of the Service;
-				</li>
-				<li>
-					removing any copyright, trademark or other proprietary rights notices contained in or on the Service;
-				</li>
-				<li>
-					attempting to collect or maintain any information about other users of the Service
-					(including usernames and/or email addresses) or other third parties for unauthorized purposes;
-				</li>
-				<li>
-					logging onto the Service under false or fraudulent pretenses;
-				</li>
-				<li>
-					creating or transmitting unwanted electronic communications such as SPAM or chain letters to other users
-					or otherwise interfering with other user's enjoyment of the service;
-				</li>
-				<li>
-					transmitting any viruses, worms, defects, Trojan Horses or other items of a destructive nature; or
-				</li>
-				<li>
-					using the Service for any unlawful, harassing, abusive, criminal or fraudulent purpose.
-				</li>
-			</ol>
-	"
-
-	# Content Disclaimer
-	echo "
-		<hr>
-		<b>Content Disclaimer</b>
-		<p>
-			The Hotspot Owners do not control and are not responsible for data, content, services, or products
-			that are accessed or downloaded through the Service.
-			The Owners may, but are not obliged to, block data transmissions to protect the Owner and the Public.
-		</p>
-		The Owners, their suppliers and their licensors expressly disclaim to the fullest extent permitted by law,
-		all express, implied, and statutary warranties, including, without limitation, the warranties of merchantability
-		or fitness for a particular purpose.
-		<br><br>
-		The Owners, their suppliers and their licensors expressly disclaim to the fullest extent permitted by law
-		any liability for infringement of proprietory rights and/or infringement of Copyright by any user of the system.
-		Login details and device identities may be stored and be used as evidence in a Court of Law against such users.
-		<br>
-	"
-
-	# Limitation of Liability
-	echo "
-		<hr><b>Limitation of Liability</b>
-		<p>
-			Under no circumstances shall the Owners, their suppliers or their licensors be liable to any user or
-			any third party on account of that party's use or misuse of or reliance on the Service.
-		</p>
-		<hr><b>Changes to Terms of Service and Termination</b>
-		<p>
-			We may modify or terminate the Service and these Terms of Service and any accompanying policies,
-			for any reason, and without notice, including the right to terminate with or without notice,
-			without liability to you, any user or any third party. Please review these Terms of Service
-			from time to time so that you will be apprised of any changes.
-		</p>
-		<p>
-			We reserve the right to terminate your use of the Service, for any reason, and without notice.
-			Upon any such termination, any and all rights granted to you by this Hotspot Owner shall terminate.
-		</p>
-	"
-
-	# Indemnity
-	echo "
-		<hr><b>Indemnity</b>
-		<p>
-			<b>You agree</b> to hold harmless and indemnify the Owners of this Hotspot,
-			their suppliers and licensors from and against any third party claim arising from
-			or in any way related to your use of the Service, including any liability or expense arising from all claims,
-			losses, damages (actual and consequential), suits, judgments, litigation costs and legal fees, of every kind and nature.
-		</p>
-		<hr>
-		<form>
-			<input type=\"button\" VALUE=\"Continue\" onClick=\"history.go(-1);return true;\">
-		</form>
-	"
-	footer
-}
 
 #### end of functions ####
 
