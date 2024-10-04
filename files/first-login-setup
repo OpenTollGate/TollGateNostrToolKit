@@ -202,15 +202,15 @@ if [ ! -f /etc/first_login_done ]; then
         passwd
         update_json "password_set" "true"
 
+	# Prompt for LNURL
+        echo "Enter the LNURL you would like to receive payouts on:"
+        read lnurl
+        update_json "payout_lnurl" "$lnurl"
+
         # Setup WiFi
         setup_wifi
         update_json "wifi_ssid" "$ssid"
         update_json "wifi_setup" "true"
-
-        # Prompt for LNURL
-        echo "Enter the LNURL you would like to receive payouts on:"
-        read lnurl
-        update_json "payout_lnurl" "$lnurl"
 
         # Mark as done
         touch /etc/first_login_done
