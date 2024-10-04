@@ -131,38 +131,6 @@ setup_wifi() {
 	    # setup_vpn
             setup_opennds
 
-	    # Initialize a counter for failed attempts
-	    failed_attempts=0
-
-	    # Add this line to reset the LAN interface
-	    # This is not required if the user is being prompted to 
-	    # replug the LAN cable or if the router is being rebooted
-	    # reset_lan_interface
-
-	    while true; do
-	        if prompt_user_and_wait_for_dhcp; then
-	            break
-	        fi
-    
-	        failed_attempts=$((failed_attempts + 1))
-    
-	        if [ $failed_attempts -ge 3 ]; then
-	            echo "User has ignored the prompt 3 times. Rebooting the router..."
-	            update_json "reboot_reason" "DHCP lease not obtained after 3 attempts"
-	            sync  # Ensure all pending writes to disk are completed
-	            reboot  # Reboot the router
-	            exit 0  # Exit the script (this line will only be reached if reboot fails)
-	        else
-	            echo "Attempt $failed_attempts failed. Please try again."
-	        fi
-	    done
-
-	    # Reset the failed attempts counter if successful
-	    failed_attempts=0
-	    update_json "dhcp_lease_obtained" "true"
-
-            echo "DHCP lease obtained."
-            break
         else
             echo "Failed to connect. Please try again."
         fi
@@ -214,6 +182,39 @@ if [ ! -f /etc/first_login_done ]; then
 
         # Mark as done
         touch /etc/first_login_done
+
+	# Initialize a counter for failed attempts
+	failed_attempts=0
+
+	# Add this line to reset the LAN interface
+	# This is not required if the user is being prompted to 
+	# replug the LAN cable or if the router is being rebooted
+	# reset_lan_interface
+
+	while true; do
+	    if prompt_user_and_wait_for_dhcp; then
+	        break
+	    fi
+	    
+	    failed_attempts=$((failed_attempts + 1))
+	    
+	    if [ $failed_attempts -ge 3 ]; then
+	        echo "User has ignored the prompt 3 times. Rebooting the router..."
+	        update_json "reboot_reason" "DHCP lease not obtained after 3 attempts"
+	        sync  # Ensure all pending writes to disk are completed
+	        reboot  # Reboot the router
+	        exit 0  # Exit the script (this line will only be reached if reboot fails)
+	    else
+	        echo "Attempt $failed_attempts failed. Please try again."
+	    fi
+	done
+
+	# Reset the failed attempts counter if successful
+	failed_attempts=0
+	update_json "dhcp_lease_obtained" "true"
+
+        echo "DHCP lease obtained."
+        break
     else
         # Non-interactive mode: Set default password and skip WiFi setup
         echo "Password not set. Please set it upon first login."
