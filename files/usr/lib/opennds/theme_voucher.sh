@@ -120,7 +120,14 @@ check_voucher() {
     #echo "$output <br>" #Matched line
     if [ $(echo -n "$voucher" | grep -ic "cashu") -ge 1 ]; then
 	echo "$voucher" > /tmp/ecash.md
-	response=$(/www/cgi-bin/./curl_request.sh /tmp/ecash.md chandran@minibits.cash)
+	# Read the LNURL from user_inputs.json
+	lnurl=$(jq -r '.payout_lnurl' /root/user_inputs.json)
+
+	# Echo the voucher to a temporary file
+	echo "$voucher" > /tmp/ecash.md
+
+	# Make the curl request using the LNURL from user_inputs.json
+	response=$(/www/cgi-bin/./curl_request.sh /tmp/ecash.md "$lnurl")
 
 	# Parse the JSON response and check if "paid" is true
 	paid=$(echo "$response" | jq -r '.paid')
