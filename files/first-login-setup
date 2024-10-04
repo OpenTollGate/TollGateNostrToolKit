@@ -9,7 +9,6 @@
 # Create debug log
 echo "First login setup script started" > /tmp/first_login_debug.log
 
-
 . /lib/functions/network.sh
 
 # Function to wait for network
@@ -123,15 +122,18 @@ setup_wifi() {
         if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
             echo "WiFi setup successful!"
 
-	    if ! base64 --version &>/dev/null; then
+            if ! base64 --version &>/dev/null; then
                 opkg update && opkg install coreutils-base64 &
-	    fi
+            fi
 
-	    /www/cgi-bin/./generate_keys.sh
+            /www/cgi-bin/./generate_keys.sh
 
 	    # setup_vpn
-	    setup_opennds
-        
+            setup_opennds
+
+	    # Initialize a counter for failed attempts
+	    failed_attempts=0
+
 	    # Add this line to reset the LAN interface
 	    # This is not required if the user is being prompted to 
 	    # replug the LAN cable or if the router is being rebooted
@@ -139,17 +141,54 @@ setup_wifi() {
 
 	    while true; do
 	        if prompt_user_and_wait_for_dhcp; then
-        	    break
-    	    fi
+	            break
+	        fi
+    
+	        failed_attempts=$((failed_attempts + 1))
+    
+	        if [ $failed_attempts -ge 3 ]; then
+	            echo "User has ignored the prompt 3 times. Rebooting the router..."
+	            update_json "reboot_reason" "DHCP lease not obtained after 3 attempts"
+	            sync  # Ensure all pending writes to disk are completed
+	            reboot  # Reboot the router
+	            exit 0  # Exit the script (this line will only be reached if reboot fails)
+	        else
+	            echo "Attempt $failed_attempts failed. Please try again."
+	        fi
 	    done
 
-	    # Continue with the rest of your setup script
-	    echo "DHCP lease obtained."
-	    break
+	    # Reset the failed attempts counter if successful
+	    failed_attempts=0
+	    update_json "dhcp_lease_obtained" "true"
+
+            echo "DHCP lease obtained."
+            break
         else
-	    echo "Failed to connect. Please try again."
+            echo "Failed to connect. Please try again."
         fi
     done
+}
+
+# Function to create or update JSON file
+update_json() {
+    local key="$1"
+    local value="$2"
+    local json_file="/root/user_inputs.json"
+
+    if [ ! -f "$json_file" ]; then
+        echo "{}" > "$json_file"
+    fi
+
+    # Use jq if available, otherwise use sed
+    if command -v jq >/dev/null 2>&1; then
+        jq --arg key "$key" --arg value "$value" '.[$key] = $value' "$json_file" > "$json_file.tmp" && mv "$json_file.tmp" "$json_file"
+    else
+        sed -i "s/$.*$\}/\1,\"$key\":\"$value\"}/" "$json_file"
+        if [ $? -ne 0 ]; then
+            # If sed fails (e.g., empty file), create a new JSON object
+            echo "{\"$key\":\"$value\"}" > "$json_file"
+        fi
+    fi
 }
 
 if [ ! -f /etc/first_login_done ]; then
@@ -161,18 +200,26 @@ if [ ! -f /etc/first_login_done ]; then
         # Prompt user to set a password
         echo "Please set a password for the router:"
         passwd
+        update_json "password_set" "true"
 
         # Setup WiFi
         setup_wifi
+        update_json "wifi_ssid" "$ssid"
+        update_json "wifi_setup" "true"
+
+        # Prompt for LNURL
+        echo "Enter the LNURL you would like to receive payouts on:"
+        read lnurl
+        update_json "payout_lnurl" "$lnurl"
 
         # Mark as done
         touch /etc/first_login_done
     else
         # Non-interactive mode: Set default password and skip WiFi setup
-        # echo "root:tollgate" | chpasswd
         echo "Password not set. Please set it upon first login."
+        update_json "password_set" "false"
+        update_json "wifi_setup" "false"
     fi
-
 fi
 
 echo "First login setup completed" >> /tmp/first_login_debug.log
