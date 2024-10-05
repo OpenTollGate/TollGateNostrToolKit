@@ -148,7 +148,7 @@ if [ ! -f "$CONFIG_FILE" ]; then
     done
     exit 1
 fi
-# cp $CONFIG_FILE $OPENWRT_DIR/.config
+cp $CONFIG_FILE $OPENWRT_DIR/.config
 
 make oldconfig
 
