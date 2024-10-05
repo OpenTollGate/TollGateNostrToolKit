@@ -30,16 +30,6 @@ wait_for_opennds() {
 
 chmod 744 /usr/lib/opennds/theme_voucher.sh
 
-touch /etc/config/opennds
-uci add opennds opennds
-
-uci set opennds.@opennds[0].login_option_enabled='3'
-uci set opennds.@opennds[0].themespec_path='/usr/lib/opennds/theme_voucher.sh'
-uci set opennds.@opennds[0].allow_preemptive_authentication=0
-uci set opennds.@opennds[0].enabled=1
-
-uci commit opennds
-
 # Enable OpenNDS before restarting
 service opennds enable
 

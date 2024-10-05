@@ -9,20 +9,61 @@
 # Create debug log
 echo "First login setup script started" > /tmp/first_login_debug.log
 
-
 . /lib/functions/network.sh
+
+network_is_up() {
+    if ip route show default | grep -q .; then
+        return 0  # True, network is up
+    else
+        return 1  # False, network is down
+    fi
+}
 
 # Function to wait for network
 wait_for_network() {
     local max_attempts=60
     local attempt=0
 
+    echo "Starting network check..."
+
     while [ $attempt -lt $max_attempts ]; do
-        network_is_up && return 0
+        echo "Attempt $((attempt + 1)) of $max_attempts" > /tmp/network_setup.md
+        
+        if network_is_up; then
+            echo "Network is up according to network_is_up()" > /tmp/network_setup.md
+            
+            if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+                echo "Ping to 8.8.8.8 successful" > /tmp/network_setup.md
+                return 0
+            else
+                echo "Ping to 8.8.8.8 failed" > /tmp/network_setup.md
+            fi
+        else
+            echo "Network is not up according to network_is_up()" > /tmp/network_setup.md
+        fi
+        
         sleep 1
         attempt=$((attempt + 1))
     done
 
+    echo "Max attempts reached, network check failed"
+    return 1
+}
+
+verify_wifi_connection() {
+    local max_attempts=30
+    local attempt=0
+
+    while [ $attempt -lt $max_attempts ]; do
+        if iwinfo | grep -q "ESSID: \"$ssid\""; then
+            echo "Connected to $ssid"
+            return 0
+        fi
+        sleep 1
+        attempt=$((attempt + 1))
+    done
+
+    echo "Failed to connect to $ssid"
     return 1
 }
 
@@ -79,6 +120,34 @@ reset_lan_interface() {
     echo "LAN interface reset complete."
 }
 
+handle_dhcp_lease() {
+    local max_attempts=3
+    local attempt=0
+
+    while [ $attempt -lt $max_attempts ]; do
+        echo "Attempt $((attempt + 1)) of $max_attempts"
+        
+        if prompt_user_and_wait_for_dhcp; then
+            update_json "dhcp_lease_obtained" "true"
+            echo "DHCP lease obtained successfully."
+            return 0
+        fi
+        
+        attempt=$((attempt + 1))
+        
+        if [ $attempt -lt $max_attempts ]; then
+            echo "Attempt $attempt failed. Please try again."
+        fi
+    done
+
+    echo "Failed to obtain DHCP lease after $max_attempts attempts. Rebooting the router..."
+    update_json "reboot_reason" "DHCP lease not obtained after $max_attempts attempts"
+    update_json "dhcp_lease_obtained" "false"
+    sync  # Ensure all pending writes to disk are completed
+    reboot  # Reboot the router
+    exit 1  # Exit the script (this line will only be reached if reboot fails)
+}
+
 prompt_user_and_wait_for_dhcp() {
     echo "Please follow these steps:"
     echo "1. Unplug the Ethernet cable from your router"
@@ -86,8 +155,8 @@ prompt_user_and_wait_for_dhcp() {
     echo "3. Plug the Ethernet cable back into your router"
     echo "Waiting for DHCP lease..."
     
-    # Wait for DHCP lease
-    for i in $(seq 1 30); do
+    local max_wait=30
+    for i in $(seq 1 $max_wait); do
         if [ -s /tmp/dhcp.leases ]; then
             echo "DHCP lease detected!"
             return 0
@@ -106,54 +175,75 @@ setup_wifi() {
         # Prompt for WiFi credentials
         echo "Enter WiFi gateway SSID:"
         read ssid
+        update_json "wifi_ssid" "$ssid"
+
         echo "Enter WiFi gateway Password:"
         read -s password
+        update_json "wifi_password" "$password"
 
         # Update WiFi configuration
         /etc/./create_gateway.sh "$ssid" "$password"
-
-        # Restart network
+        
+        echo "Restarting network..."
         /etc/init.d/network restart
 
         # Wait for network to be ready
         echo "Waiting for network to be ready..."
-        wait_for_network
+        if wait_for_network; then
+            # Check connectivity
+            if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
+                echo "WiFi setup successful!"
 
-        # Check connectivity
-        if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
-            echo "WiFi setup successful!"
+                if ! base64 --version &>/dev/null; then
+                    opkg update && opkg install coreutils-base64 &
+                fi
 
-	    if ! base64 --version &>/dev/null; then
-                opkg update && opkg install coreutils-base64 &
-	    fi
+           	/www/cgi-bin/./generate_keys.sh
 
-	    /www/cgi-bin/./generate_keys.sh
+	    	# setup_vpn
+            	setup_opennds
 
-	    # setup_vpn
-	    setup_opennds
-        
-	    # Add this line to reset the LAN interface
-	    # This is not required if the user is being prompted to 
-	    # replug the LAN cable or if the router is being rebooted
-	    # reset_lan_interface
-
-	    while true; do
-	        if prompt_user_and_wait_for_dhcp; then
-        	    break
-    	    fi
-	    done
-
-	    # Continue with the rest of your setup script
-	    echo "DHCP lease obtained."
-	    break
+                # Update JSON with WiFi details
+                update_json "wifi_ssid" "$ssid"
+                update_json "wifi_setup" "true"
+                update_json "wifi_connected" "true"
+                break
+            else
+                echo "Failed to connect. Please try again."
+                update_json "wifi_connected" "false"
+            fi
         else
-	    echo "Failed to connect. Please try again."
+            echo "Failed to connect. Please try again."
+            update_json "wifi_connected" "false"
         fi
     done
 }
 
+# Function to create or update JSON file
+update_json() {
+    local key="$1"
+    local value="$2"
+    local json_file="/root/user_inputs.json"
+
+    if [ ! -f "$json_file" ]; then
+        echo "{}" > "$json_file"
+    fi
+
+    # Use jq if available, otherwise use sed
+    if command -v jq >/dev/null 2>&1; then
+        jq --arg key "$key" --arg value "$value" '.[$key] = $value' "$json_file" > "$json_file.tmp" && mv "$json_file.tmp" "$json_file"
+    else
+        sed -i "s/$.*$\}/\1,\"$key\":\"$value\"}/" "$json_file"
+        if [ $? -ne 0 ]; then
+            # If sed fails (e.g., empty file), create a new JSON object
+            echo "{\"$key\":\"$value\"}" > "$json_file"
+        fi
+    fi
+}
+
 if [ ! -f /etc/first_login_done ]; then
     if is_interactive; then
+	update_json "script_started" "$(date)"
         echo "First login setup script started" > /tmp/first_login_debug.log
         echo "Interactive: $(is_interactive)" >> /tmp/first_login_debug.log
         echo "first_login_done exists: $([ -f /etc/first_login_done ] && echo 'yes' || echo 'no')" >> /tmp/first_login_debug.log
@@ -161,18 +251,31 @@ if [ ! -f /etc/first_login_done ]; then
         # Prompt user to set a password
         echo "Please set a password for the router:"
         passwd
+        update_json "password_set" "true"
+
+	# Prompt for LNURL
+        echo "Enter the LNURL you would like to receive payouts on:"
+        read lnurl
+        update_json "payout_lnurl" "$lnurl"
 
         # Setup WiFi
         setup_wifi
+        if verify_wifi_connection; then
+            # setup_vpn
+            setup_opennds
+	    touch /etc/first_login_done
+            handle_dhcp_lease
+        else
+            update_json "setup_failed" "true"
+            echo "WiFi setup failed. Please try again later."
+        fi
 
-        # Mark as done
-        touch /etc/first_login_done
     else
         # Non-interactive mode: Set default password and skip WiFi setup
-        # echo "root:tollgate" | chpasswd
         echo "Password not set. Please set it upon first login."
+        update_json "password_set" "false"
+        update_json "wifi_setup" "false"
     fi
-
 fi
 
 echo "First login setup completed" >> /tmp/first_login_debug.log
