@@ -11,19 +11,42 @@ echo "First login setup script started" > /tmp/first_login_debug.log
 
 . /lib/functions/network.sh
 
+network_is_up() {
+    if ip route show default | grep -q .; then
+        return 0  # True, network is up
+    else
+        return 1  # False, network is down
+    fi
+}
+
 # Function to wait for network
 wait_for_network() {
     local max_attempts=60
     local attempt=0
 
+    echo "Starting network check..."
+
     while [ $attempt -lt $max_attempts ]; do
-        if network_is_up && ping -c 1 8.8.8.8 >/dev/null 2>&1; then
-            return 0
+        echo "Attempt $((attempt + 1)) of $max_attempts" > /tmp/network_setup.md
+        
+        if network_is_up; then
+            echo "Network is up according to network_is_up()" > /tmp/network_setup.md
+            
+            if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+                echo "Ping to 8.8.8.8 successful" > /tmp/network_setup.md
+                return 0
+            else
+                echo "Ping to 8.8.8.8 failed" > /tmp/network_setup.md
+            fi
+        else
+            echo "Network is not up according to network_is_up()" > /tmp/network_setup.md
         fi
+        
         sleep 1
         attempt=$((attempt + 1))
     done
 
+    echo "Max attempts reached, network check failed"
     return 1
 }
 
