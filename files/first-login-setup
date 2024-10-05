@@ -17,11 +17,30 @@ wait_for_network() {
     local attempt=0
 
     while [ $attempt -lt $max_attempts ]; do
-        network_is_up && return 0
+        if network_is_up && ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+            return 0
+        fi
         sleep 1
         attempt=$((attempt + 1))
     done
 
+    return 1
+}
+
+verify_wifi_connection() {
+    local max_attempts=30
+    local attempt=0
+
+    while [ $attempt -lt $max_attempts ]; do
+        if iwinfo | grep -q "ESSID: \"$ssid\""; then
+            echo "Connected to $ssid"
+            return 0
+        fi
+        sleep 1
+        attempt=$((attempt + 1))
+    done
+
+    echo "Failed to connect to $ssid"
     return 1
 }
 
@@ -133,13 +152,16 @@ setup_wifi() {
         # Prompt for WiFi credentials
         echo "Enter WiFi gateway SSID:"
         read ssid
+        update_json "wifi_ssid" "$ssid"
+
         echo "Enter WiFi gateway Password:"
         read -s password
+        update_json "wifi_password" "$password"
 
         # Update WiFi configuration
         /etc/./create_gateway.sh "$ssid" "$password"
-
-        # Restart network
+        
+        echo "Restarting network..."
         /etc/init.d/network restart
 
         # Wait for network to be ready
@@ -161,14 +183,15 @@ setup_wifi() {
                 # Update JSON with WiFi details
                 update_json "wifi_ssid" "$ssid"
                 update_json "wifi_setup" "true"
-
-                # Break out of the loop after successful setup
+                update_json "wifi_connected" "true"
                 break
             else
                 echo "Failed to connect. Please try again."
+                update_json "wifi_connected" "false"
             fi
         else
             echo "Failed to connect. Please try again."
+            update_json "wifi_connected" "false"
         fi
     done
 }
@@ -197,6 +220,7 @@ update_json() {
 
 if [ ! -f /etc/first_login_done ]; then
     if is_interactive; then
+	update_json "script_started" "$(date)"
         echo "First login setup script started" > /tmp/first_login_debug.log
         echo "Interactive: $(is_interactive)" >> /tmp/first_login_debug.log
         echo "first_login_done exists: $([ -f /etc/first_login_done ] && echo 'yes' || echo 'no')" >> /tmp/first_login_debug.log
@@ -213,12 +237,16 @@ if [ ! -f /etc/first_login_done ]; then
 
         # Setup WiFi
         setup_wifi
-        update_json "wifi_ssid" "$ssid"
-        update_json "wifi_setup" "true"
+        if verify_wifi_connection; then
+            # setup_vpn
+            setup_opennds
+	    touch /etc/first_login_done
+            handle_dhcp_lease
+        else
+            update_json "setup_failed" "true"
+            echo "WiFi setup failed. Please try again later."
+        fi
 
-        # Mark as done
-        touch /etc/first_login_done
-	handle_dhcp_lease
     else
         # Non-interactive mode: Set default password and skip WiFi setup
         echo "Password not set. Please set it upon first login."
