@@ -116,21 +116,29 @@ setup_wifi() {
 
         # Wait for network to be ready
         echo "Waiting for network to be ready..."
-        wait_for_network
+        if wait_for_network; then
+            # Check connectivity
+            if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
+                echo "WiFi setup successful!"
 
-        # Check connectivity
-        if ping -c 4 8.8.8.8 >/dev/null 2>&1; then
-            echo "WiFi setup successful!"
+                if ! base64 --version &>/dev/null; then
+                    opkg update && opkg install coreutils-base64 &
+                fi
 
-            if ! base64 --version &>/dev/null; then
-                opkg update && opkg install coreutils-base64 &
+           	/www/cgi-bin/./generate_keys.sh
+
+	    	# setup_vpn
+            	setup_opennds
+
+                # Update JSON with WiFi details
+                update_json "wifi_ssid" "$ssid"
+                update_json "wifi_setup" "true"
+
+                # Break out of the loop after successful setup
+                break
+            else
+                echo "Failed to connect. Please try again."
             fi
-
-            /www/cgi-bin/./generate_keys.sh
-
-	    # setup_vpn
-            setup_opennds
-
         else
             echo "Failed to connect. Please try again."
         fi
@@ -209,12 +217,9 @@ if [ ! -f /etc/first_login_done ]; then
 	    fi
 	done
 
-	# Reset the failed attempts counter if successful
-	failed_attempts=0
 	update_json "dhcp_lease_obtained" "true"
 
         echo "DHCP lease obtained."
-        break
     else
         # Non-interactive mode: Set default password and skip WiFi setup
         echo "Password not set. Please set it upon first login."
