@@ -1,5 +1,8 @@
 #!/bin/sh /etc/rc.common
 
+exec 1>/tmp/hotspot_manager.log 2>&1
+set -x
+
 START=99
 STOP=15
 
