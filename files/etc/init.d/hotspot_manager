@@ -1,3 +1,13 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=15
+
+USE_PROCD=1
+PROG=/bin/sh
+
+hotspot_interface="radio0"
+
 start_service() {
     procd_open_instance
     procd_set_param command $PROG -c '
@@ -11,14 +21,14 @@ start_service() {
 
         while true; do
             if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
-                if ! iwinfo radio0 info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
+                if ! iwinfo $hotspot_interface info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
                     echo "Internet is available. Turning on WiFi hotspot."
                     uci set wireless.default_radio0.disabled=0
                     uci commit wireless
                     wifi up
                 fi
             else
-                if iwinfo radio0 info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
+                if iwinfo $hotspot_interface info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
                     echo "Internet is not available. Turning off WiFi hotspot."
                     uci set wireless.default_radio0.disabled=1
                     uci commit wireless
@@ -30,4 +40,8 @@ start_service() {
     '
     procd_set_param respawn
     procd_close_instance
+}
+
+service_triggers() {
+    procd_add_reload_trigger "network" "wireless"
 }
