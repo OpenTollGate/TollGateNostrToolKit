@@ -11,25 +11,38 @@ hotspot_interface="radio0"
 start_service() {
     procd_open_instance
     procd_set_param command $PROG -c '
-        # Get the MAC address of radio0
-        mac_address=$(cat /sys/class/ieee80211/phy0/macaddress | sed "s/://g")
-        hotspot_ssid="TollGate_${mac_address}"
+        # Function to get the hotspot SSID
+        get_hotspot_ssid() {
+            if [ -f "/nostr/shell/nostr_keys.json" ]; then
+                npub=$(jq -r ".npub_hex" /nostr/shell/nostr_keys.json 2>/dev/null)
+                if [ -n "$npub" ] && [ "$npub" != "null" ]; then
+                    echo "TollGate_${npub:0:8}"
+                    return
+                fi
+            fi
+            
+            # Fallback to MAC address if npub is not available
+            mac_address=$(cat /sys/class/ieee80211/phy0/macaddress | sed "s/://g")
+            echo "TollGate_${mac_address}"
+        }
+
+        hotspot_ssid=$(get_hotspot_ssid)
 
         # Set the SSID
         uci set wireless.default_radio0.ssid="$hotspot_ssid"
         uci commit wireless
 
         while true; do
-            if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+            if ping -c 1 8.8.8.8 >/dev/null 2>&1 && ndsctl json >/dev/null 2>&1; then
                 if ! iwinfo $hotspot_interface info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
-                    echo "Internet is available. Turning on WiFi hotspot."
+                    echo "Internet is available and OpenNDS is responsive. Turning on WiFi hotspot."
                     uci set wireless.default_radio0.disabled=0
                     uci commit wireless
                     wifi up
                 fi
             else
                 if iwinfo $hotspot_interface info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
-                    echo "Internet is not available. Turning off WiFi hotspot."
+                    echo "Internet is not available or OpenNDS is not responsive. Turning off WiFi hotspot."
                     uci set wireless.default_radio0.disabled=1
                     uci commit wireless
                     wifi down
