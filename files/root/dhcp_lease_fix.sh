@@ -1,16 +1,5 @@
 #!/bin/sh
 
-uci set 'network.lan.ipv6=0'
-uci set 'network.wan.ipv6=0'
-uci set 'dhcp.lan.dhcpv6=disabled'
-/etc/init.d/odhcpd disable
-uci commit
-uci -q delete dhcp.lan.dhcpv6
-uci -q delete dhcp.lan.ra
-uci commit dhcp
-/etc/init.d/odhcpd restart
-
-
 # Function to check if OpenNDS is running and responsive
 check_opennds() {
     ndsctl json >/dev/null 2>&1
@@ -39,10 +28,11 @@ wait_for_opennds() {
     return 0
 }
 
-chmod 744 /usr/lib/opennds/theme_voucher.sh
 
-# Enable OpenNDS before restarting
-service opennds enable
+uci -q delete dhcp.lan.dhcpv6
+uci -q delete dhcp.lan.ra
+uci commit dhcp
+/etc/init.d/odhcpd restart
 
 # Restart services using &&
 /etc/init.d/network restart && \
