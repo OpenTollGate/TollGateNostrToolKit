@@ -1,0 +1,33 @@
+start_service() {
+    procd_open_instance
+    procd_set_param command $PROG -c '
+        # Get the MAC address of radio0
+        mac_address=$(cat /sys/class/ieee80211/phy0/macaddress | sed "s/://g")
+        hotspot_ssid="TollGate_${mac_address}"
+
+        # Set the SSID
+        uci set wireless.default_radio0.ssid="$hotspot_ssid"
+        uci commit wireless
+
+        while true; do
+            if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+                if ! iwinfo radio0 info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
+                    echo "Internet is available. Turning on WiFi hotspot."
+                    uci set wireless.default_radio0.disabled=0
+                    uci commit wireless
+                    wifi up
+                fi
+            else
+                if iwinfo radio0 info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
+                    echo "Internet is not available. Turning off WiFi hotspot."
+                    uci set wireless.default_radio0.disabled=1
+                    uci commit wireless
+                    wifi down
+                fi
+            fi
+            sleep 60
+        done
+    '
+    procd_set_param respawn
+    procd_close_instance
+}
