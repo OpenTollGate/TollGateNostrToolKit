@@ -263,11 +263,10 @@ if [ ! -f /etc/first_login_done ]; then
         if verify_wifi_connection; then
             # setup_vpn
             setup_opennds
-	    echo "Restarting network and DHCP services to get DHCP lease..."
-	    /etc/init.d/network restart && \
-		fw3 flush && \
-		/etc/init.d/firewall restart && \
-		/etc/init.d/dnsmasq restart
+	    # echo "Disabling ipv6."
+	    #/root/./disable_ipv6.sh
+	    echo "Setting up opennds again to get DHCP lease..."
+	    /root/./enable_opennds.sh
 	    touch /etc/first_login_done
             handle_dhcp_lease
         else
