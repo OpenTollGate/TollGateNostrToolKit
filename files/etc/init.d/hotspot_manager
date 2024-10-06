@@ -32,24 +32,45 @@ start_service() {
         uci set wireless.default_radio0.ssid="$hotspot_ssid"
         uci commit wireless
 
-        while true; do
-            if ping -c 1 8.8.8.8 >/dev/null 2>&1 && ndsctl json >/dev/null 2>&1; then
-                if ! iwinfo $hotspot_interface info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
-                    echo "Internet is available and OpenNDS is responsive. Turning on WiFi hotspot."
-                    uci set wireless.default_radio0.disabled=0
-                    uci commit wireless
-                    wifi up
-                fi
-            else
-                if iwinfo $hotspot_interface info 2>/dev/null | grep -q "ESSID: \"$hotspot_ssid\""; then
-                    echo "Internet is not available or OpenNDS is not responsive. Turning off WiFi hotspot."
-                    uci set wireless.default_radio0.disabled=1
-                    uci commit wireless
-                    wifi down
-                fi
-            fi
-            sleep 60
-        done
+	while true; do
+	    echo "Checking conditions at $(date)"
+		    if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+		        echo "Internet is available"
+		    else
+        		echo "Internet is not available"
+		fi
+
+		    if ndsctl json >/dev/null 2>&1; then
+		        echo "OpenNDS is responsive"
+		    else
+		        echo "OpenNDS is not responsive"
+		    fi
+
+    current_ssid=$(iwinfo $hotspot_interface info 2>/dev/null | grep "ESSID:" | awk -F'"' '{print $2}')
+    echo "Current SSID: $current_ssid"
+    echo "Expected SSID: $hotspot_ssid"
+
+    if ping -c 1 8.8.8.8 >/dev/null 2>&1 && ndsctl json >/dev/null 2>&1; then
+        if [ "$current_ssid" != "$hotspot_ssid" ]; then
+            echo "Turning on WiFi hotspot"
+            uci set wireless.default_radio0.disabled=0
+            uci commit wireless
+            wifi up
+        else
+            echo "WiFi hotspot is already on with correct SSID"
+        fi
+    else
+        if [ "$current_ssid" = "$hotspot_ssid" ]; then
+            echo "Turning off WiFi hotspot"
+            uci set wireless.default_radio0.disabled=1
+            uci commit wireless
+            wifi down
+        else
+            echo "WiFi hotspot is already off or has a different SSID"
+        fi
+    fi
+    sleep 60
+done
     '
     procd_set_param respawn
     procd_close_instance
