@@ -1,5 +1,12 @@
 #!/bin/sh
 
+# This script is basically a combination of disable_ipv6.sh and
+# enable_opennds.sh. I tried to remove things that might not be
+# necessary for getting a DHCP lease, but whenever I made changes I
+# didn't get a DHCP lease anymore... Feel free to remove things if you
+# think they are not contributing towards getting a DHCP lease, but
+# please test those changes before merging to main.
+
 uci set 'network.lan.ipv6=0'
 uci set 'network.wan.ipv6=0'
 uci set 'dhcp.lan.dhcpv6=disabled'
