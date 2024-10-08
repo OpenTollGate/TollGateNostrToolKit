@@ -55,14 +55,20 @@ service opennds enable
 fw3 flush && \
 /etc/init.d/firewall restart && \
 /etc/init.d/dnsmasq restart && \
+# Restart uhttpd if it exists
 ([ -f /etc/init.d/uhttpd ] && /etc/init.d/uhttpd restart || true) && \
+
+# Restart OpenNDS
 /etc/init.d/opennds restart
 
 # Wait for OpenNDS to start
 if wait_for_opennds; then
-   echo "OpenNDS is now running and responsive"
+    echo "OpenNDS is now running and responsive"
     # You can add additional commands here that depend on OpenNDS being fully started
 else
     echo "Failed to start OpenNDS within the timeout period"
     exit 1
 fi
+
+echo "Services restarted. DHCP lease should now be assigned."
+
