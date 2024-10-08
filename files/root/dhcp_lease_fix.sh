@@ -7,6 +7,8 @@
 # think they are not contributing towards getting a DHCP lease, but
 # please test those changes before merging to main.
 
+echo "Disabling ipv6."
+
 uci set 'network.lan.ipv6=0'
 uci set 'network.wan.ipv6=0'
 uci set 'dhcp.lan.dhcpv6=disabled'
@@ -16,6 +18,8 @@ uci -q delete dhcp.lan.dhcpv6
 uci -q delete dhcp.lan.ra
 uci commit dhcp
 /etc/init.d/odhcpd restart
+
+echo "Setting up opennds."
 
 # Function to check if OpenNDS is running and responsive
 check_opennds() {
