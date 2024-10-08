@@ -1,8 +1,5 @@
 #!/bin/sh /etc/rc.common
 
-exec 1>/tmp/hotspot_manager.log 2>&1
-set -x
-
 START=99
 STOP=15
 
@@ -30,6 +27,32 @@ cat << "EOF" | sh
             echo "TollGate_${mac_address}"
         }
 
+        # Function to check network status
+        check_network() {
+            ping -c 1 8.8.8.8 >/dev/null 2>&1
+        }
+
+        # Function to restart network and wait for it to be ready
+        restart_network() {
+            echo "Restarting network..."
+            /etc/init.d/network restart
+            
+            local max_attempts=30
+            local attempt=1
+            while [ $attempt -le $max_attempts ]; do
+                if check_network; then
+                    echo "Network is up after $attempt seconds"
+                    return 0
+                fi
+                echo "Waiting for network to come up (attempt $attempt/$max_attempts)..."
+                sleep 1
+                attempt=$((attempt + 1))
+            done
+            
+            echo "Network did not come up after $max_attempts seconds"
+            return 1
+        }
+
         hotspot_ssid=$(get_hotspot_ssid)
 
         # Set the SSID
@@ -38,10 +61,15 @@ cat << "EOF" | sh
 
         while true; do
             echo "Checking conditions at $(date)"
-            if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+            if check_network; then
                 echo "Internet is available"
             else
                 echo "Internet is not available"
+                if restart_network; then
+                    echo "Network successfully restarted"
+                else
+                    echo "Failed to restart network"
+                fi
             fi
 
             if ndsctl json >/dev/null 2>&1; then
@@ -53,7 +81,7 @@ cat << "EOF" | sh
             current_status=$(uci get wireless.default_radio0.disabled)
             echo "Current WiFi status: $([ "$current_status" = "0" ] && echo "Enabled" || echo "Disabled")"
 
-            if ping -c 1 8.8.8.8 >/dev/null 2>&1 && ndsctl json >/dev/null 2>&1; then
+            if check_network && ndsctl json >/dev/null 2>&1; then
                 if [ "$current_status" != "0" ]; then
                     echo "Internet and OpenNDS are available. Turning on WiFi hotspot."
                     uci set wireless.default_radio0.disabled=0
