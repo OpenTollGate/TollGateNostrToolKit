@@ -200,9 +200,6 @@ setup_wifi() {
 
            	/www/cgi-bin/./generate_keys.sh
 
-	    	# setup_vpn
-            	setup_opennds
-
                 # Update JSON with WiFi details
                 update_json "wifi_ssid" "$ssid"
                 update_json "wifi_setup" "true"
@@ -261,8 +258,18 @@ if [ ! -f /etc/first_login_done ]; then
         # Setup WiFi
         setup_wifi
         if verify_wifi_connection; then
-            # setup_vpn
-            setup_opennds
+	    setup_vpn
+	    setup_opennds
+
+	    # echo "Repeating opennds setup to get a DHCP lease..."
+	    # I tried doing repeat of a subset of `setup_opennds` in
+	    # `/root/./dhcp_lease_fix.sh`, but it didn't work. I don't
+	    # know why repeating setup_opennds helps to obtain the
+	    # DHCP lease, but putting the same logic in
+	    # `dhcp_lease_fix.sh` doesn't. Fixes that help us to get a
+	    # DHCP lease more quickly/simply are most welcome...
+            # setup_opennds
+	    
 	    touch /etc/first_login_done
             handle_dhcp_lease
         else

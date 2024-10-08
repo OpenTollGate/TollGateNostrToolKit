@@ -32,7 +32,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
     mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
-    mkdir -p "$OPENWRT_DIR/files/etc"
+     mkdir -p "$OPENWRT_DIR/files/etc"
     mkdir -p "$OPENWRT_DIR/files/root"
 
     cp "$SCRIPT_DIR/files/vpn/pia_latvia.ovpn" "$OPENWRT_DIR/files/etc/openvpn/"
@@ -65,9 +65,10 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
 
     # Select DHCP server
-    # cp "$SCRIPT_DIR/files/etc/rc.local" "$OPENWRT_DIR/files/etc/"
     # cp "$SCRIPT_DIR/files/etc/init.d/"* "$OPENWRT_DIR/files/etc/init.d/"
-    
+    cp "$SCRIPT_DIR/files/etc/init.d/hotspot_manager" "$OPENWRT_DIR/files/etc/init.d/."
+    cp "$SCRIPT_DIR/files/etc/rc.local" "$OPENWRT_DIR/files/etc/"
+
 
     # Set execute permissions
     chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
