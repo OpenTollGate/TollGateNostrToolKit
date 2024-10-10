@@ -274,9 +274,9 @@ body() {
     elif [ "$status" = "err511" ]; then
 
 	pagebody="
-			<h1>TollGates pay for the Backbones that your internet traffic depends on</h1>
+			<h1>Pay for internet access with e-cash, 1 SAT per minute. </h1>
 			<form action=\"$url/login\" method=\"get\" target=\"_blank\">
-			<input type=\"submit\" value=\"Zap\" >
+			<input type=\"submit\" value=\"Start\" >
 			</form>
 		"
 
