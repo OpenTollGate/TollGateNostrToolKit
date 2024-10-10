@@ -280,7 +280,7 @@ voucher_form() {
 
     echo "
         <med-blue>
-            TollGate, users must pay for internet access!
+            Users must pay for their infrastructure! If not you, then who?
         </med-blue><br>
         <hr>
         Your IP: $clientip <br>
@@ -289,7 +289,7 @@ voucher_form() {
         <form action=\"/opennds_preauth/\" method=\"get\">
             <input type=\"hidden\" name=\"fas\" value=\"$fas\">
             <input type=\"hidden\" name=\"tos\" value=\"accepted\">
-            You can pay with e-cash from minibits.cash <br>
+            Pay with e-cash from minibits.cash <br>
             Pay here: <input type=\"text\" name=\"voucher\" value=\"$voucher_code\" required> <input type=\"submit\" value=\"Connect\" >
         </form>
         <br>
