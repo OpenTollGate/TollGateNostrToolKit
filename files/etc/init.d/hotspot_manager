@@ -36,6 +36,7 @@ cat << "EOF" | sh
         restart_network() {
             echo "Restarting network..."
             /etc/init.d/network restart
+	    service openvpn restart
             
             local max_attempts=30
             local attempt=1
