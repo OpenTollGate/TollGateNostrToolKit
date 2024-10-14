@@ -5857,7 +5857,7 @@ CONFIG_PACKAGE_wpad-basic-mbedtls=y
 # CONFIG_PACKAGE_ipvsadm is not set
 # CONFIG_PACKAGE_irtt is not set
 CONFIG_PACKAGE_iw=y
-# CONFIG_PACKAGE_iw-full is not set
+CONFIG_PACKAGE_iw-full=y
 # CONFIG_PACKAGE_jool-tools-netfilter is not set
 # CONFIG_PACKAGE_keepalived is not set
 # CONFIG_PACKAGE_keepalived-sync is not set
@@ -6650,7 +6650,7 @@ CONFIG_PACKAGE_gltollgate=y
 # CONFIG_PACKAGE_io is not set
 # CONFIG_PACKAGE_ipcs is not set
 # CONFIG_PACKAGE_irqbalance is not set
-# CONFIG_PACKAGE_iwcap is not set
+CONFIG_PACKAGE_iwcap=y
 CONFIG_PACKAGE_iwinfo=y
 CONFIG_PACKAGE_jq=y
 CONFIG_PACKAGE_jshn=y
