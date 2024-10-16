@@ -12,7 +12,7 @@ scan_wifi_networks_to_json() {
         return 1
     fi
 
-    ip link set $interface up
+    ip link set "$interface" up
 
     scan_result=$(iw dev "$interface" scan 2>&1)
     
@@ -23,7 +23,7 @@ scan_wifi_networks_to_json() {
 
     echo "$scan_result" | awk '
         BEGIN { 
-            print "[" 
+            print "["
             first = 1
             mac = ""
             ssid = ""
@@ -42,7 +42,7 @@ scan_wifi_networks_to_json() {
             ssid = ""
             signal = ""
         }
-        $1 == "SSID:" { ssid = $2 }
+        $1 == "SSID:" { ssid = substr($0, index($0, $2)) }
         $1 == "RSN:" { encryption = "WPA2" }
         $1 == "signal:" { sub(" dBm", "", $2); signal = $2 }
         END {
@@ -62,12 +62,20 @@ scan_until_success() {
 
     for i in $(seq 1 $retries); do
         output=$(scan_wifi_networks_to_json)
-        if [ $? -eq 0 ] && echo "$output" | jq empty 2>/dev/null; then
-            echo "$output" | jq '.'
-            return 0
+        ret_code=$?
+
+        if [ $ret_code -eq 0 ]; then
+            # Check if JSON output is valid
+            if echo "$output" | jq empty 2>/dev/null; then
+                echo "$output" | jq '.'
+                return 0
+            fi
+        elif [ $ret_code -eq 2 ]; then
+            echo "Resource busy, retrying in $delay second(s)... ($i/$retries)" >&2
+        else
+            echo "Scan failed, retrying in $delay second(s)... ($i/$retries)" >&2
         fi
 
-        echo "Scan failed, retrying in $delay second(s)... ($i/$retries)" >&2
         sleep $delay
     done
 
