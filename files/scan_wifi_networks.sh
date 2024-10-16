@@ -15,44 +15,72 @@ scan_wifi_networks_to_json() {
     ip link set "$interface" up
 
     scan_result=$(iw dev "$interface" scan 2>&1)
-    
+
     if echo "$scan_result" | grep -q "Resource busy"; then
         echo "Resource busy" >&2
         return 1
     fi
 
     echo "$scan_result" | awk '
-        BEGIN { 
+        function escape_json_string(str, result, i, char) {
+            result = ""
+            for (i = 1; i <= length(str); i++) {
+                char = substr(str, i, 1)
+                if (char ~ /[\x00-\x1F\x22\x5C]/) {
+                    # Escape special json characters and control characters
+                    if (char == "\"") {
+                        result = result "\\\""
+                    } else if (char == "\\") {
+                        result = result "\\\\"
+                    } else if (char == "\b") {
+                        result = result "\\b"
+                    } else if (char == "\f") {
+                        result = result "\\f"
+                    } else if (char == "\n") {
+                        result = result "\\n"
+                    } else if (char == "\r") {
+                        result = result "\\r"
+                    } else if (char == "\t") {
+                        result = result "\\t"
+                    } else {
+                        printf result "\\u00%02x", ord(char)
+                    }
+                } else {
+                    result = result char
+                }
+            }
+            return result
+        }
+
+        BEGIN {
             print "["
             first = 1
-            mac = ""
-            ssid = ""
-            encryption = "Open"
-            signal = ""
         }
         $1 == "BSS" {
-            if (mac != "") {
+            valid = (mac != "" && ssid != "" && signal != "")
+            if (valid) {
                 if (!first) print ","
-                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, ssid, encryption, signal
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, escape_json_string(ssid), encryption, signal
                 first = 0
-                encryption = "Open"
             }
             mac = $2
             sub(/\(.*/, "", mac)
             ssid = ""
+            encryption = "Open"
             signal = ""
         }
-        $1 == "SSID:" { ssid = substr($0, index($0, $2)) }
+        $1 == "SSID:" { ssid = substr($0, index($0, $2)); gsub(/^[[:space:]]+|[[:space:]]+$/, "", ssid) }
         $1 == "RSN:" { encryption = "WPA2" }
         $1 == "signal:" { sub(" dBm", "", $2); signal = $2 }
         END {
-            if (mac != "") {
+            valid = (mac != "" && ssid != "" && signal != "")
+            if (valid) {
                 if (!first) print ","
-                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, ssid, encryption, signal
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, escape_json_string(ssid), encryption, signal
             }
             print "\n]"
         }
-    '
+    ' 
 }
 
 scan_until_success() {
