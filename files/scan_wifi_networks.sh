@@ -27,15 +27,31 @@ scan_wifi_networks_to_json() {
         BEGIN { 
             print "[" 
             first = 1
+            mac = ""
+            ssid = ""
+            encryption = "Open"
         }
         $1 == "BSS" {
+            if (mac != "") {
+                if (!first) print ","
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\"}", mac, ssid, encryption
+                first = 0
+            }
             mac = $2
             sub(/\(.*/, "", mac)
-            if (!first) print ","
-            printf "  {\"mac\": \"%s\"}", mac
-            first = 0
+            ssid = ""
+            encryption = "Open"
         }
-        END { print "\n]" }
+        $1 == "SSID:" { ssid = $2 }
+        $1 == "RSN:" { encryption = "WPA2" }
+        $1 == "WPA:" { encryption = "WPA" }
+        END {
+            if (mac != "") {
+                if (!first) print ","
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\"}", mac, ssid, encryption
+            }
+            print "\n]"
+        }
     ' | jq '.'
 }
 
