@@ -6,7 +6,6 @@ get_wifi_interface() {
 
 scan_wifi_networks_to_json() {
     local interface=$(get_wifi_interface)
-    # echo "Detected Wi-Fi interface: $interface" >&2
 
     if [ -z "$interface" ]; then
         echo "No managed Wi-Fi interface found" >&2
@@ -14,10 +13,16 @@ scan_wifi_networks_to_json() {
     fi
 
     ip link set $interface up
-    # ip link show $interface >&2
 
-    # echo "Processing scan results..." >&2
-    iw dev "$interface" scan | awk '
+    # Perform the scan
+    scan_result=$(iw dev "$interface" scan 2>&1)
+    
+    if echo "$scan_result" | grep -q "Resource busy"; then
+        echo "Resource busy" >&2
+        return 1
+    fi
+
+    echo "$scan_result" | awk '
         BEGIN { 
             print "[" 
             first = 1
@@ -48,7 +53,27 @@ scan_wifi_networks_to_json() {
             }
             print "\n]"
         }
-    ' | jq '.'
+    '
 }
 
-scan_wifi_networks_to_json
+scan_until_success() {
+    local output
+    local retries=10
+    local delay=2
+
+    for i in $(seq 1 $retries); do
+        output=$(scan_wifi_networks_to_json)
+        if [ $? -eq 0 ] && echo "$output" | jq empty 2>/dev/null; then
+            echo "$output" | jq '.'
+            return 0
+        fi
+
+        echo "Scan failed, retrying in $delay second(s)... ($i/$retries)" >&2
+        sleep $delay
+    done
+
+    echo "Failed to scan Wi-Fi networks after $retries attempts" >&2
+    return 1
+}
+
+scan_until_success
