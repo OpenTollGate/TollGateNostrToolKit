@@ -18,13 +18,14 @@ remove_empty_ssids() {
     '
 }
 
-# Remove duplicate SSIDs, keeping the first instance
+# Remove duplicate SSIDs, keeping the first instance (strongest signal already first after sort)
 remove_duplicate_ssids() {
     local json_input=$1
 
     echo "$json_input" | jq -r '
-        reduce .[] as $item ({}; . + { ($item.ssid): $item }) | 
-        [.[]]
+        reduce .[] as $item ({}; 
+            if .[$item.ssid] == null then . + { ($item.ssid): $item } else . end
+        ) | [.[]]
     '
 }
 
@@ -37,12 +38,14 @@ sort_and_display_full_json() {
 
     if [ $? -eq 0 ] && echo "$scan_script_output" | jq empty 2>/dev/null; then
         local filtered_json
-        filtered_json=$(remove_empty_ssids "$scan_script_output") # | remove_duplicate_ssids)
+        filtered_json=$(remove_empty_ssids "$scan_script_output")
         
+        # Sort networks by signal first, then remove duplicates
         local sorted_json
-	# TODO: sort first, then filter - we want to remove duplicates that have a less powerful signal. 
         sorted_json=$(sort_networks_by_signal "$filtered_json")
-        echo "$sorted_json"
+	removed_duplicates=$(remove_duplicate_ssids "$sorted_json")
+        
+        echo "$removed_duplicates"
     else
         echo "Failed to obtain or parse Wi-Fi scan results" >&2
         return 1
