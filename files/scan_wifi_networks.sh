@@ -6,7 +6,7 @@ get_wifi_interface() {
 
 scan_wifi_networks_to_json() {
     local interface=$(get_wifi_interface)
-    echo "Detected Wi-Fi interface: $interface" >&2
+    # echo "Detected Wi-Fi interface: $interface" >&2
 
     if [ -z "$interface" ]; then
         echo "No managed Wi-Fi interface found" >&2
@@ -14,15 +14,15 @@ scan_wifi_networks_to_json() {
     fi
 
     ip link set $interface up
-    ip link show $interface >&2
+    # ip link show $interface >&2
 
-    echo "Running iw scan..." >&2
+    # echo "Running iw scan..." >&2
     if ! iw dev "$interface" scan; then
         echo "Scan failed. Error: $?" >&2
         return 1
     fi
 
-    echo "Processing scan results..." >&2
+    # echo "Processing scan results..." >&2
     iw dev "$interface" scan | awk '
         BEGIN { 
             print "[" 
@@ -30,30 +30,31 @@ scan_wifi_networks_to_json() {
             mac = ""
             ssid = ""
             encryption = "Open"
+            signal = ""
         }
         $1 == "BSS" {
             if (mac != "") {
                 if (!first) print ","
-                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\"}", mac, ssid, encryption
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": \"%s dBm\"}", mac, ssid, encryption, signal
                 first = 0
+                encryption = "Open"  # Reset encryption to default for the next BSS block
             }
             mac = $2
             sub(/\(.*/, "", mac)
             ssid = ""
-            encryption = "Open"
+            signal = ""
         }
         $1 == "SSID:" { ssid = $2 }
         $1 == "RSN:" { encryption = "WPA2" }
-        $1 == "WPA:" { encryption = "WPA" }
+        $1 == "signal:" { signal = $2 }
         END {
             if (mac != "") {
                 if (!first) print ","
-                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\"}", mac, ssid, encryption
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": \"%s dBm\"}", mac, ssid, encryption, signal
             }
             print "\n]"
         }
     ' | jq '.'
 }
 
-echo "Scanning Wi-Fi Networks..."
 scan_wifi_networks_to_json
