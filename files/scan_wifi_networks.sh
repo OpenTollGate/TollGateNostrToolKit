@@ -14,7 +14,6 @@ scan_wifi_networks_to_json() {
 
     ip link set $interface up
 
-    # Perform the scan
     scan_result=$(iw dev "$interface" scan 2>&1)
     
     if echo "$scan_result" | grep -q "Resource busy"; then
@@ -34,9 +33,9 @@ scan_wifi_networks_to_json() {
         $1 == "BSS" {
             if (mac != "") {
                 if (!first) print ","
-                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": \"%s dBm\"}", mac, ssid, encryption, signal
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, ssid, encryption, signal
                 first = 0
-                encryption = "Open"  # Reset encryption to default for the next BSS block
+                encryption = "Open"
             }
             mac = $2
             sub(/\(.*/, "", mac)
@@ -45,11 +44,11 @@ scan_wifi_networks_to_json() {
         }
         $1 == "SSID:" { ssid = $2 }
         $1 == "RSN:" { encryption = "WPA2" }
-        $1 == "signal:" { signal = $2 }
+        $1 == "signal:" { sub(" dBm", "", $2); signal = $2 }
         END {
             if (mac != "") {
                 if (!first) print ","
-                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": \"%s dBm\"}", mac, ssid, encryption, signal
+                printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, ssid, encryption, signal
             }
             print "\n]"
         }
