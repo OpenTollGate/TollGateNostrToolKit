@@ -67,16 +67,19 @@ select_ssid() {
     fi
 
     echo "Available SSIDs:"
-    local i=1
-    echo "$ssid_list" | while IFS= read -r ssid; do
+    i=1
+    while IFS= read -r ssid; do
         echo "$i) $ssid"
+        eval "ssid_$i='$ssid'"
         i=$((i+1))
-    done
+    done <<EOF
+$ssid_list
+EOF
 
     while true; do
         read -p "Enter the number of the SSID you want to connect to: " selection
         if [ "$selection" -ge 1 ] 2>/dev/null && [ "$selection" -lt "$i" ]; then
-            selected_ssid=$(echo "$ssid_list" | sed -n "${selection}p")
+            eval "selected_ssid=\$ssid_$selection"
             echo "You selected SSID: $selected_ssid"
             echo "$selected_ssid"
             return 0
