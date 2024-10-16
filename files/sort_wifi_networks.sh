@@ -1,11 +1,12 @@
 #!/bin/sh
 
-# Sort the networks by signal
-sort_networks_by_signal() {
+# Sort the networks by signal in descending order
+sort_networks_by_signal_desc() {
     local json_input=$1
 
     echo "$json_input" | jq -r '
-        sort_by(.signal)
+        map(.signal |= tonumber) |
+        sort_by(-.signal)
     '
 }
 
@@ -29,6 +30,15 @@ remove_duplicate_ssids() {
     '
 }
 
+# Capture, sort, and display Wi-Fi networks as SSIDs
+sort_and_display_ssid_list() {
+    local sorted_json=$1
+
+    echo "$sorted_json" | jq -r '
+        .[] | .ssid
+    '
+}
+
 # Capture, sort, and display the full JSON data
 sort_and_display_full_json() {
     local scan_script_output
@@ -42,8 +52,8 @@ sort_and_display_full_json() {
         
         # Sort networks by signal first, then remove duplicates
         local sorted_json
-        sorted_json=$(sort_networks_by_signal "$filtered_json")
-	removed_duplicates=$(remove_duplicate_ssids "$sorted_json")
+        sorted_json=$(sort_networks_by_signal_desc "$filtered_json")
+        removed_duplicates=$(remove_duplicate_ssids "$sorted_json")
         
         echo "$removed_duplicates"
     else
@@ -52,5 +62,17 @@ sort_and_display_full_json() {
     fi
 }
 
+main() {
+    if [ "$1" = "--full-json" ]; then
+        sort_and_display_full_json
+    elif [ "$1" = "--ssid-list" ]; then
+        local sorted_json
+        sorted_json=$(sort_and_display_full_json)
+        sort_and_display_ssid_list "$sorted_json"
+    else
+        echo "Usage: $0 [--full-json | --ssid-list]"
+        return 1
+    fi
+}
 
-sort_and_display_full_json
+main "$@"
