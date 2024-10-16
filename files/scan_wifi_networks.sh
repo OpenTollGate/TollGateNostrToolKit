@@ -6,44 +6,37 @@ get_wifi_interface() {
 
 scan_wifi_networks_to_json() {
     local interface=$(get_wifi_interface)
-    echo "Detected Wi-Fi interface: $interface"
+    echo "Detected Wi-Fi interface: $interface" >&2
 
     if [ -z "$interface" ]; then
-        echo "No managed Wi-Fi interface found"
+        echo "No managed Wi-Fi interface found" >&2
         return 1
     fi
 
     ip link set $interface up
-    ip link show $interface
+    ip link show $interface >&2
 
-    networks="[]"
-
-    echo "Running iw scan..."
+    echo "Running iw scan..." >&2
     if ! iw dev "$interface" scan; then
-        echo "Scan failed. Error: $?"
+        echo "Scan failed. Error: $?" >&2
         return 1
     fi
 
-    echo "Processing scan results..."
+    echo "Processing scan results..." >&2
     iw dev "$interface" scan | awk '
-        BEGIN { OFS = ""; print "Debug: Starting awk script" > "/dev/stderr"; }
-        {print "Debug: Processing line: " $0 > "/dev/stderr"}
+        BEGIN { 
+            print "[" 
+            first = 1
+        }
         $1 == "BSS" {
             mac = $2
             sub(/\(.*/, "", mac)
-            print "Debug: Found BSS, MAC: " mac > "/dev/stderr"
-            print "{ \"mac\": \"" mac "\" }"
+            if (!first) print ","
+            printf "  {\"mac\": \"%s\"}", mac
+            first = 0
         }
-        END { print "Debug: Finished awk script" > "/dev/stderr"; }
-    ' | while IFS= read -r line; do
-        networks=$(echo "$networks" | jq --argjson new_ap "$line" '. += [$new_ap]')
-        if [ $? -ne 0 ]; then
-            echo "jq error occurred"
-            return 1
-        fi
-    done
-    
-    echo "$networks" | jq
+        END { print "\n]" }
+    ' | jq '.'
 }
 
 echo "Scanning Wi-Fi Networks..."
