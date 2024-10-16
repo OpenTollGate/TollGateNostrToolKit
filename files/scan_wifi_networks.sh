@@ -16,12 +16,6 @@ scan_wifi_networks_to_json() {
     ip link set $interface up
     # ip link show $interface >&2
 
-    # echo "Running iw scan..." >&2
-    if ! iw dev "$interface" scan; then
-        echo "Scan failed. Error: $?" >&2
-        return 1
-    fi
-
     # echo "Processing scan results..." >&2
     iw dev "$interface" scan | awk '
         BEGIN { 
