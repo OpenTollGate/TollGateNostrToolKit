@@ -44,7 +44,7 @@ get_encryption_type() {
 
 # Get the encryption type
 # ENCRYPTION_TYPE=$(get_encryption_type "$NEW_SSID")
-ENCRYPTION_TYPE="WPA2" # TODO: the encryption type is wrong
+ENCRYPTION_TYPE="psk-mixed" # TODO: the encryption type is wrong
 
 # Update firewall configuration
 uci set firewall.@zone[1].network='wan wan6 wwan'
