@@ -37,6 +37,8 @@ cat << "EOF" | sh
             echo "Restarting network..."
             /etc/init.d/network restart
 	    service openvpn restart
+	    /root/./disable_ipv6.sh
+	    /root/./activate_tollgate.sh
             
             local max_attempts=30
             local attempt=1
