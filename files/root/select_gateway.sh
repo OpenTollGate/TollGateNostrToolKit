@@ -91,10 +91,16 @@ uci commit wireless
 
 # Check if the changes were made successfully
 if [ $? -eq 0 ]; then
+    # Display the updated wireless configuration
     echo "Wireless configuration updated successfully."
     echo "New SSID: $NEW_SSID"
-    echo "New PASSWORD: $NEW_PASSWORD"
-    echo "Detected Encryption: $ENCRYPTION_TYPE"
+
+    # Mask the password with asterisks
+    PASSWORD_LENGTH=${#NEW_PASSWORD}
+    MASKED_PASSWORD=$(printf '%*s' "$PASSWORD_LENGTH" | tr ' ' '*')
+
+    echo "New PASSWORD: $MASKED_PASSWORD"
+    echo "Detected Encryption: $ENCRYPTION_TYPE"    echo "Error: Failed to update the wireless configuration."
 else
     echo "Error: Failed to update the wireless configuration."
     exit 1
