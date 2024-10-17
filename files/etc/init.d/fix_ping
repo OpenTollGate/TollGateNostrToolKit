@@ -24,7 +24,7 @@ cat << "EOF" | sh
                 echo "Internet is not available"
                 /root/./fix_ping.sh
             fi
-            sleep 60
+            sleep 10
         done
 EOF
     '
