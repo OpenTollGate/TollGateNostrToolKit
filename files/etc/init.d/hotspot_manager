@@ -24,18 +24,24 @@ cat << "EOF" | sh
             current_status=$(uci get wireless.default_radio0.disabled)
             echo "Current WiFi status: $([ "$current_status" = "0" ] && echo "Enabled" || echo "Disabled")"
 
-            if ping -c 1 8.8.8.8 >/dev/null 2>&1 && ndsctl json >/dev/null 2>&1; then
-                echo "Internet and OpenNDS are available."
-                if [ "$current_status" != "0" ]; then
-                    echo "Turning on WiFi hotspot."
-                    uci set wireless.default_radio0.disabled=0
-                    uci commit wireless
-                    wifi up
+            if ping -c 1 8.8.8.8 >/dev/null 2>&1; then
+                echo "Internet connectivity is available."
+                if ndsctl json >/dev/null 2>&1; then
+                    echo "OpenNDS is available."
+                    if [ "$current_status" != "0" ]; then
+                        echo "Turning on WiFi hotspot."
+                        uci set wireless.default_radio0.disabled=0
+                        uci commit wireless
+                        wifi up
+                    else
+                        echo "WiFi hotspot is already on."
+                    fi
                 else
-                    echo "WiFi hotspot is already on."
+                    echo "OpenNDS is not available."
+                    # Handle case where OpenNDS is not available
                 fi
             else
-                echo "Internet or OpenNDS is not available."
+                echo "Internet is not available."
                 if [ "$current_status" != "1" ]; then
                     echo "Turning off WiFi hotspot."
                     uci set wireless.default_radio0.disabled=1
