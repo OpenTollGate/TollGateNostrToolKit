@@ -1,0 +1,37 @@
+#!/bin/sh /etc/rc.common
+
+START=99
+STOP=15
+
+USE_PROCD=1
+PROG=/bin/sh
+
+start_service() {
+    procd_open_instance
+    procd_set_param command $PROG -c '
+cat << "EOF" | sh
+
+        # Function to check network status
+        check_network() {
+            ping -c 1 8.8.8.8 >/dev/null 2>&1
+        }
+
+        while true; do
+            echo "Checking network status at $(date)"
+            if check_network; then
+                echo "Internet is available"
+            else
+                echo "Internet is not available"
+                /root/./fix_ping.sh
+            fi
+            sleep 60
+        done
+EOF
+    '
+    procd_set_param respawn
+    procd_close_instance
+}
+
+service_triggers() {
+    procd_add_reload_trigger "network"
+}
