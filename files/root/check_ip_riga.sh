@@ -14,4 +14,5 @@ if (echo "$ip_location" | grep -q "Latvia Riga"); then
 else
     echo "IP location is not in Riga: $ip_location. Restarting VPN..."
     service openvpn restart
+    /root/./fix_ping.sh
 fi
