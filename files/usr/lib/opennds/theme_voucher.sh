@@ -172,7 +172,7 @@ check_voucher() {
 	voucher_time_limit=$session_length
 
 	# Log the voucher
-	voucher_expiration=$(($current_time + $voucher_time_limit * 60))
+	voucher_expiration=$(($current_time + $voucher_time_limit))
 	session_length=$voucher_time_limit
 	echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
 
