@@ -15,11 +15,10 @@ cat << "EOF" | sh
         # Use an external script for SSID generation
         hotspot_ssid=$(sh /root/generate_ssid.sh)
 
-        # Set the SSID once during start
-        uci set wireless.default_radio0.ssid="$hotspot_ssid"
-        uci commit wireless
-
         while true; do
+	    # Set the SSID once during start
+	    uci set wireless.default_radio0.ssid="$hotspot_ssid"
+	    uci commit wireless
             echo "Checking conditions at $(date)"
             
             current_status=$(uci get wireless.default_radio0.disabled)
