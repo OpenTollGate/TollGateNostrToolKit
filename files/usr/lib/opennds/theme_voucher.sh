@@ -141,7 +141,7 @@ check_voucher() {
 		upload_quota=0
 		download_quota=0
                 session_length=$total_amount
-		voucher_time_limit=$session_length * 60
+		voucher_time_limit=$session_length
                 voucher_expiration=$((current_time + voucher_time_limit))
 
                 # Log the new temporary voucher
