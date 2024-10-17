@@ -182,7 +182,7 @@ setup_wifi() {
         update_json "wifi_password" "$password"
 
         # Update WiFi configuration
-        /root/./create_gateway.sh "$ssid" "$password"
+        /root/./select_gateway.sh "$ssid" "$password"
         
         echo "Restarting network..."
         /etc/init.d/network restart
