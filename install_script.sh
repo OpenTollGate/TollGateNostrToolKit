@@ -65,7 +65,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
 
 
     # Set execute permissions
-    chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
+    # chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
 
     # Copy uci_commands.sh and make it run on first boot
     mkdir -p "$OPENWRT_DIR/files/etc/opkg/"
