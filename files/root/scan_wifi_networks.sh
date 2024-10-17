@@ -37,18 +37,26 @@ scan_wifi_networks_to_json() {
             first = 1
         }
         $1 == "BSS" {
+            # If previous BSS has valid data, print it
             if (mac != "" && ssid != "" && signal != "") {
                 if (!first) print ","
                 printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, escape_json_string(ssid), encryption, signal
                 first = 0
             }
+            # Initialize for the new BSS
             mac = substr($2, 1, index($2, "(") - 1)
             ssid = ""
             encryption = "Open"
             signal = ""
         }
         $1 == "SSID:" {
-            ssid = substr($0, index($0, $2))
+            if (NF >= 2) {
+                # SSID is present; capture it starting from the second field
+                ssid = substr($0, index($0, $2))
+            } else {
+                # SSID is empty; set as empty string
+                ssid = ""
+            }
         }
         /RSN:/ { encryption = "WPA2" }
         /WPA:/ { encryption = "WPA" }
@@ -57,6 +65,7 @@ scan_wifi_networks_to_json() {
             sub(/ dBm$/, "", signal)
         }
         END {
+            # Print the last BSS if it has valid data
             if (mac != "" && ssid != "" && signal != "") {
                 if (!first) print ","
                 printf "  {\"mac\": \"%s\", \"ssid\": \"%s\", \"encryption\": \"%s\", \"signal\": %s}", mac, escape_json_string(ssid), encryption, signal
