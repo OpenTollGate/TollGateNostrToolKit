@@ -18,7 +18,7 @@ get_wifi_interface() {
 # Function to determine encryption type
 get_encryption_type() {
     local ssid="$1"
-    local interface=get_wifi_interface
+    local interface=$(get_wifi_interface)  # Use command substitution to store the result in a variable
 
     # Ensure the interface is up
     ip link set $interface up
