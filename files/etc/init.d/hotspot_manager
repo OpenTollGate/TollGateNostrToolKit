@@ -12,26 +12,8 @@ start_service() {
     procd_open_instance
     procd_set_param command $PROG -c '
 cat << "EOF" | sh
-        # Function to get the hotspot SSID (keeping this as it is relevant to your access point)
-        get_hotspot_ssid() {
-            if [ -f "/nostr/shell/nostr_keys.json" ]; then
-                npub=$(jq -r ".npub_hex" /nostr/shell/nostr_keys.json 2>/dev/null)
-                if [ -n "$npub" ] && [ "$npub" != "null" ]; then
-                    echo "TollGate_${npub:0:8}"
-                    return
-                fi
-            fi
-            
-            mac_address=$(cat /sys/class/ieee80211/phy0/macaddress | sed "s/://g")
-            echo "TollGate_${mac_address}"
-        }
-
-        # Function to check network status by pinging 8.8.8.8
-        check_network() {
-            ping -c 1 8.8.8.8 >/dev/null 2>&1
-        }
-
-        hotspot_ssid=$(get_hotspot_ssid)
+        # Use an external script for SSID generation
+        hotspot_ssid=$(sh /root/generate_ssid.sh)
 
         # Set the SSID once during start
         uci set wireless.default_radio0.ssid="$hotspot_ssid"
@@ -43,7 +25,7 @@ cat << "EOF" | sh
             current_status=$(uci get wireless.default_radio0.disabled)
             echo "Current WiFi status: $([ "$current_status" = "0" ] && echo "Enabled" || echo "Disabled")"
 
-            if check_network && ndsctl json >/dev/null 2>&1; then
+            if ping -c 1 8.8.8.8 >/dev/null 2>&1 && ndsctl json >/dev/null 2>&1; then
                 echo "Internet and OpenNDS are available."
                 if [ "$current_status" != "0" ]; then
                     echo "Turning on WiFi hotspot."

@@ -17,14 +17,15 @@ cat << "EOF" | sh
         }
 
         while true; do
-            echo "Checking network status at $(date)"
+            echo "Checking network status at $(date)" | logger -t fix_ping_service
             if check_network; then
-                echo "Internet is available"
+                echo "Internet is available" | logger -t fix_ping_service
+		sleep 600
             else
-                echo "Internet is not available"
-                /root/./fix_ping.sh
+                echo "Internet is not available. Attempting to fix..." | logger -t fix_ping_service
+                /root/./fix_ping.sh | logger -t fix_ping_service
+		sleep 60
             fi
-            sleep 10
         done
 EOF
     '
