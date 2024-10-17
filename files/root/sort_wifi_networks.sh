@@ -48,7 +48,7 @@ sort_and_display_full_json() {
     fi
 }
 
-# Function to select an SSID from the list
+# Function to select an SSID from the list and return the associated JSON tuple
 select_ssid() {
     local sorted_json
     sorted_json=$(sort_and_display_full_json)
@@ -81,7 +81,13 @@ EOF
         if [ "$selection" -ge 1 ] 2>/dev/null && [ "$selection" -lt "$i" ]; then
             eval "selected_ssid=\$ssid_$selection"
             echo "You selected SSID: $selected_ssid"
-            echo "$selected_ssid"
+            selected_json=$(echo "$sorted_json" | jq -r --arg ssid "$selected_ssid" '.[] | select(.ssid == $ssid)')
+            echo "$selected_json"
+            
+            # Write the selected JSON tuple to /tmp/selected_ssid.md
+            echo "$selected_json" > /tmp/selected_ssid.md
+            echo "Selected SSID details saved to /tmp/selected_ssid.md"
+            
             return 0
         else
             echo "Invalid selection. Please enter a valid number."
