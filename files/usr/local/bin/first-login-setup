@@ -74,9 +74,9 @@ is_interactive() {
 
 setup_vpn() {
     echo "Setting up VPN."
-    /etc/./setup_vpn.sh
+    /root/./setup_vpn.sh
     echo "VPN setup complete. Starting VPN."
-    /etc/./startup_vpn.sh
+    /root/./startup_vpn.sh
 }
 
 setup_opennds() {
@@ -182,7 +182,7 @@ setup_wifi() {
         update_json "wifi_password" "$password"
 
         # Update WiFi configuration
-        /etc/./create_gateway.sh "$ssid" "$password"
+        /root/./create_gateway.sh "$ssid" "$password"
         
         echo "Restarting network..."
         /etc/init.d/network restart

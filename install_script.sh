@@ -38,20 +38,17 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/vpn/pia_latvia.ovpn" "$OPENWRT_DIR/files/etc/openvpn/"
     cp "$SCRIPT_DIR/files/vpn/firewall.user" "$OPENWRT_DIR/files/etc/"
 
-    # Copy VPN setup and startup scripts
-    cp "$SCRIPT_DIR/files/setup_vpn.sh" "$OPENWRT_DIR/files/etc/"
-    cp "$SCRIPT_DIR/files/startup_vpn.sh" "$OPENWRT_DIR/files/etc/"
-    chmod +x "$OPENWRT_DIR/files/etc/setup_vpn.sh"
-    chmod +x "$OPENWRT_DIR/files/etc/startup_vpn.sh"
-
     # /uci-defaults and /root below broke the startup scripts and the
     # DHCP server on startup. Reintroduce with care!
     # cp "$SCRIPT_DIR/files/uci-defaults/"* "$OPENWRT_DIR/files/etc/uci-defaults/"
     # chmod +x "$OPENWRT_DIR/files/etc/uci-defaults/"*
     cp "$SCRIPT_DIR/files/root/"* "$OPENWRT_DIR/files/root/"
     chmod +x "$OPENWRT_DIR/files/root/"*
+
+    # /root/ contains: create_gateway.sh, activate_tollgate.sh,
+    # deactivate_tollgate.sh, setup_vpn.sh, startup_vpn.sh
     
-    cp "$SCRIPT_DIR/files/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
+    cp "$SCRIPT_DIR/files/usr/local/bin/first-login-setup" "$OPENWRT_DIR/files/usr/local/bin/"
     chmod +x "$OPENWRT_DIR/files/usr/local/bin/first-login-setup"
 
     cp "$SCRIPT_DIR/files/etc/opennds/htdocs/images/splash.jpg" "$OPENWRT_DIR/files/etc/opennds/htdocs/images/splash.jpg"
@@ -59,9 +56,6 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/usr/lib/opennds/"* "$OPENWRT_DIR/files/usr/lib/opennds/."
     chmod +x "$OPENWRT_DIR/files/usr/lib/opennds/"*
     
-    cp "$SCRIPT_DIR/files/create_gateway.sh" "$OPENWRT_DIR/files/etc/"
-    cp "$SCRIPT_DIR/files/activate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
-    cp "$SCRIPT_DIR/files/deactivate_tollgate.sh" "$OPENWRT_DIR/files/etc/"
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
 
     # Select DHCP server
