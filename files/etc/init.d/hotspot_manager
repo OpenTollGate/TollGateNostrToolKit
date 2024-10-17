@@ -40,6 +40,7 @@ cat << "EOF" | sh
                     echo "OpenNDS is not available."
                     # Handle case where OpenNDS is not available
                 fi
+                60
             else
                 echo "Internet is not available."
                 if [ "$current_status" != "1" ]; then
@@ -50,9 +51,8 @@ cat << "EOF" | sh
                 else
                     echo "WiFi hotspot is already off."
                 fi
+                sleep 5
             fi
-            
-            sleep 60
         done
 EOF
     '
