@@ -15,4 +15,7 @@
 /etc/init.d/fix_ping enable
 /etc/init.d/fix_ping start
 
+/etc/init.d/check_ip_riga enable
+/etc/init.d/check_ip_riga start
+
 exit 0
