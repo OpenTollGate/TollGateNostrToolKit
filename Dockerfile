@@ -18,22 +18,22 @@ RUN apt-get update && \
 apt-get update && apt-get install -y htop
 htop
 
-# Create a user (e.g., builduser) with sudo privileges
+# Create a user with sudo privileges
 RUN useradd -m builduser && echo "builduser:builduser" | chpasswd && adduser builduser sudo
 
-# Copy the current directory contents into the container at /app
+# Copy application code
 COPY . /app
 
-# Ensure all scripts have the necessary permissions
-RUN chmod +x /app/*.sh
+# Set permissions and ownerships
+RUN chmod +x /app/*.sh && chown -R builduser:builduser /app
 
-# Set the owner of the /app directory to builduser
-RUN chown -R builduser:builduser /app
+# Let the user switch to root temporarily if needed
+RUN echo "builduser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/builduser
 
 # Switch to the non-root user
 USER builduser
 
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
 # Set the default command to execute your build process
