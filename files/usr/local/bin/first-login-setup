@@ -173,16 +173,16 @@ setup_wifi() {
     # WiFi setup loop
     while true; do
         # Prompt for WiFi credentials
-        echo "Enter WiFi gateway SSID:"
-        read ssid
-        update_json "wifi_ssid" "$ssid"
+        # echo "Enter WiFi gateway SSID:"
+        # read ssid
+        # update_json "wifi_ssid" "$ssid"
 
-        echo "Enter WiFi gateway Password:"
-        read -s password
-        update_json "wifi_password" "$password"
+        # echo "Enter WiFi gateway Password:"
+        # read -s password
+        # update_json "wifi_password" "$password"
 
         # Update WiFi configuration
-        /root/./select_gateway.sh "$ssid" "$password"
+        /root/./select_gateway.sh # "$ssid" "$password"
         
         echo "Restarting network..."
         /etc/init.d/network restart
