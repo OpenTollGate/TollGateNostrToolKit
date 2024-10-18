@@ -7,6 +7,7 @@ get_latest_commit() {
     git -C "$1" rev-parse HEAD
 }
 
+
 # Check if the correct number of arguments are passed
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <SCRIPT_DIR> <OPENWRT_DIR>"
@@ -68,7 +69,8 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/etc/init.d/hotspot_manager" "$OPENWRT_DIR/files/etc/init.d/."
     cp "$SCRIPT_DIR/files/etc/rc.local" "$OPENWRT_DIR/files/etc/"
 
-    latest_commit=$(get_latest_commit)
+    # Specify the filepath of the git repository
+    latest_commit=$(get_latest_commit "$SCRIPT_DIR")
     echo $latest_commit > $OPENWRT_DIR/files/root/current_image
 
     # Set execute permissions
