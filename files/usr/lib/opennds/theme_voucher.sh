@@ -207,7 +207,7 @@ voucher_validation() {
 			<p>
 				<hr>
 			</p>
-			Granted $session_length seconds of internet access.
+			Granted $session_length minutes of internet access.
 			<hr>
 			<p>
 				<italic-black>
