@@ -51,6 +51,9 @@ wait_for_network() {
 }
 
 verify_wifi_connection() {
+    local ssid
+    ssid=$(jq -r '.ssid' /tmp/selected_ssid.md)
+
     local max_attempts=30
     local attempt=0
 
