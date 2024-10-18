@@ -184,12 +184,12 @@ setup_wifi() {
         # read -s password
         # update_json "wifi_password" "$password"
 
-        # Update WiFi configuration
-        /root/./select_gateway.sh # "$ssid" "$password"
-        
         echo "Restarting network..."
         /etc/init.d/network restart
 
+        # Update WiFi configuration
+        /root/./select_gateway.sh # "$ssid" "$password"
+        
         # Wait for network to be ready
         echo "Waiting for network to be ready..."
         if wait_for_network; then
