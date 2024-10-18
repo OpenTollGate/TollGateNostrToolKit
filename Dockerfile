@@ -39,5 +39,11 @@ USER builduser
 # Set the working directory to the expected location
 WORKDIR $SCRIPT_DIR
 
-# Set the default command to execute your build process
-CMD ["./build_coordinator.sh"]
+# Copy and add the spawn script
+COPY spawn_build_in_container.sh $SCRIPT_DIR
+
+# Make the spawn script executable
+RUN chmod +x $SCRIPT_DIR/spawn_build_in_container.sh
+
+# Set the default command to execute the spawn script
+CMD ["./spawn_build_in_container.sh"]
