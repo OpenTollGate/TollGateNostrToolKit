@@ -11,4 +11,11 @@
 /etc/init.d/hotspot_manager enable
 /etc/init.d/hotspot_manager start
 
+# The following is required to make sure that the gateway works after reboot
+/etc/init.d/fix_ping enable
+/etc/init.d/fix_ping start
+
+# /etc/init.d/check_ip_riga enable
+# /etc/init.d/check_ip_riga start
+
 exit 0
