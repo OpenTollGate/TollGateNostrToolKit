@@ -12,6 +12,7 @@ RUN apt-get update && \
     wget \
     unzip \
     sudo \
+    adduser \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a user (e.g., builduser) with sudo privileges
