@@ -2,6 +2,11 @@
 
 set -e
 
+# Function to get the latest commit hash
+get_latest_commit() {
+    git -C "$1" rev-parse HEAD
+}
+
 # Check if the correct number of arguments are passed
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <SCRIPT_DIR> <OPENWRT_DIR>"
@@ -32,7 +37,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     mkdir -p "$OPENWRT_DIR/files/etc/openvpn"
     mkdir -p "$OPENWRT_DIR/files/etc/init.d"
     mkdir -p "$OPENWRT_DIR/files/etc/rc.d"
-     mkdir -p "$OPENWRT_DIR/files/etc"
+    mkdir -p "$OPENWRT_DIR/files/etc"
     mkdir -p "$OPENWRT_DIR/files/root"
 
     cp "$SCRIPT_DIR/files/vpn/pia_latvia.ovpn" "$OPENWRT_DIR/files/etc/openvpn/"
@@ -63,6 +68,8 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     cp "$SCRIPT_DIR/files/etc/init.d/hotspot_manager" "$OPENWRT_DIR/files/etc/init.d/."
     cp "$SCRIPT_DIR/files/etc/rc.local" "$OPENWRT_DIR/files/etc/"
 
+    latest_commit=$(get_latest_commit)
+    echo $latest_commit > $OPENWRT_DIR/files/root/current_image
 
     # Set execute permissions
     # chmod +x "$OPENWRT_DIR/files/etc/create_gateway.sh"
