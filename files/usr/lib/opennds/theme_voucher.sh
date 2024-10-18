@@ -141,7 +141,7 @@ check_voucher() {
 		upload_quota=0
 		download_quota=0
                 session_length=$total_amount
-		voucher_time_limit=$session_length * 60
+		voucher_time_limit=$session_length
                 voucher_expiration=$((current_time + voucher_time_limit))
 
                 # Log the new temporary voucher
@@ -172,7 +172,7 @@ check_voucher() {
 	voucher_time_limit=$session_length
 
 	# Log the voucher
-	voucher_expiration=$(($current_time + $voucher_time_limit * 60))
+	voucher_expiration=$(($current_time + $voucher_time_limit))
 	session_length=$voucher_time_limit
 	echo ${voucher},${upload_rate},${download_rate},${upload_quota},${download_quota},${session_length},${current_time} >> $voucher_roll
 
@@ -280,7 +280,7 @@ voucher_form() {
 
     echo "
         <med-blue>
-            TollGate, users must pay for internet access!
+            Users must pay for their infrastructure! If not you, then who?
         </med-blue><br>
         <hr>
         Your IP: $clientip <br>
@@ -289,7 +289,7 @@ voucher_form() {
         <form action=\"/opennds_preauth/\" method=\"get\">
             <input type=\"hidden\" name=\"fas\" value=\"$fas\">
             <input type=\"hidden\" name=\"tos\" value=\"accepted\">
-            You can pay with e-cash from minibits.cash <br>
+            Pay with e-cash from minibits.cash <br>
             Pay here: <input type=\"text\" name=\"voucher\" value=\"$voucher_code\" required> <input type=\"submit\" value=\"Connect\" >
         </form>
         <br>
