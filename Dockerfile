@@ -11,11 +11,23 @@ RUN apt-get update && \
     git \
     wget \
     unzip \
-    # Add any other dependencies needed by your scripts
+    sudo \
     && rm -rf /var/lib/apt/lists/*
+
+# Create a user (e.g., builduser) with sudo privileges
+RUN useradd -m builduser && echo "builduser:builduser" | chpasswd && adduser builduser sudo
+
+# Ensure all scripts have the necessary permissions
+RUN chmod +x /app/*.sh
 
 # Copy the current directory contents into the container at /app
 COPY . /app
+
+# Set the owner of the /app directory to builduser
+RUN chown -R builduser:builduser /app
+
+# Switch to the non-root user
+USER builduser
 
 # Set the working directory inside the container
 WORKDIR /app
