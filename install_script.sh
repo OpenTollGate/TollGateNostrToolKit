@@ -66,7 +66,8 @@ if [ -d "$SCRIPT_DIR/files" ]; then
 
     # Select DHCP server
     # cp "$SCRIPT_DIR/files/etc/init.d/"* "$OPENWRT_DIR/files/etc/init.d/"
-    cp "$SCRIPT_DIR/files/etc/init.d/hotspot_manager" "$OPENWRT_DIR/files/etc/init.d/."
+    cp "$SCRIPT_DIR/files/etc/init.d/*" "$OPENWRT_DIR/files/etc/init.d/."
+    # cp "$SCRIPT_DIR/files/etc/hotplug.d/iface/*" "$OPENWRT_DIR/files/etc/hotplug.d/iface/."
     cp "$SCRIPT_DIR/files/etc/rc.local" "$OPENWRT_DIR/files/etc/"
 
     # Specify the filepath of the git repository

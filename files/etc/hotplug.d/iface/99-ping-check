@@ -1,0 +1,9 @@
+#!/bin/sh
+[ "$ACTION" = "ifup" ] || [ "$ACTION" = "ifdown" ] || exit 0
+
+if [ "$ACTION" = "ifdown" ]; then
+    # Optionally run your fix script
+    /root/./fix_ping.sh
+elif [ "$ACTION" = "ifup" ]; then
+    # You might want to add logic here too
+fi
