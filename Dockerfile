@@ -15,7 +15,7 @@ RUN apt-get update && \
     adduser \
     && rm -rf /var/lib/apt/lists/*
 
-apt-get update && apt-get install -y htop
+RUN apt-get update && apt-get install -y htop
 htop
 
 # Create a user with sudo privileges
