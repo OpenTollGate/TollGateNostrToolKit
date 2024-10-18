@@ -100,7 +100,7 @@ if [ $? -eq 0 ]; then
     MASKED_PASSWORD=$(printf '%*s' "$PASSWORD_LENGTH" | tr ' ' '*')
 
     echo "New PASSWORD: $MASKED_PASSWORD"
-    echo "Detected Encryption: $ENCRYPTION_TYPE"    echo "Error: Failed to update the wireless configuration."
+    echo "Detected Encryption: $ENCRYPTION_TYPE"
 else
     echo "Error: Failed to update the wireless configuration."
     exit 1
