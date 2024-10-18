@@ -15,6 +15,9 @@ RUN apt-get update && \
     adduser \
     && rm -rf /var/lib/apt/lists/*
 
+apt-get update && apt-get install -y htop
+htop
+
 # Create a user (e.g., builduser) with sudo privileges
 RUN useradd -m builduser && echo "builduser:builduser" | chpasswd && adduser builduser sudo
 
