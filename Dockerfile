@@ -18,11 +18,11 @@ RUN apt-get update && \
 # Create a user (e.g., builduser) with sudo privileges
 RUN useradd -m builduser && echo "builduser:builduser" | chpasswd && adduser builduser sudo
 
-# Ensure all scripts have the necessary permissions
-RUN chmod +x /app/*.sh
-
 # Copy the current directory contents into the container at /app
 COPY . /app
+
+# Ensure all scripts have the necessary permissions
+RUN chmod +x /app/*.sh
 
 # Set the owner of the /app directory to builduser
 RUN chown -R builduser:builduser /app
@@ -32,9 +32,6 @@ USER builduser
 
 # Set the working directory inside the container
 WORKDIR /app
-
-# Make sure all scripts are executable
-RUN chmod +x *.sh
 
 # Set the default command to execute your build process
 CMD ["./build_coordinator.sh"]
