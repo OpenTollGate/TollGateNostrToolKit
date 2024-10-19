@@ -28,22 +28,16 @@ RUN echo "builduser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/builduser
 COPY . $SCRIPT_DIR
 
 # Ensure all scripts are executable
-RUN chmod +x $SCRIPT_DIR/*.sh
+RUN chmod +x $SCRIPT_DIR/*.sh $SCRIPT_DIR/spawn_build_in_container.sh
 
 # Set the owner of the directory to builduser, including binaries directory
-RUN sudo chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries
+RUN chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries
 
 # Switch to the non-root user
 USER builduser
 
 # Set the working directory to the expected location
 WORKDIR $SCRIPT_DIR
-
-# Copy and add the spawn script
-COPY spawn_build_in_container.sh $SCRIPT_DIR
-
-# Make the spawn script executable
-RUN chmod +x $SCRIPT_DIR/spawn_build_in_container.sh
 
 # Set the default command to execute the spawn script
 CMD ["./spawn_build_in_container.sh"]
