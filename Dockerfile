@@ -33,6 +33,9 @@ RUN chmod +x $SCRIPT_DIR/*.sh
 # Set the owner of the directory to builduser
 RUN chown -R builduser:builduser $SCRIPT_DIR
 
+# If that's not enough, issue these commands inside your startup script or Dockerfile
+RUN sudo chown -R builduser:builduser $SCRIPT_DIR/binaries
+
 # Switch to the non-root user
 USER builduser
 
