@@ -31,6 +31,7 @@ COPY . $SCRIPT_DIR
 RUN chmod +x $SCRIPT_DIR/*.sh $SCRIPT_DIR/spawn_build_in_container.sh
 
 # Set the owner of the directory to builduser, including binaries directory
+RUN ls -la $SCRIPT_DIR && chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries && ls -la $SCRIPT_DIR/binaries
 RUN chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries
 
 # Switch to the non-root user
