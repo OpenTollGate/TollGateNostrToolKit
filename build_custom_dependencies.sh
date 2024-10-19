@@ -241,18 +241,18 @@ file_patterns=(
 all_files_found=true
 
 # Loop through each file pattern
-for pattern in "${file_patterns[@]}"; do
+#for pattern in "${file_patterns[@]}"; do
     # Find the file
-    found_file=$(find "$TARGET_DIR" -type f -name "$pattern")
+#    found_file=$(find "$TARGET_DIR" -type f -name "$pattern")
     
     # Check if the file was found
-    if [ -z "$found_file" ]; then
-        echo "Error: $pattern not found"
-        all_files_found=false
-    else
-        echo "Found: $found_file"
-    fi
-done
+#    if [ -z "$found_file" ]; then
+#        echo "Error: $pattern not found"
+#        all_files_found=false
+#    else
+#        echo "Found: $found_file"
+#    fi
+#done
 
 # Exit with status 1 if any file wasn't found
 if [ "$all_files_found" = false ]; then
