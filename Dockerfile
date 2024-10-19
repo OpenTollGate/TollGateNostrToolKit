@@ -30,11 +30,8 @@ COPY . $SCRIPT_DIR
 # Ensure all scripts are executable
 RUN chmod +x $SCRIPT_DIR/*.sh
 
-# Set the owner of the directory to builduser
-RUN chown -R builduser:builduser $SCRIPT_DIR
-
-# If that's not enough, issue these commands inside your startup script or Dockerfile
-RUN sudo chown -R builduser:builduser $SCRIPT_DIR/binaries
+# Set the owner of the directory to builduser, including binaries directory
+RUN sudo chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries
 
 # Switch to the non-root user
 USER builduser
