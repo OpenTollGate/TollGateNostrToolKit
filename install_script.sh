@@ -63,6 +63,7 @@ if [ -d "$SCRIPT_DIR/files" ]; then
     chmod +x "$OPENWRT_DIR/files/usr/lib/opennds/"*
     
     cp "$SCRIPT_DIR/files/cgi-bin/"*.sh "$OPENWRT_DIR/files/www/cgi-bin/"
+    cp "$SCRIPT_DIR/files/www/api.php" "$OPENWRT_DIR/files/www/api.php" 
 
     # Select DHCP server
     # cp "$SCRIPT_DIR/files/etc/init.d/"* "$OPENWRT_DIR/files/etc/init.d/"
