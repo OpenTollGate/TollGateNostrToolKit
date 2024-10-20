@@ -15,8 +15,7 @@ RUN apt-get update && \
     unzip \
     sudo \
     adduser \
-    htop \
-    nginx \
+    htop
     && rm -rf /var/lib/apt/lists/*
 
 # Create a user with sudo privileges
@@ -45,5 +44,4 @@ WORKDIR $SCRIPT_DIR
 # CMD ["./spawn_build_in_container.sh"]
 # CMD ["./build_coordinator.sh"]
 
-# Start a background process to keep the container running
-CMD ["nginx", "-g", "daemon off;"]
+CMD tail -f /dev/null
