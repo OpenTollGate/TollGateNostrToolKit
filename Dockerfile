@@ -60,7 +60,7 @@ RUN mkdir -p /home/builduser/.npm && \
 USER builduser
 
 # Set the working directory to the expected location
-WORKDIR /home/builduser/nsite-project
+# WORKDIR /home/builduser/nsite-project
 
 # Initialize nsite project and install nsite-cli with its dependencies
 # RUN npm init -y && \
@@ -75,7 +75,9 @@ WORKDIR $SCRIPT_DIR
 
 # Set the default command to execute the spawn script
 # CMD ["./spawn_build_in_container.sh"]
-CMD ./build_coordinator.sh
+# CMD ["./build_coordinator.sh"]
 
 # Keep container running
-CMD ["tail", "-f", "/dev/null"]
+# CMD ["tail", "-f", "/dev/null"]
+
+CMD ["/bin/sh", "-c", "./build_coordinator.sh && tail -f /dev/null"]
