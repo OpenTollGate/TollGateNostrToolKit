@@ -42,7 +42,6 @@ COPY . $SCRIPT_DIR
 RUN chmod +x $SCRIPT_DIR/*.sh $SCRIPT_DIR/spawn_build_in_container.sh
 
 # Set the owner of the directory to builduser, including binaries directory
-RUN ls -la $SCRIPT_DIR && chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries && ls -la $SCRIPT_DIR/binaries
 RUN chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries
 
 # Create nsite project directory and set permissions
@@ -57,15 +56,18 @@ RUN mkdir -p /home/builduser/.npm && \
 USER builduser
 
 # Set the working directory to the expected location
-WORKDIR $SCRIPT_DIR
+WORKDIR /home/builduser/nsite-project
 
-# Initialize nsite project and install nsite-cli
-RUN cd /home/builduser/nsite-project && \
-    npm init -y && \
-    npm install nsite-cli
+# Initialize nsite project and install nsite-cli with its dependencies
+RUN npm init -y && \
+    npm install nsite-cli node-fetch@2 @noble/hashes @noble/secp256k1 @scure/base && \
+    npm install
 
 # Add nsite-cli to PATH
 ENV PATH="/home/builduser/nsite-project/node_modules/.bin:${PATH}"
+
+# Switch back to the original working directory
+WORKDIR $SCRIPT_DIR
 
 # Set the default command to execute the spawn script
 # CMD ["./spawn_build_in_container.sh"]
