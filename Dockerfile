@@ -45,15 +45,18 @@ RUN chmod +x $SCRIPT_DIR/*.sh $SCRIPT_DIR/spawn_build_in_container.sh
 RUN ls -la $SCRIPT_DIR && chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries && ls -la $SCRIPT_DIR/binaries
 RUN chown -R builduser:builduser $SCRIPT_DIR /home/builduser/TollGateNostrToolKit/binaries
 
+# Create nsite project directory and set permissions
+RUN mkdir -p /home/builduser/nsite-project && \
+    chown -R builduser:builduser /home/builduser/nsite-project
+
 # Switch to the non-root user
 USER builduser
 
 # Set the working directory to the expected location
 WORKDIR $SCRIPT_DIR
 
-# Create a directory for the nsite project and install nsite-cli locally
-RUN mkdir -p /home/builduser/nsite-project && \
-    cd /home/builduser/nsite-project && \
+# Initialize nsite project and install nsite-cli
+RUN cd /home/builduser/nsite-project && \
     npm init -y && \
     npm install nsite-cli
 
@@ -65,4 +68,4 @@ ENV PATH="/home/builduser/nsite-project/node_modules/.bin:${PATH}"
 # CMD ["./build_coordinator.sh"]
 
 # Keep container running
-CMD tail -f /dev/null
+CMD ["tail", "-f", "/dev/null"]
