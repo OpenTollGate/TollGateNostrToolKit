@@ -51,8 +51,14 @@ USER builduser
 # Set the working directory to the expected location
 WORKDIR $SCRIPT_DIR
 
-# Install nsite-cli globally
-RUN npm install -g nsite-cli
+# Create a directory for the nsite project and install nsite-cli locally
+RUN mkdir -p /home/builduser/nsite-project && \
+    cd /home/builduser/nsite-project && \
+    npm init -y && \
+    npm install nsite-cli
+
+# Add nsite-cli to PATH
+ENV PATH="/home/builduser/nsite-project/node_modules/.bin:${PATH}"
 
 # Set the default command to execute the spawn script
 # CMD ["./spawn_build_in_container.sh"]
