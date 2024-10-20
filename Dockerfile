@@ -15,7 +15,7 @@ RUN apt-get update && \
     unzip \
     sudo \
     adduser \
-    htop
+    htop \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a user with sudo privileges
