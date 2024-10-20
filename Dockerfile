@@ -5,6 +5,10 @@ FROM ubuntu:latest
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SCRIPT_DIR="/home/builduser/TollGateNostrToolKit"
 ENV HOME="/home/builduser"
+ENV NODE_VERSION=18.x
+ENV NOSTR_RELAYS="wss://nos.lol,wss://relay.primal.net,wss://relay.nostr.band,wss://relay.damus.io"
+ENV BLOSSOM_SERVERS="https://cdn.satellite.earth,https://files.v0l.io"
+ENV DEBUG=nsite*
 
 # Add all necessary tools and dependencies
 RUN apt-get update && \
@@ -16,7 +20,14 @@ RUN apt-get update && \
     sudo \
     adduser \
     htop \
+    curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
+    apt-get install -y nodejs && \
+    npm install -g npm@latest
 
 # Create a user with sudo privileges
 RUN useradd -m builduser && echo "builduser:builduser" | chpasswd && adduser builduser sudo
@@ -40,8 +51,12 @@ USER builduser
 # Set the working directory to the expected location
 WORKDIR $SCRIPT_DIR
 
+# Install nsite-cli globally
+RUN npm install -g nsite-cli
+
 # Set the default command to execute the spawn script
 # CMD ["./spawn_build_in_container.sh"]
 # CMD ["./build_coordinator.sh"]
 
+# Keep container running
 CMD tail -f /dev/null
