@@ -16,6 +16,7 @@ RUN apt-get update && \
     sudo \
     adduser \
     htop \
+    nginx \
     && rm -rf /var/lib/apt/lists/*
 
 # Create a user with sudo privileges
