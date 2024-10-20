@@ -32,6 +32,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION} | bash - && \
 # Create a user with sudo privileges
 RUN useradd -m builduser && echo "builduser:builduser" | chpasswd && adduser builduser sudo
 
+# Set correct ownership and permissions for builduser's home directory
+RUN chown -R builduser:builduser /home/builduser && \
+    chmod 755 /home/builduser
+
 # Let the user switch to root temporarily if needed
 RUN echo "builduser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/builduser
 
