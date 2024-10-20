@@ -23,15 +23,15 @@ while true; do
     
     # Check if a container with this name already exists and stop/remove it if so
     if [ "$(docker ps -aq -f name=$CONTAINER_NAME)" ]; then
-      docker stop $CONTAINER_NAME || true
-      docker rm $CONTAINER_NAME || true
+      sudo docker stop $CONTAINER_NAME || true
+      sudo docker rm $CONTAINER_NAME || true
     fi
 
     # Build the new Docker image
-    docker build -t openwrt-builder .
+    sudo docker build -t openwrt-builder .
 
     # Run the new Docker container with the commit hash in its name
-    docker run -d --name $CONTAINER_NAME -v "$(pwd)/binaries:/home/builduser/TollGateNostrToolKit/binaries" openwrt-builder
+    sudo docker run -d --name $CONTAINER_NAME -v "$(pwd)/binaries:/home/builduser/TollGateNostrToolKit/binaries" openwrt-builder
 
     # Optionally, you might want to clean up old containers, but be careful with production systems!
     # docker container prune -f
