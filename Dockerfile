@@ -44,4 +44,5 @@ WORKDIR $SCRIPT_DIR
 # CMD ["./spawn_build_in_container.sh"]
 # CMD ["./build_coordinator.sh"]
 
-CMD ["sleep", "infinity"] # Keep the container up
+# Start a background process to keep the container running
+CMD ["nginx", "-g", "daemon off;"]
